@@ -9,13 +9,7 @@ public class DebugExercise2 {
      * Returns the max of a and b. Do not step into this function.
      */
     public static int max(int a, int b) {
-        int w = (b - a) >> 31;
-        /* If you're stepping into this function, click the
-           step out button because you're not going to learn anything. */
-        int z = ~(b - a) >> 31;
-
-        int max = b & w | a & z;
-        return max;
+        return Math.max(a, b);
     }
 
 
@@ -53,12 +47,7 @@ public class DebugExercise2 {
         for (int i = 0; i < a.length; i += 1) {
             //int biggerValue = max(a[i], b[i]);
             // max is actually return min value
-            int biggerValue;
-            if (a[i] == max(a[i], b[i])) {
-                biggerValue = b[i];
-            } else {
-                biggerValue = a[i];
-            }
+            int biggerValue = max(a[i], b[i]);
             returnArray[i] = biggerValue;
         }
 
