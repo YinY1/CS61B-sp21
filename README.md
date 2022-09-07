@@ -1,0 +1,11 @@
+# CS61B - SPRING 2022
+
+Personal solutions, for reference only
+
+## NOTICE 
+
+Because the Gradescope course activation code is not yet available in [FA22](https://github.com/YinY1/CS61B-fa22), only update this version.
+
+## UC Berkeley CS 61B Data Structures, Fall 2022
+
+URL: [https://sp21.datastructur.es/](https://sp21.datastructur.es/)
