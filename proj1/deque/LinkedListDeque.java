@@ -2,9 +2,9 @@ package deque;
 
 public class LinkedListDeque<T> {
     private int size;
-    private Node sentinel;
+    private final Node sentinel;
 
-   public class Node {
+    public class Node {
         public Node prev;
         public Node next;
         public T elem;
@@ -25,7 +25,7 @@ public class LinkedListDeque<T> {
         p.prev = sentinel;
         p.next.prev = p;
         sentinel.next = p;
-        size += 1;
+        size++;
     }
 
     public void addLast(T item) {
@@ -35,7 +35,7 @@ public class LinkedListDeque<T> {
         p.prev = sentinel.prev;
         p.prev.next = p;
         sentinel.prev = p;
-        size += 1;
+        size++;
     }
 
     public boolean isEmpty() {
@@ -89,17 +89,17 @@ public class LinkedListDeque<T> {
         return null;
     }
 
-    public T getRecursive(int index){
-       Node p = sentinel.next;
-       if (index != 0 && p==sentinel){
-           return null;
-       }
-       if (index == 0){
-           return p.elem;
-       }
-       LinkedListDeque<T> l = new LinkedListDeque<>();
-       l.sentinel.next=p.next;
-       return l.getRecursive(index -1);
+    public T getRecursive(int index) {
+        Node p = sentinel.next;
+        if (index != 0 && p == sentinel) {
+            return null;
+        }
+        if (index == 0) {
+            return p.elem;
+        }
+        LinkedListDeque<T> l = new LinkedListDeque<>();
+        l.sentinel.next = p.next;
+        return l.getRecursive(index - 1);
     }
 
     // TODO: iterator
