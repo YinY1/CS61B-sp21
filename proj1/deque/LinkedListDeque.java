@@ -101,4 +101,7 @@ public class LinkedListDeque<T> {
        l.sentinel.next=p.next;
        return l.getRecursive(index -1);
     }
+
+    // TODO: iterator
+
 }

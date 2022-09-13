@@ -121,4 +121,6 @@ public class ArrayDeque<T> {
         System.arraycopy(this.arr, 0, temp, 0, size);
         this.arr = temp;
     }
+
+    // TODO: iterator
 }
