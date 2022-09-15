@@ -1,11 +1,11 @@
 package deque;
 
 public class ArrayDeque<T> {
-    public int length;
+    private int length;
     private int size;
     private int first;
     private int last;
-    T[] arr;
+    private T[] arr;
 
     public ArrayDeque() {
         this.arr = (T[]) new Object[8];
