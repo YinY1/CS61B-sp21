@@ -1,10 +1,10 @@
 package deque;
 
 public class ArrayDeque<T> {
-    private int length;
+    int length;
     private int size;
-    private int first;
-    private int last;
+    int first;
+    int last;
     private T[] arr;
 
     public ArrayDeque() {
