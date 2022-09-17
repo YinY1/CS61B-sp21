@@ -1,10 +1,12 @@
 package deque;
 
-public class ArrayDeque<T> {
-    int length;
+import java.util.Iterator;
+
+public class ArrayDeque<T> implements Deque<T> {
+    protected int length;
     private int size;
-    int first;
-    int last;
+    protected int first;
+    protected int last;
     private T[] arr;
 
     public ArrayDeque() {
@@ -97,5 +99,37 @@ public class ArrayDeque<T> {
         this.arr = temp;
     }
 
-    // TODO: iterator
+    public boolean equals(Object o) {
+        if (!(o instanceof ArrayDeque) || ((ArrayDeque<?>) o).length != this.length) {
+            return false;
+        }
+        for (int i = 0; i < this.length; i++) {
+            if (this.get(i) != ((ArrayDeque<?>) o).get(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public Iterator<T> iterator() {
+        return new ArrayListIterator();
+    }
+
+    private class ArrayListIterator implements Iterator<T> {
+        private int pos;
+
+        public ArrayListIterator() {
+            this.pos = 0;
+        }
+
+        public boolean hasNext() {
+            return this.pos < length;
+        }
+
+        public T next() {
+            T ret = get(this.pos);
+            this.pos++;
+            return ret;
+        }
+    }
 }
