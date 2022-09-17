@@ -3,10 +3,10 @@ package deque;
 import java.util.Iterator;
 
 public class ArrayDeque<T> implements Deque<T> {
-    protected int length;
+    private int length;
     private int size;
-    protected int first;
-    protected int last;
+    private int first;
+    private int last;
     private T[] arr;
 
     public ArrayDeque() {

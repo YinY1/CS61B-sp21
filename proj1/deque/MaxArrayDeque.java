@@ -20,11 +20,11 @@ public class MaxArrayDeque<T> extends ArrayDeque<T> {
     }
 
     private T getMax(Comparator<T> c) {
-        if (this.length == 0) {
+        if (isEmpty()) {
             return null;
         }
         T m = null;
-        for (int i = 0; i < this.length; i++) {
+        for (int i = 0; i < this.size(); i++) {
             T temp = this.get(i);
             if (c.compare(m, temp) < 0) {
                 m = temp;

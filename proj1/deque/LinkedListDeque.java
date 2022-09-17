@@ -4,10 +4,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 public class LinkedListDeque<T> implements Deque<T> {
-    protected int size;
+    private int size;
     private final Node sentinel;
 
-    public class Node {
+    private class Node {
         public Node prev;
         public Node next;
         public T elem;
