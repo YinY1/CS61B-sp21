@@ -11,10 +11,10 @@ public class GuitarString {
      * other topics in lecture on Friday.
      */
     private static final int SR = 44100;      // Sampling Rate
-    private static final double DECAY = .996; // energy decay factor
+    static final double DECAY = .996; // energy decay factor
 
     /* Buffer for storing sound data. */
-    private Deque<Double> buffer;
+    Deque<Double> buffer;
 
     /* Create a guitar string of the given frequency.  */
     public GuitarString(double frequency) {

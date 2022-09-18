@@ -10,45 +10,70 @@ public class GuitarHero {
     private static final String keyboard = "q2we4r5ty7u8i9op-[=zxdcfvgbnjmk,.;/' ";
 
     private static GuitarString[] strings;
+    private static Harp[] harps;
+    private static Drum[] drums;
+
+    private static final int SIZE = 37;
 
     public static double concert(int index) {
         return 440 * Math.pow(2, (index - 24) / 12.0);
     }
 
-    private static void initialize() {
-        int SIZE = 37;
+    private static void string() {
         strings = new GuitarString[SIZE];
         for (int i = 0; i < SIZE; i++) {
             strings[i] = new GuitarString(concert(i));
         }
     }
 
+    private static void harp() {
+        harps = new Harp[SIZE];
+        for (int i = 0; i < SIZE; i++) {
+            harps[i] = new Harp(concert(i));
+        }
+    }
+
+    private static void drum() {
+        drums = new Drum[SIZE];
+        for (int i = 0; i < SIZE; i++) {
+            drums[i] = new Drum(concert(i));
+        }
+    }
+
     public static void main(String[] args) {
-        initialize();
+        string();
+        harp();
+        drum();
         while (true) {
 
             /* check if the user has typed a key; if so, process it */
-            if (StdDraw.hasNextKeyTyped()) {
-                char key = StdDraw.nextKeyTyped();
-                int index = keyboard.indexOf(key);
-                if (index >= 0) {
-                    strings[index].pluck();
-                }
-            }
+            play(strings);
+            //play(harps);
+            //play(drums);
+        }
+    }
 
-            /* compute the superposition of samples */
-            double sample = 0;
-            for (GuitarString elem : strings) {
-                sample += elem.sample();
+    private static void play(GuitarString[] t) {
+        if (StdDraw.hasNextKeyTyped()) {
+            char key = StdDraw.nextKeyTyped();
+            int index = keyboard.indexOf(key);
+            if (index >= 0) {
+                t[index].pluck();
             }
+        }
 
-            /* play the sample on standard audio */
-            StdAudio.play(sample);
+        /* compute the superposition of samples */
+        double sample = 0;
+        for (GuitarString elem : t) {
+            sample += elem.sample();
+        }
 
-            /* advance the simulation of each guitar string by one step */
-            for (GuitarString elem : strings) {
-                elem.tic();
-            }
+        /* play the sample on standard audio */
+        StdAudio.play(sample);
+
+        /* advance the simulation of each guitar string by one step */
+        for (GuitarString elem : t) {
+            elem.tic();
         }
     }
 
