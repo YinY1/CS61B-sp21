@@ -120,7 +120,6 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
         return true;
     }
 
-    //TODO : Iterable
     public Iterator<T> iterator() {
         return new LinkedListIterator();
     }
