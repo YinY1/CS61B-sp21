@@ -63,7 +63,11 @@ public class ArrayDeque<T> implements Deque<T> {
         }
         this.length--;
         T ret = this.arr[this.first];
-        this.first = (this.first + 1) % this.size;
+        if (this.length * 4 < this.size) {
+            ReSize(this.size / 2);
+        } else {
+            this.first = (this.first + 1) % this.size;
+        }
         return ret;
     }
 
@@ -74,7 +78,11 @@ public class ArrayDeque<T> implements Deque<T> {
         }
         this.length--;
         T ret = this.arr[this.last];
-        this.last = (this.last - 1 + this.size) % this.size;
+        if (this.length * 4 < this.size) {
+            ReSize(this.size / 2);
+        } else {
+            this.last = (this.last - 1 + this.size) % this.size;
+        }
         return ret;
     }
 
