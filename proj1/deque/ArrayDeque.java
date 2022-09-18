@@ -20,7 +20,7 @@ public class ArrayDeque<T> implements Deque<T> {
     @Override
     public void addFirst(T item) {
         if (this.length == this.size - 1) {
-            ReSize(this.size * 2);
+            reSize(this.size * 2);
         }
         if (!isEmpty()) {
             this.first = (this.first - 1 + this.size) % this.size;
@@ -32,7 +32,7 @@ public class ArrayDeque<T> implements Deque<T> {
     @Override
     public void addLast(T item) {
         if (this.length == this.size - 1) {
-            ReSize(this.size * 2);
+            reSize(this.size * 2);
         }
         if (!isEmpty()) {
             this.last = (this.last + 1) % this.size;
@@ -64,7 +64,7 @@ public class ArrayDeque<T> implements Deque<T> {
         this.length--;
         T ret = this.arr[this.first];
         if (this.length * 4 < this.size) {
-            ReSize(this.size / 2);
+            reSize(this.size / 2);
         } else {
             this.first = (this.first + 1) % this.size;
         }
@@ -79,7 +79,7 @@ public class ArrayDeque<T> implements Deque<T> {
         this.length--;
         T ret = this.arr[this.last];
         if (this.length * 4 < this.size) {
-            ReSize(this.size / 2);
+            reSize(this.size / 2);
         } else {
             this.last = (this.last - 1 + this.size) % this.size;
         }
@@ -95,8 +95,8 @@ public class ArrayDeque<T> implements Deque<T> {
         return this.arr[position];
     }
 
-    private void ReSize(int size) {
-        T[] temp = (T[]) new Object[size];
+    private void reSize(int s) {
+        T[] temp = (T[]) new Object[s];
         int i = this.first;
         int j = 0;
         while (j < this.length) {
@@ -104,18 +104,23 @@ public class ArrayDeque<T> implements Deque<T> {
             i = (i + 1) % this.size;
             j++;
         }
-        this.size = size;
+        this.size = s;
         this.first = 0;
-        this.last = j - 1;
+        if (isEmpty()) {
+            this.last = 0;
+        } else {
+            this.last = j - 1;
+        }
         this.arr = temp;
     }
 
+    @Override
     public boolean equals(Object o) {
-        if (!(o instanceof ArrayDeque) || ((ArrayDeque<?>) o).length != this.length) {
+        if (!(o instanceof Deque) || ((Deque<?>) o).size() != this.size()) {
             return false;
         }
-        for (int i = 0; i < this.length; i++) {
-            if (this.get(i) != ((ArrayDeque<?>) o).get(i)) {
+        for (int i = 0; i < this.size(); i++) {
+            if (this.get(i) != ((Deque<?>) o).get(i)) {
                 return false;
             }
         }
@@ -129,7 +134,7 @@ public class ArrayDeque<T> implements Deque<T> {
     private class ArrayListIterator implements Iterator<T> {
         private int pos;
 
-        public ArrayListIterator() {
+        ArrayListIterator() {
             this.pos = 0;
         }
 

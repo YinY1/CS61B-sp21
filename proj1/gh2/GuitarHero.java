@@ -7,7 +7,7 @@ import edu.princeton.cs.algs4.StdDraw;
  * A client that uses the synthesizer package to replicate a plucked guitar string sound
  */
 public class GuitarHero {
-    private static final String keyboard = "q2we4r5ty7u8i9op-[=zxdcfvgbnjmk,.;/' ";
+    private static final String KEYBOARD = "q2we4r5ty7u8i9op-[=zxdcfvgbnjmk,.;/' ";
 
     private static GuitarString[] strings;
     private static Harp[] harps;
@@ -56,7 +56,7 @@ public class GuitarHero {
     private static void play(GuitarString[] t) {
         if (StdDraw.hasNextKeyTyped()) {
             char key = StdDraw.nextKeyTyped();
-            int index = keyboard.indexOf(key);
+            int index = KEYBOARD.indexOf(key);
             if (index >= 0) {
                 t[index].pluck();
             }

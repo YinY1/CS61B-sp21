@@ -7,9 +7,9 @@ public class LinkedListDeque<T> implements Deque<T> {
     private final Node sentinel;
 
     private class Node {
-        public Node prev;
-        public Node next;
-        public T elem;
+        private Node prev;
+        private Node next;
+        private T elem;
     }
 
     public LinkedListDeque() {
@@ -107,14 +107,13 @@ public class LinkedListDeque<T> implements Deque<T> {
         return l.getRecursive(index - 1);
     }
 
+    @Override
     public boolean equals(Object o) {
-        if (!(o instanceof LinkedListDeque) || this.size != ((LinkedListDeque<?>) o).size) {
+        if (!(o instanceof Deque) || ((Deque<?>) o).size() != this.size()) {
             return false;
         }
-        Iterator<T> itp = iterator();
-        Iterator<T> itq = (Iterator<T>) ((LinkedListDeque<?>) o).iterator();
-        while (itp.hasNext()) {
-            if (itp.next() != itq.next()) {
+        for (int i = 0; i < this.size(); i++) {
+            if (this.get(i) != ((Deque<?>) o).get(i)) {
                 return false;
             }
         }
