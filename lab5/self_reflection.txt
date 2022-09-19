@@ -4,27 +4,27 @@ ArrayDeque:
 
 Q: Give an example of at least one idea from the staff solution that would have made your solution better (if any).
 
-A: 
+A: Where is the staff solution?
 
 Q: What's something you felt proud of in your code, if anything?
 
-A:
+A: Nothing special.
 
 Q: What's something that was particularly inelegant in your code, if anything?
 
-A:
+A: Maybe Nothing.
 
 Q: What did you learn by talking to your partner about writing ArrayDeque?
 
-A:
+A: No partner:( //Well, actually, it's no need to have a partner if you are doing self-learning.
 
 Q: What do you wish you would have known before writing ArrayDeque, if anything?
 
-A:
+A: Treating it as circular.
 
 Q: If you wrote ArrayDeque again, what would you do differently, if anything?
 
-A:
+A: Maybe Nothing.
 
 -----
 
@@ -32,27 +32,27 @@ LinkedListDeque:
 
 Q: Give an example of at least one idea from the staff solution that would have made your solution better (if any).
 
-A: 
+A: Maybe Nothing.
 
 Q: What's something you felt proud of in your code, if anything?
 
-A:
+A: Maybe Nothing.
 
 Q: What's something that was particularly inelegant in your code, if anything?
 
-A:
+A: Maybe Nothing.
 
 Q: What did you learn by talking to your partner about writing LinkedListDeque?
 
-A:
+A: No partner:(
 
 Q: What do you wish you would have known before writing LinkedListDeque, if anything?
 
-A:
+A: Maybe Nothing.
 
 Q: If you wrote LinkedListDeque again, what would you do differently, if anything?
 
-A:
+A: Maybe Nothing.
 
 -----
 
@@ -60,4 +60,4 @@ Meta:
 
 Q: Did you like this design review process? Anything we should do differently next time?
 
-A: 
+A: Not bad.
