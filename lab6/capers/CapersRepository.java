@@ -15,7 +15,6 @@ import static capers.Utils.*;
  * - dogs/ -- folder containing all of the persistent data for dogs
  * - story -- file containing the current story
  * <p>
- * TODO: change the above structure if you do something different.
  */
 public class CapersRepository {
     /**
@@ -28,9 +27,6 @@ public class CapersRepository {
      */
     static final File CAPERS_FOLDER = join(CWD, ".capers");
 
-    // TODO Hint: look at the `join`
-    //      function in Utils
-
     /**
      * Does required filesystem operations to allow for persistence.
      * (creates any necessary folders or files)
@@ -41,7 +37,6 @@ public class CapersRepository {
      * - story -- file containing the current story
      */
     public static void setupPersistence() {
-        // TODO
         File f = CAPERS_FOLDER;
         if (!f.exists()) {
             f.mkdir();
@@ -66,7 +61,6 @@ public class CapersRepository {
      * @param text String of the text to be appended to the story
      */
     public static void writeStory(String text) {
-        // TODO
         File f = join(CAPERS_FOLDER, "story");
         String s = readContentsAsString(f) + text + "\n";
         writeContents(f, s);
@@ -79,7 +73,6 @@ public class CapersRepository {
      * Also prints out the dog's information using toString().
      */
     public static void makeDog(String name, String breed, int age) {
-        // TODO
         File f = join(Dog.DOG_FOLDER, name);
         if (!f.exists()) {
             try {
@@ -101,7 +94,6 @@ public class CapersRepository {
      * @param name String name of the Dog whose birthday we're celebrating.
      */
     public static void celebrateBirthday(String name) {
-        // TODO
         File f = join(Dog.DOG_FOLDER, name);
         Dog dog = readObject(f, Dog.class);
         dog.haveBirthday();

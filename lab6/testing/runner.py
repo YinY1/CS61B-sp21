@@ -76,7 +76,12 @@ That's what mine looks like. Go back to lab1 if you are still having issues"""
 JAVA_COMMAND = "java"
 CAPERS_COMMAND = "capers.Main"
 JAVAC_COMMAND = "javac -d ."
-JVM_COMMAND = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005"
+
+
+"""5050->10086, I don't know why IDEA said 'suspend=n', but only 'suspend=y' works"""
+JVM_COMMAND = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:10086"
+
+
 TIMEOUT = 10
 DEBUG = False
 DEBUG_MSG = \
