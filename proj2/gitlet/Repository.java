@@ -66,19 +66,38 @@ public class Repository implements Serializable {
     public static final File HEAD = join(GITLET_DIR, "HEAD");
 
     /* TODO: fill in the rest of this class. */
-    public static void initializeRepo() {
+    public static void initializeRepo() throws IOException {
         File[] Dir = {GITLET_DIR, STAGING_DIR, ADDITION_DIR, REMOVAL_DIR, BLOBS_DIR, COMMITS_DIR, BRANCHES_DIR};
         for (File f : Dir) {
             f.mkdir();
         }
         File f = HEAD;
-        if(!f.exists())
-        {
-            try {
-                f.createNewFile();
-            } catch (IOException exception) {
-                System.exit(0);
-            }
+        if (!f.exists()) {
+            f.createNewFile();
         }
+    }
+
+    public static void makeBlobs(){
+        // TODO: make blobs when make commit.
+    }
+    public static void setHEAD(Commit commit) {
+        String sha = commit.UID;
+        writeContents(HEAD, sha);
+    }
+
+    public static void add(String name) throws IOException {
+        File inFile = join(CWD, name);
+        if (!inFile.exists()) {
+            System.out.println("File does not exist.");
+            System.exit(0);
+        }
+        String sha = sha1(inFile);
+        File outFile = join(ADDITION_DIR, sha);
+        outFile.createNewFile();
+        writeObject(outFile, File.class);
+    }
+
+    public static void cleanStagingArea() {
+        // TODO:
     }
 }
