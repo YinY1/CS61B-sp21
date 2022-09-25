@@ -1,0 +1,13 @@
+             nums         ULLMap          BSTMap           TreeMap         HashMap
+InOrder:     8964       0.42               0.20             0.01            0.00
+             65535      StackOverflow      8.43             0.05            0.01
+             131072     StackOverflow      8.67             0.04            0.03
+             12649874   StackOverflow      1032.31          7.67            7.06
+
+Random:      8964       0.24               0.00             0.00            0.00
+             65535      StackOverflow      0.03             0.04            0.01
+             12649874   StackOverflow      17.66            17.78           5.38
+             123456789  StackOverflow      169.97           199.45          68.90
+
+Guess: Built-in TreeMap is Red Black Tree, so when insert inorder,
+       built-in Treemap significantly faster than BSTMap.
