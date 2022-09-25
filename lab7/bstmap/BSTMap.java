@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 /* Using loop as far as possible*/
-public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V>, Iterable<K> {
+public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
 
     private class BSTNode {
         private final K key;
