@@ -2,6 +2,8 @@ package gitlet;
 
 import java.io.IOException;
 
+import static gitlet.Methods.*;
+
 /**
  * Driver class for Gitlet, a subset of the Git version-control system.
  *
@@ -14,33 +16,25 @@ public class Main {
      * <COMMAND> <OPERAND1> <OPERAND2> ...
      */
     public static void main(String[] args) throws IOException {
-        // TODO: what if args is empty?
         if (args.length == 0) {
-            System.out.println("Please enter a command.");
-            System.exit(0);
+            Exit("Please enter a command.");
         }
         String firstArg = args[0];
         switch (firstArg) {
             case "init":
-                // TODO: handle the `init` command
                 init();
                 break;
             case "add":
-                // TODO: handle the `add [filename]` command
+                add(args);
                 break;
             // TODO: FILL THE REST IN
+            case "rm":
+                break;
+            case "commit":
+                commit(args);
+                break;
             default:
-                System.out.println("No command with that name exists.");
-                System.exit(0);
+                Exit("No command with that name exists.");
         }
-    }
-
-    private static void init() throws IOException {
-        Repository.initializeRepo();
-        Commit commit = new Commit("initial commit",null);
-    }
-
-    private static void add() throws IOException{
-        // TODO: read all files in staging area, and then add them.
     }
 }
