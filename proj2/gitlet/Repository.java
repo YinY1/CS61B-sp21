@@ -3,6 +3,7 @@ package gitlet;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.TreeMap;
 
 import static gitlet.Utils.*;
 
@@ -65,6 +66,8 @@ public class Repository implements Serializable {
 
     public static final File HEAD = join(GITLET_DIR, "HEAD");
 
+    public static TreeMap<File, String> blobs;
+
     /* TODO: fill in the rest of this class. */
     public static void initializeRepo() throws IOException {
         File[] Dir = {GITLET_DIR, STAGING_DIR, ADDITION_DIR, REMOVAL_DIR, BLOBS_DIR, COMMITS_DIR, BRANCHES_DIR};
@@ -77,27 +80,50 @@ public class Repository implements Serializable {
         }
     }
 
-    public static void makeBlobs(){
-        // TODO: make blobs when make commit.
-    }
     public static void setHEAD(Commit commit) {
-        String sha = commit.UID;
-        writeContents(HEAD, sha);
+        writeContents(HEAD, commit.getUid());
     }
 
-    public static void add(String name) throws IOException {
-        File inFile = join(CWD, name);
-        if (!inFile.exists()) {
-            System.out.println("File does not exist.");
-            System.exit(0);
+    public static void add(File inFile, String name) throws IOException {
+        if (blobs == null) {
+            blobs = new TreeMap<>();
         }
-        String sha = sha1(inFile);
-        File outFile = join(ADDITION_DIR, sha);
-        outFile.createNewFile();
-        writeObject(outFile, File.class);
+        writeFile(inFile, ADDITION_DIR, name);
+        File added = join(ADDITION_DIR, name);
+        Blob b = new Blob(added);
+        makeBlob(b); // TODO: Whether add twice will replace the blob;
+    }
+
+    public static void remove(String name) {
+        // TODO
     }
 
     public static void cleanStagingArea() {
-        // TODO:
+        // TODO: fix bug of not being able to delete files
+        if (blobs != null) {
+            for (File f : blobs.keySet()) {
+                if (!restrictedDelete(f)) {
+                    Methods.Exit("DeleteError");
+                }
+                System.out.println("delete");
+            }
+            blobs = null;
+        }
+        System.out.println("Nothing");
+    }
+
+    public static void writeFile(File inFile, File desDIR, String fileName) throws IOException {
+        byte[] outByte = readContents(inFile);
+        File out = join(ADDITION_DIR, fileName);
+        out.createNewFile();
+        writeContents(out, outByte);
+    }
+
+    static void makeBlob(Blob b) {
+        byte[] byteB = readContents(b.file);
+        String name = sha1(byteB);
+        File out = join(BLOBS_DIR, name);
+        writeObject(out, Blob.class);
+        blobs.put(b.file, name);
     }
 }
