@@ -4,9 +4,10 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
+import java.io.Serializable;
+import java.util.*;
 
+import static gitlet.Repository.*;
 import static gitlet.Utils.*;
 
 /**
@@ -16,7 +17,7 @@ import static gitlet.Utils.*;
  *
  * @author Edward Tsang
  */
-public class Commit {
+public class Commit implements Serializable {
     /**
      * TODO: add instance variables here.
      *
@@ -28,12 +29,12 @@ public class Commit {
     /**
      * The message of this Commit.
      */
-    private final String message;
+    private final String log;
 
     /**
      * The SHA-1 id of this Commit.
      */
-    private final String UID;
+    private TreeMap<File, String> blobs;
 
     /**
      * The parent Commit of this Commit.
@@ -45,38 +46,36 @@ public class Commit {
      */
     private final Date date;
 
-    private final List<String> addition;
-    private final List<String> removal;
+    private String uid;
 
     /* TODO: fill in the rest of this class. */
 
     public Commit(String message, String parent) throws IOException {
-        this.message = message;
+        this.log = message;
         this.parent = parent;
         if (parent == null) {
             this.date = new Date(0);
         } else {
             this.date = new Date();
         }
-        this.addition = readAddingFile();
-        this.removal = readRemovingFile();
-        this.UID = sha1(this);
-        makeCommit();
     }
 
-    private static List<String> readAddingFile() {
-        File additionDir = Repository.ADDITION_DIR;
-        return plainFilenamesIn(additionDir);
+    void makeCommit() {
+        // make staging area (added) to blobs
+        this.blobs = Repository.blobs;
+        byte[] uid = serialize(this);
+        setUid(sha1(uid));
+        setHEAD(this);
+        File out = join(COMMITS_DIR, this.uid);
+        writeObject(out, Commit.class);
+        cleanStagingArea();
     }
 
-    private static List<String> readRemovingFile(){
-        File removalDir = Repository.REMOVAL_DIR;
-        return plainFilenamesIn(removalDir);
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
-    private void makeCommit() throws IOException {
-        File commit = join(Repository.COMMITS_DIR,this.UID);
-        commit.createNewFile();
-        writeObject(commit,Commit.class);
+    public String getUid() {
+        return this.uid;
     }
 }
