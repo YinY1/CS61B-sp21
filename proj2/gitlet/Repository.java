@@ -53,7 +53,7 @@ public class Repository implements Serializable {
      * The blobs' directory.
      */
     public static final File BLOBS_DIR = join(GITLET_DIR, "objects");
-
+    public static final File TEMP_BLOBS_DIR = join(ADDITION_DIR, "temp");
     /**
      * The commit directory.
      */
@@ -70,7 +70,7 @@ public class Repository implements Serializable {
 
     /* TODO: fill in the rest of this class. */
     public static void initializeRepo() throws IOException {
-        File[] Dir = {GITLET_DIR, STAGING_DIR, ADDITION_DIR, REMOVAL_DIR, BLOBS_DIR, COMMITS_DIR, BRANCHES_DIR};
+        File[] Dir = {GITLET_DIR, STAGING_DIR, ADDITION_DIR, TEMP_BLOBS_DIR, REMOVAL_DIR, BLOBS_DIR, COMMITS_DIR, BRANCHES_DIR};
         for (File f : Dir) {
             f.mkdir();
         }
@@ -84,46 +84,69 @@ public class Repository implements Serializable {
         writeContents(HEAD, commit.getUid());
     }
 
-    public static void add(File inFile, String name) throws IOException {
-        if (blobs == null) {
-            blobs = new TreeMap<>();
-        }
-        writeFile(inFile, ADDITION_DIR, name);
+    public static Commit readHEAD() {
+        String uid = readContentsAsString(HEAD);
+        File commit = join(COMMITS_DIR, uid);
+        return readObject(commit, Commit.class);
+    }
+
+    public static boolean compareToOrigin(File inFile, Commit parent) {
+        String name = Blob.getBlobName(inFile);
+        String getName = parent.blobs.get(inFile);
+        // DEBUG:
+        System.out.println(inFile);
+        System.out.println(name);
+        System.out.println(getName); // null
+        System.out.println(parent.blobs);
+
+
+        return !parent.blobs.isEmpty() && getName != null && getName.equals(name);
+    }
+
+    public static void add(File inFile, String name, Commit parent) throws IOException {
         File added = join(ADDITION_DIR, name);
-        Blob b = new Blob(added);
-        makeBlob(b); // TODO: Whether add twice will replace the blob;
+        // if exists, delete the old files
+        if (added.exists()) {
+            String oldBlobName = Blob.getBlobName(added);
+            File oldBlob = join(TEMP_BLOBS_DIR, oldBlobName);
+            oldBlob.delete();
+            added.delete();
+        }
+        if (compareToOrigin(inFile, parent)) {
+            Methods.Exit("the file has no changes, no need to add");
+        }
+        // copy file to ADD_DIR
+        inFile.createNewFile();
+        writeFile(inFile, ADDITION_DIR, name);
+        // make temp blob
+        Blob b = new Blob(inFile);
+        Blob.makeBlob(b);
     }
 
     public static void remove(String name) {
         // TODO
     }
 
-    public static void cleanStagingArea() {
-        // TODO: fix bug of not being able to delete files
+    public static void cleanStagingArea() throws IOException {
         if (blobs != null) {
+            // move blobs to BLOB_DIR
+            Blob.moveBlobs(blobs);
             for (File f : blobs.keySet()) {
-                if (!restrictedDelete(f)) {
+                String name = f.getName();
+                File added = join(ADDITION_DIR,name);
+                if (!added.delete()) {
                     Methods.Exit("DeleteError");
                 }
-                System.out.println("delete");
+                System.out.println("delete " + added.getAbsolutePath());
             }
             blobs = null;
         }
-        System.out.println("Nothing");
     }
 
     public static void writeFile(File inFile, File desDIR, String fileName) throws IOException {
         byte[] outByte = readContents(inFile);
-        File out = join(ADDITION_DIR, fileName);
+        File out = join(desDIR, fileName);
         out.createNewFile();
         writeContents(out, outByte);
-    }
-
-    static void makeBlob(Blob b) {
-        byte[] byteB = readContents(b.file);
-        String name = sha1(byteB);
-        File out = join(BLOBS_DIR, name);
-        writeObject(out, Blob.class);
-        blobs.put(b.file, name);
     }
 }

@@ -34,7 +34,7 @@ public class Commit implements Serializable {
     /**
      * The SHA-1 id of this Commit.
      */
-    private TreeMap<File, String> blobs;
+    TreeMap<File, String> blobs;
 
     /**
      * The parent Commit of this Commit.
@@ -50,7 +50,7 @@ public class Commit implements Serializable {
 
     /* TODO: fill in the rest of this class. */
 
-    public Commit(String message, String parent) throws IOException {
+    public Commit(String message, String parent) {
         this.log = message;
         this.parent = parent;
         if (parent == null) {
@@ -60,15 +60,19 @@ public class Commit implements Serializable {
         }
     }
 
-    void makeCommit() {
+    void makeCommit() throws IOException {
         // make staging area (added) to blobs
+        Blob.readBlobs(TEMP_BLOBS_DIR);
         this.blobs = Repository.blobs;
+        if(blobs.isEmpty()){// TODO: whether rmArea is empty
+            Methods.Exit("No changes added to the commit.");
+        }
         byte[] uid = serialize(this);
         setUid(sha1(uid));
-        setHEAD(this);
         File out = join(COMMITS_DIR, this.uid);
-        writeObject(out, Commit.class);
+        writeObject(out, this);
         cleanStagingArea();
+        setHEAD(this);
     }
 
     public void setUid(String uid) {

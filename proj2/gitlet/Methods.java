@@ -26,11 +26,12 @@ public class Methods {
         isRepoExists();
         judgeOperands(1, args);
         String name = args[1];
+        Commit parent = readHEAD();
         File inFile = join(CWD, name);
         if (!inFile.exists()) {
             Exit("File does not exist.");
         }
-        Repository.add(inFile, name);
+        Repository.add(inFile, name, parent);
     }
 
     public static void commit(String[] args) throws IOException {
