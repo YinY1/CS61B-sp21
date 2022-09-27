@@ -60,11 +60,15 @@ public class Commit implements Serializable {
         }
     }
 
+    /**
+     * write this commit Object to COMMIT_DIR
+     * and reset the HEAD pointer
+     */
     void makeCommit() throws IOException {
         // make staging area (added) to blobs
         Blob.readBlobs(TEMP_BLOBS_DIR);
         this.blobs = Repository.blobs;
-        if(blobs.isEmpty()){// TODO: whether rmArea is empty
+        if (blobs.isEmpty()) {// TODO: whether rmArea is empty
             Methods.Exit("No changes added to the commit.");
         }
         byte[] uid = serialize(this);

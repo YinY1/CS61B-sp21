@@ -18,6 +18,9 @@ public class Blob implements Serializable {
         this.file = f;
     }
 
+    /**
+     * read blobs from DIR to `Repository.blobs`
+     */
     public static void readBlobs(File DIR) {
         List<String> names = plainFilenamesIn(DIR);
         Repository.blobs = new TreeMap<>();
@@ -28,6 +31,9 @@ public class Blob implements Serializable {
         }
     }
 
+    /**
+     * write Blob as Object to TEMP_DIR.
+     */
     public static void makeBlob(Blob b) {
         String name = getBlobName(b.file);
         File out = join(TEMP_BLOBS_DIR, name);
@@ -35,10 +41,13 @@ public class Blob implements Serializable {
     }
 
     public static String getBlobName(File f) {
-        String name = readContentsAsString(f)+f.getName();
+        String name = readContentsAsString(f) + f.getName();
         return sha1(name);
     }
 
+    /**
+     * move Blobs from TEMP_DIR to BLOBS_DIR.
+     */
     public static void moveBlobs(TreeMap<File, String> blobs) throws IOException {
         //move blobs from temp to BLOB_DIR
         for (String b : blobs.values()) {

@@ -69,6 +69,11 @@ public class Repository implements Serializable {
     public static TreeMap<File, String> blobs;
 
     /* TODO: fill in the rest of this class. */
+
+    /**
+     * creat necessary Dir and file
+     * when initialize repository
+     */
     public static void initializeRepo() throws IOException {
         File[] Dir = {GITLET_DIR, STAGING_DIR, ADDITION_DIR, TEMP_BLOBS_DIR, REMOVAL_DIR, BLOBS_DIR, COMMITS_DIR, BRANCHES_DIR};
         for (File f : Dir) {
@@ -80,16 +85,26 @@ public class Repository implements Serializable {
         }
     }
 
+    /**
+     * set HEAD pointer point to a commit
+     */
     public static void setHEAD(Commit commit) {
         writeContents(HEAD, commit.getUid());
     }
 
+    /**
+     * return the commit which HEAD points to
+     */
     public static Commit readHEAD() {
         String uid = readContentsAsString(HEAD);
         File commit = join(COMMITS_DIR, uid);
         return readObject(commit, Commit.class);
     }
 
+    /**
+     * compare the inFile to the file in the parent commit with the same name
+     * return ture if they are the same file
+     */
     public static boolean compareToOrigin(File inFile, Commit parent) {
         String name = Blob.getBlobName(inFile);
         String getName = parent.blobs.get(inFile);
@@ -103,6 +118,9 @@ public class Repository implements Serializable {
         return !parent.blobs.isEmpty() && getName != null && getName.equals(name);
     }
 
+    /**
+     * add File to Staging Area
+     */
     public static void add(File inFile, String name, Commit parent) throws IOException {
         File added = join(ADDITION_DIR, name);
         // if exists, delete the old files
@@ -127,13 +145,17 @@ public class Repository implements Serializable {
         // TODO
     }
 
+    /**
+     * delete all files in Staging Area
+     * TODO: recursively
+     */
     public static void cleanStagingArea() throws IOException {
         if (blobs != null) {
             // move blobs to BLOB_DIR
             Blob.moveBlobs(blobs);
             for (File f : blobs.keySet()) {
                 String name = f.getName();
-                File added = join(ADDITION_DIR,name);
+                File added = join(ADDITION_DIR, name);
                 if (!added.delete()) {
                     Methods.Exit("DeleteError");
                 }
@@ -143,6 +165,9 @@ public class Repository implements Serializable {
         }
     }
 
+    /**
+     * write inFile to destination DIR with a fileName
+     */
     public static void writeFile(File inFile, File desDIR, String fileName) throws IOException {
         byte[] outByte = readContents(inFile);
         File out = join(desDIR, fileName);
