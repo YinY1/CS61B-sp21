@@ -27,7 +27,7 @@ public class Blob implements Serializable {
         for (String name : names) {
             File blob = join(DIR, name);
             Blob b = readObject(blob, Blob.class);
-            Repository.blobs.put(b.file, name);
+            Repository.blobs.put(b.file, blob);
         }
     }
 
@@ -48,16 +48,18 @@ public class Blob implements Serializable {
     /**
      * move Blobs from TEMP_DIR to BLOBS_DIR.
      */
-    public static void moveBlobs(TreeMap<File, String> blobs) throws IOException {
+    public static void moveBlobs(TreeMap<File, File> blobs, Commit commit) throws IOException {
         //move blobs from temp to BLOB_DIR
-        for (String b : blobs.values()) {
+        for (File b : blobs.values()) {
             // first copy them
-            File tempBlob = join(TEMP_BLOBS_DIR, b);
-            writeFile(tempBlob, BLOBS_DIR, b);
+            String blobName = b.getName();
+            File tempBlob = join(TEMP_BLOBS_DIR, blobName);
+            String shortCommitName = commit.getShortUid();
+            File blob_DIR = join(BLOBS_DIR, shortCommitName);
+            blob_DIR.mkdir();
+            writeFile(tempBlob, blob_DIR, blobName);
             // then delete them
             tempBlob.delete();
         }
-
-
     }
 }

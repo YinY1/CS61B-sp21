@@ -66,7 +66,7 @@ public class Repository implements Serializable {
 
     public static final File HEAD = join(GITLET_DIR, "HEAD");
 
-    public static TreeMap<File, String> blobs;
+    public static TreeMap<File, File> blobs;
 
     /* TODO: fill in the rest of this class. */
 
@@ -106,61 +106,34 @@ public class Repository implements Serializable {
      * return ture if they are the same file
      */
     public static boolean compareToOrigin(File inFile, Commit parent) {
-        String name = Blob.getBlobName(inFile);
-        String getName = parent.blobs.get(inFile);
-        // DEBUG:
-        System.out.println(inFile);
-        System.out.println(name);
-        System.out.println(getName); // null
-        System.out.println(parent.blobs);
-
-
-        return !parent.blobs.isEmpty() && getName != null && getName.equals(name);
-    }
-
-    /**
-     * add File to Staging Area
-     */
-    public static void add(File inFile, String name, Commit parent) throws IOException {
-        File added = join(ADDITION_DIR, name);
-        // if exists, delete the old files
-        if (added.exists()) {
-            String oldBlobName = Blob.getBlobName(added);
-            File oldBlob = join(TEMP_BLOBS_DIR, oldBlobName);
-            oldBlob.delete();
-            added.delete();
+        String currentName = Blob.getBlobName(inFile);
+        File oldBlob = parent.blobs.get(inFile);
+        if (oldBlob == null) {
+            return false;
         }
-        if (compareToOrigin(inFile, parent)) {
-            Methods.Exit("the file has no changes, no need to add");
-        }
-        // copy file to ADD_DIR
-        inFile.createNewFile();
-        writeFile(inFile, ADDITION_DIR, name);
-        // make temp blob
-        Blob b = new Blob(inFile);
-        Blob.makeBlob(b);
-    }
-
-    public static void remove(String name) {
-        // TODO
+        String oldName = oldBlob.getName();
+        return !parent.blobs.isEmpty() && oldName.equals(currentName);
     }
 
     /**
      * delete all files in Staging Area
      * TODO: recursively
      */
-    public static void cleanStagingArea() throws IOException {
-        if (blobs != null) {
+    public static void cleanStagingArea(Commit commit) throws IOException {
+        if (commit.getParent() != null) {
             // move blobs to BLOB_DIR
-            Blob.moveBlobs(blobs);
+            Blob.moveBlobs(blobs, commit);
             for (File f : blobs.keySet()) {
                 String name = f.getName();
                 File added = join(ADDITION_DIR, name);
                 if (!added.delete()) {
                     Methods.Exit("DeleteError");
                 }
-                System.out.println("delete " + added.getAbsolutePath());
             }
+            // change blobs DIR in commit
+            File newBlobsDIR = join(BLOBS_DIR, commit.getShortUid());
+            Blob.readBlobs(newBlobsDIR);
+            commit.blobs = blobs;
             blobs = null;
         }
     }

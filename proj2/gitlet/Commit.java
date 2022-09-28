@@ -34,7 +34,7 @@ public class Commit implements Serializable {
     /**
      * The SHA-1 id of this Commit.
      */
-    TreeMap<File, String> blobs;
+    TreeMap<File, File> blobs;
 
     /**
      * The parent Commit of this Commit.
@@ -75,7 +75,7 @@ public class Commit implements Serializable {
         setUid(sha1(uid));
         File out = join(COMMITS_DIR, this.uid);
         writeObject(out, this);
-        cleanStagingArea();
+        cleanStagingArea(this);
         setHEAD(this);
     }
 
@@ -85,5 +85,13 @@ public class Commit implements Serializable {
 
     public String getUid() {
         return this.uid;
+    }
+
+    public String getParent() {
+        return parent;
+    }
+
+    public String getShortUid() {
+        return this.uid.substring(0, 6);
     }
 }
