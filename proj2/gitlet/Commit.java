@@ -94,4 +94,15 @@ public class Commit implements Serializable {
     public String getShortUid() {
         return this.uid.substring(0, 6);
     }
+
+    public static Commit find(String shortUid){
+        List<String> commits = plainFilenamesIn(COMMITS_DIR);
+        for (String commit : commits) {
+            if(commit.contains(shortUid)){
+                File c = join(COMMITS_DIR,commit);
+                return readObject(c,Commit.class);
+            }
+        }
+        return null;
+    }
 }
