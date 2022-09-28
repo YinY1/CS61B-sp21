@@ -68,7 +68,7 @@ public class Commit implements Serializable {
         // make staging area (added) to blobs
         Blob.readBlobs(TEMP_BLOBS_DIR);
         this.blobs = Repository.blobs;
-        if (blobs.isEmpty()) {// TODO: whether rmArea is empty
+        if (this.parent != null && blobs.isEmpty()) {// TODO: whether rmArea is empty
             Methods.Exit("No changes added to the commit.");
         }
         byte[] uid = serialize(this);
