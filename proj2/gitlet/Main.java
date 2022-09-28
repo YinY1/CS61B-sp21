@@ -2,8 +2,6 @@ package gitlet;
 
 import java.io.IOException;
 
-import static gitlet.Methods.*;
-
 /**
  * Driver class for Gitlet, a subset of the Git version-control system.
  *
@@ -17,24 +15,15 @@ public class Main {
      */
     public static void main(String[] args) throws IOException {
         if (args.length == 0) {
-            Exit("Please enter a command.");
+            Methods.Exit("Please enter a command.");
         }
         String firstArg = args[0];
         switch (firstArg) {
-            case "init":
-                init();
-                break;
-            case "add":
-                add(args);
-                break;
-            // TODO: FILL THE REST IN
-            case "rm":
-                break;
-            case "commit":
-                commit(args);
-                break;
-            default:
-                Exit("No command with that name exists.");
+            case "init" -> Methods.init();
+            case "add" -> Methods.add(args);
+            case "commit" -> Methods.commit(args);
+            case "checkout" -> Methods.checkout(args);
+            default -> Methods.Exit("No command with that name exists.");
         }
     }
 }

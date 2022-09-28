@@ -127,7 +127,7 @@ public class Repository implements Serializable {
                 String name = f.getName();
                 File added = join(ADDITION_DIR, name);
                 if (!added.delete()) {
-                    Methods.Exit("DeleteError");
+                    Methods.Exit("DeleteError"); //DEBUG
                 }
             }
             // change blobs DIR in commit
