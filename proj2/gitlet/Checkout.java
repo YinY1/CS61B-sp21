@@ -24,10 +24,7 @@ public class Checkout {
             Add.deleteOldFiles(added);
         }*/
         //rewrite old file
-        String shortCommitName = commit.getShortUid();
-        String blobName = checkFrom.getName();
-        File blob = join(BLOBS_DIR, shortCommitName, blobName);
-        Blob oldBlob = readObject(blob, Blob.class);
-        writeFile(oldBlob.file, CWD, fileName);
+        Blob oldBlob = readObject(checkFrom, Blob.class);
+        writeContents(file, oldBlob.content);
     }
 }
