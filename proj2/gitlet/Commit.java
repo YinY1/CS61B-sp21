@@ -73,11 +73,22 @@ public class Commit implements Serializable {
         List<String> commits = plainFilenamesIn(COMMITS_DIR);
         for (String commit : commits) {
             if (commit.equals(Uid)) {
-                File c = join(COMMITS_DIR, commit);
-                return readObject(c, Commit.class);
+                return Methods.toCommit(commit);
             }
         }
         return null;
+    }
+
+    /**
+     * @return All commits have ever made.
+     */
+    public static List<Commit> findAll() {
+        List<String> commits = plainFilenamesIn(COMMITS_DIR);
+        List<Commit> ret = new ArrayList<>();
+        for (String commit : commits) {
+            ret.add(Methods.toCommit(commit));
+        }
+        return ret;
     }
 
     public void setUid(String uid) {
