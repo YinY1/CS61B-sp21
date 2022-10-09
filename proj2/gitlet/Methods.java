@@ -19,7 +19,7 @@ public class Methods {
      * Command 'init' initialize `.gitlet`
      * to initialize gitlet repository
      */
-    public static void init() throws IOException {
+    public static void init() {
         File repo = join(CWD, ".gitlet");
         if (repo.exists()) {
             Exit("A Gitlet version-control system already exists in the current directory.");
@@ -33,7 +33,7 @@ public class Methods {
      * Command 'add + fileName'.
      * to add file to staging for addition
      */
-    public static void add(String[] args) throws IOException {
+    public static void add(String[] args) {
         exitUnlessRepoExists();
         judgeOperands(1, args);
         String name = args[1];
@@ -49,7 +49,7 @@ public class Methods {
      * Command 'commit + message'
      * to make a commit
      */
-    public static void commit(String[] args) throws IOException {
+    public static void commit(String[] args) {
         exitUnlessRepoExists();
         if (args.length < 2) {
             Exit("Please enter a commit message.");
@@ -67,7 +67,7 @@ public class Methods {
      * or  `checkout [commit id] -- [file name]`
      * TODO:       [branch name]
      */
-    public static void checkout(String[] args) throws IOException {
+    public static void checkout(String[] args) {
         exitUnlessRepoExists();
         judgeOperands(1, 3, args);
         if (args.length == 3 && args[1].equals("--")) {

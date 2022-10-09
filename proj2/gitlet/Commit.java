@@ -64,7 +64,7 @@ public class Commit implements Serializable {
      * write this commit Object to COMMIT_DIR
      * and reset the HEAD pointer
      */
-    void makeCommit() throws IOException {
+    void makeCommit() {
         // make staging area (added) to blobs
         Blob.readBlobs(TEMP_BLOBS_DIR);
         this.blobs = Repository.blobs;

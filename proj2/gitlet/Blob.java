@@ -48,7 +48,7 @@ public class Blob implements Serializable {
     /**
      * move Blobs from TEMP_DIR to BLOBS_DIR.
      */
-    public static void moveBlobs(TreeMap<File, File> blobs, Commit commit) throws IOException {
+    public static void moveBlobs(TreeMap<File, File> blobs, Commit commit) {
         //move blobs from temp to BLOB_DIR
         for (File b : blobs.values()) {
             // first copy them

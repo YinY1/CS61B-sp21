@@ -74,14 +74,14 @@ public class Repository implements Serializable {
      * creat necessary Dir and file
      * when initialize repository
      */
-    public static void initializeRepo() throws IOException {
+    public static void initializeRepo() {
         File[] Dir = {GITLET_DIR, STAGING_DIR, ADDITION_DIR, TEMP_BLOBS_DIR, REMOVAL_DIR, BLOBS_DIR, COMMITS_DIR, BRANCHES_DIR};
         for (File f : Dir) {
             f.mkdir();
         }
         File f = HEAD;
         if (!f.exists()) {
-            f.createNewFile();
+            writeContents(f, "");
         }
     }
 
@@ -119,7 +119,7 @@ public class Repository implements Serializable {
      * delete all files in Staging Area
      * TODO: recursively
      */
-    public static void cleanStagingArea(Commit commit) throws IOException {
+    public static void cleanStagingArea(Commit commit) {
         if (commit.getParent() != null) {
             // move blobs to BLOB_DIR
             Blob.moveBlobs(blobs, commit);
@@ -141,10 +141,9 @@ public class Repository implements Serializable {
     /**
      * write inFile to destination DIR with a fileName
      */
-    public static void writeFile(File inFile, File desDIR, String fileName) throws IOException {
+    public static void writeFile(File inFile, File desDIR, String fileName) {
         byte[] outByte = readContents(inFile);
         File out = join(desDIR, fileName);
-        out.createNewFile();
         writeContents(out, outByte);
     }
 }

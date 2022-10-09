@@ -9,7 +9,7 @@ public class Add {
     /**
      * add File to Staging Area
      */
-    public static void add(File inFile, String name, Commit parent) throws IOException {
+    public static void add(File inFile, String name, Commit parent) {
         File added = join(Repository.ADDITION_DIR, name);
         // if exists, delete the old files
         if (added.exists()) {
@@ -19,7 +19,6 @@ public class Add {
             Methods.Exit("the file has no changes, no need to add");
         }
         // copy file to ADD_DIR
-        inFile.createNewFile();
         Repository.writeFile(inFile, Repository.ADDITION_DIR, name);
         // make temp blob
         Blob b = new Blob(inFile);
