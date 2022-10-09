@@ -83,6 +83,12 @@ public class Methods {
         }
     }
 
+    public static void log(String[] args) {
+        exitUnlessRepoExists();
+        judgeOperands(0, 0, args);
+        Log.log();
+    }
+
     /**
      * return true if `.gitlet` exists
      */

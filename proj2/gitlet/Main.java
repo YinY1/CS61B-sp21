@@ -23,6 +23,7 @@ public class Main {
             case "add" -> Methods.add(args);
             case "commit" -> Methods.commit(args);
             case "checkout" -> Methods.checkout(args);
+            case "log" -> Methods.log(args);
             default -> Methods.Exit("No command with that name exists.");
         }
     }
