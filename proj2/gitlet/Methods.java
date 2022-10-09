@@ -1,11 +1,15 @@
 package gitlet;
 
 import java.io.File;
-import java.io.IOException;
 
 import static gitlet.Repository.*;
 import static gitlet.Utils.*;
 
+/**
+ * Represents helper methods
+ *
+ * @author Edward Tsang
+ */
 public class Methods {
     /**
      * exit(0) before print message
@@ -19,7 +23,8 @@ public class Methods {
      * Command 'init' initialize `.gitlet`
      * to initialize gitlet repository
      */
-    public static void init() {
+    public static void init(String[] args) {
+        judgeOperands(0, args);
         File repo = join(CWD, ".gitlet");
         if (repo.exists()) {
             Exit("A Gitlet version-control system already exists in the current directory.");
@@ -85,7 +90,7 @@ public class Methods {
 
     public static void log(String[] args) {
         exitUnlessRepoExists();
-        judgeOperands(0, 0, args);
+        judgeOperands(0, args);
         Log.log();
     }
 

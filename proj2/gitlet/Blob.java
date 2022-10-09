@@ -1,7 +1,6 @@
 package gitlet;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 import java.util.TreeMap;
@@ -9,6 +8,11 @@ import java.util.TreeMap;
 import static gitlet.Repository.*;
 import static gitlet.Utils.*;
 
+/**
+ * Represents a blob object of gitlet commit object
+ *
+ * @author Edward Tsang
+ */
 public class Blob implements Serializable {
     final byte[] content;
     File file;

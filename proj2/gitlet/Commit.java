@@ -1,9 +1,6 @@
 package gitlet;
 
-// TODO: any imports you need here
-
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
@@ -11,21 +8,13 @@ import static gitlet.Repository.*;
 import static gitlet.Utils.*;
 
 /**
- * Represents a gitlet commit object.
- *  TODO: It's a good idea to give a description here of what else this Class
- *  does at a high level.
+ * Represents a gitlet commit object
+ * including its message, id, timestamp,
+ * parent pointer, files pointer
  *
  * @author Edward Tsang
  */
 public class Commit implements Serializable {
-    /**
-     * TODO: add instance variables here.
-     *
-     * List all instance variables of the Commit class here with a useful
-     * comment above them describing what that variable represents and how that
-     * variable is used. We've provided one example for `message`.
-     */
-
     /**
      * The message of this Commit.
      */
@@ -48,8 +37,6 @@ public class Commit implements Serializable {
 
     private String uid;
 
-    /* TODO: fill in the rest of this class. */
-
     public Commit(String message, String parent) {
         this.log = message;
         this.parent = parent;
@@ -61,11 +48,11 @@ public class Commit implements Serializable {
     }
 
     /**
-     * write this commit Object to COMMIT_DIR
+     * Write this commit Object to COMMIT_DIR
      * and reset the HEAD pointer
      */
     void makeCommit() {
-        // make staging area (added) to blobs
+        // Make staging area (added) to blobs
         Blob.readBlobs(TEMP_BLOBS_DIR);
         this.blobs = Repository.blobs;
         if (this.parent != null && blobs.isEmpty()) {// TODO: whether rmArea is empty
@@ -77,6 +64,20 @@ public class Commit implements Serializable {
         cleanStagingArea(this);
         writeObject(out, this);
         setHEAD(this);
+    }
+
+    /**
+     * Find a commit object matched the Uid
+     */
+    public static Commit find(String Uid) {
+        List<String> commits = plainFilenamesIn(COMMITS_DIR);
+        for (String commit : commits) {
+            if (commit.equals(Uid)) {
+                File c = join(COMMITS_DIR, commit);
+                return readObject(c, Commit.class);
+            }
+        }
+        return null;
     }
 
     public void setUid(String uid) {
@@ -101,16 +102,5 @@ public class Commit implements Serializable {
 
     public String getLog() {
         return log;
-    }
-
-    public static Commit find(String Uid) {
-        List<String> commits = plainFilenamesIn(COMMITS_DIR);
-        for (String commit : commits) {
-            if (commit.equals(Uid)) {
-                File c = join(COMMITS_DIR, commit);
-                return readObject(c, Commit.class);
-            }
-        }
-        return null;
     }
 }

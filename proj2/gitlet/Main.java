@@ -1,7 +1,5 @@
 package gitlet;
 
-import java.io.IOException;
-
 /**
  * Driver class for Gitlet, a subset of the Git version-control system.
  *
@@ -19,7 +17,7 @@ public class Main {
         }
         String firstArg = args[0];
         switch (firstArg) {
-            case "init" -> Methods.init();
+            case "init" -> Methods.init(args);
             case "add" -> Methods.add(args);
             case "commit" -> Methods.commit(args);
             case "checkout" -> Methods.checkout(args);

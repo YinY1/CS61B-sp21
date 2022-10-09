@@ -1,29 +1,34 @@
 package gitlet;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.TreeMap;
 
 import static gitlet.Utils.*;
 
-// TODO: any imports you need here
-
 /**
  * Represents a gitlet repository.
- *  TODO: It's a good idea to give a description here of what else this Class
- *  does at a high level.
+ * <p>
+ * .gitlet
+ * <br>├── branches
+ * <br>│ ├── master
+ * <br>│ └── ...
+ * <br>├── commits
+ * <br>│ ├── initial
+ * <br>│ └── ...
+ * <br>├── index
+ * <br>│ ├── additional
+ * <br>│ └── removal
+ * <br>├── objects
+ * <br>│ ├── commit1
+ * <br>│ │ ├── blob1
+ * <br>│ │ └── ...
+ * <br>│ └── ...
+ * <br>└── HEAD
  *
  * @author Edward Tsang
  */
 public class Repository implements Serializable {
-    /*
-      TODO: add instance variables here.
-      List all instance variables of the Repository class here with a useful
-      comment above them describing what that variable represents and how that
-      variable is used. We've provided two examples for you.
-     */
-
     /**
      * The current working directory.
      */
@@ -68,11 +73,8 @@ public class Repository implements Serializable {
 
     public static TreeMap<File, File> blobs;
 
-    /* TODO: fill in the rest of this class. */
-
     /**
-     * creat necessary Dir and file
-     * when initialize repository
+     * Creates a new Gitlet version-control system in the current directory.
      */
     public static void initializeRepo() {
         File[] Dir = {GITLET_DIR, STAGING_DIR, ADDITION_DIR, TEMP_BLOBS_DIR, REMOVAL_DIR, BLOBS_DIR, COMMITS_DIR, BRANCHES_DIR};
@@ -86,14 +88,14 @@ public class Repository implements Serializable {
     }
 
     /**
-     * set HEAD pointer point to a commit
+     * Sets HEAD pointer point to a commit
      */
     public static void setHEAD(Commit commit) {
         writeContents(HEAD, commit.getUid());
     }
 
     /**
-     * return the commit which HEAD points to
+     * @return the commit which HEAD points to
      */
     public static Commit readHEAD() {
         String uid = readContentsAsString(HEAD);

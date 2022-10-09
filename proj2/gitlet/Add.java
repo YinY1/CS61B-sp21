@@ -1,13 +1,17 @@
 package gitlet;
 
 import java.io.File;
-import java.io.IOException;
 
 import static gitlet.Utils.join;
 
+/**
+ * Represents a gitlet ada object
+ *
+ * @author Edward Tsang
+ */
 public class Add {
     /**
-     * add File to Staging Area
+     * Adds a copy of the file as it currently exists to the staging area.
      */
     public static void add(File inFile, String name, Commit parent) {
         File added = join(Repository.ADDITION_DIR, name);
@@ -25,6 +29,10 @@ public class Add {
         Blob.makeBlob(b);
     }
 
+    /**
+     * delete older version of the file to be added,
+     * including its temp blob
+     */
     public static void deleteOldFiles(File added) {
         String oldBlobName = Blob.getBlobName(added);
         File oldBlob = join(Repository.TEMP_BLOBS_DIR, oldBlobName);
