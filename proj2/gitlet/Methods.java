@@ -91,7 +91,13 @@ public class Methods {
     public static void log(String[] args) {
         exitUnlessRepoExists();
         judgeOperands(0, args);
-        Log.log();
+        Log.log(readHEAD());
+    }
+
+    public static void globalLog(String[] args) {
+        exitUnlessRepoExists();
+        judgeOperands(0, args);
+        Log.globalLog();
     }
 
     /**
@@ -112,9 +118,25 @@ public class Methods {
         judgeOperands(num, num, args);
     }
 
+    /**
+     * judge whether the number of operands if correct,
+     * exit(0) if operands are incorrect.
+     */
     public static void judgeOperands(int min, int max, String[] args) {
         if (args.length < min + 1 || args.length > max + 1) {
             Exit("Incorrect operands.");
         }
+    }
+
+    /**
+     * @param name uid of the commit
+     * @return the commit which has the uid if exists
+     */
+    public static Commit toCommit(String name) {
+        File c = join(COMMITS_DIR, name);
+        if (!c.exists()) {
+            return null;
+        }
+        return readObject(c, Commit.class);
     }
 }
