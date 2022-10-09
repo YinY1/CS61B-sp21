@@ -99,8 +99,7 @@ public class Repository implements Serializable {
      */
     public static Commit readHEAD() {
         String uid = readContentsAsString(HEAD);
-        File commit = join(COMMITS_DIR, uid);
-        return readObject(commit, Commit.class);
+        return Methods.toCommit(uid);
     }
 
     /**
