@@ -90,7 +90,9 @@ public class Repository implements Serializable {
         }
         File f = HEAD;
         if (!f.exists()) {
-            writeContents(f, "");
+            Branch h = new Branch("master", "");
+            writeObject(f, h);
+            h.updateBranch();
         }
     }
 
@@ -117,7 +119,7 @@ public class Repository implements Serializable {
     /**
      * Deletes all files in DIR
      */
-    private static void clean(File DIR) {
+    public static void clean(File DIR) {
         List<String> files = plainFilenamesIn(DIR);
         for (String name : files) {
             File f = join(DIR, name);

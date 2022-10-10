@@ -19,12 +19,13 @@ public class Main {
         switch (firstArg) {
             case "init" -> Methods.init(args);
             case "add" -> Methods.add(args);
-            case "rm" -> Methods.remove(args);
             case "commit" -> Methods.commit(args);
-            case "checkout" -> Methods.checkout(args);
+            case "rm" -> Methods.remove(args);
             case "log" -> Methods.log(args);
             case "global-log" -> Methods.globalLog(args);
             case "find" -> Methods.find(args);
+            case "checkout" -> Methods.checkout(args);
+            case "branch" -> Methods.branch(args);
             default -> Methods.Exit("No command with that name exists.");
         }
     }
