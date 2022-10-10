@@ -23,7 +23,7 @@ public class Commit implements Serializable {
     /**
      * The SHA-1 id of this Commit.
      */
-    TreeMap<File, File> blobs;
+    private TreeMap<File, File> blobs;
 
     /**
      * The parent Commit of this Commit.
@@ -45,6 +45,7 @@ public class Commit implements Serializable {
         } else {
             this.date = new Date();
         }
+        this.blobs = new TreeMap<>();
     }
 
     /**
@@ -52,10 +53,13 @@ public class Commit implements Serializable {
      * and reset the HEAD pointer
      */
     void makeCommit() {
-        // Makes staging area (added) to blobs
-        Blob.readBlobs(TEMP_BLOBS_DIR);
-        this.blobs = Repository.blobs;
-        if (this.parent != null && blobs.isEmpty()) {// TODO: whether rmArea is empty
+        //Loads parent's blobs
+        if (this.parent != null) {
+            this.blobs = this.getParentAsCommit().blobs;
+        }
+        boolean flag = stage();
+        flag = unStage(flag);
+        if (this.parent != null && !flag) {
             Methods.Exit("No changes added to the commit.");
         }
         byte[] uid = serialize(this);
@@ -64,6 +68,33 @@ public class Commit implements Serializable {
         cleanStagingArea(this);
         writeObject(out, this);
         setHEAD(this);
+    }
+
+    /**
+     * Adds staging area (added) to blobs
+     */
+    private boolean stage() {
+        boolean flag = false;
+        Blob.readBlobsToRepo(TEMP_BLOBS_DIR);
+        this.blobs.putAll(Repository.blobs);
+        if (!Repository.blobs.isEmpty()) {
+            flag = true;
+        }
+        return flag;
+    }
+
+    /**
+     * delete blobs in commit
+     */
+    private boolean unStage(boolean flag) {
+        List<File> rm = Repository.readRemovalFiles();
+        if (!rm.isEmpty()) {
+            flag = true;
+        }
+        for (File f : rm) {
+            blobs.remove(f);
+        }
+        return flag;
     }
 
     /**
@@ -86,7 +117,7 @@ public class Commit implements Serializable {
      */
     public static List<String> findWithMessage(String message) {
         List<Commit> commits = findAll();
-        List<String> UID= new ArrayList<>();
+        List<String> UID = new ArrayList<>();
         for (Commit c : commits) {
             if (c.log.equals(message)) {
                 UID.add(c.uid);
@@ -107,16 +138,28 @@ public class Commit implements Serializable {
         return ret;
     }
 
+    public boolean isTracked(File file) {
+        return this.blobs.get(file) != null;
+    }
+
     public void setUid(String uid) {
         this.uid = uid;
+    }
+
+    public void setBlobs(TreeMap<File, File> b) {
+        this.blobs = b;
     }
 
     public String getUid() {
         return this.uid;
     }
 
-    public String getParent() {
+    public String getParentAsString() {
         return parent;
+    }
+
+    public Commit getParentAsCommit() {
+        return Methods.toCommit(this.parent);
     }
 
     public String getShortUid() {
@@ -129,5 +172,9 @@ public class Commit implements Serializable {
 
     public String getLog() {
         return log;
+    }
+
+    public TreeMap<File, File> getBlobs() {
+        return blobs;
     }
 }
