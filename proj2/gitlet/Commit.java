@@ -48,11 +48,11 @@ public class Commit implements Serializable {
     }
 
     /**
-     * Write this commit Object to COMMIT_DIR
+     * Writes this commit Object to COMMIT_DIR
      * and reset the HEAD pointer
      */
     void makeCommit() {
-        // Make staging area (added) to blobs
+        // Makes staging area (added) to blobs
         Blob.readBlobs(TEMP_BLOBS_DIR);
         this.blobs = Repository.blobs;
         if (this.parent != null && blobs.isEmpty()) {// TODO: whether rmArea is empty
@@ -67,9 +67,9 @@ public class Commit implements Serializable {
     }
 
     /**
-     * Find a commit object matched the Uid
+     * Finds a commit object matched the Uid
      */
-    public static Commit find(String Uid) {
+    public static Commit findWithUid(String Uid) {
         List<String> commits = plainFilenamesIn(COMMITS_DIR);
         for (String commit : commits) {
             if (commit.equals(Uid)) {
@@ -77,6 +77,22 @@ public class Commit implements Serializable {
             }
         }
         return null;
+    }
+
+    /**
+     * Finds out the ids of all commits that have the given commit message
+     *
+     * @return A list of commits' UID
+     */
+    public static List<String> findWithMessage(String message) {
+        List<Commit> commits = findAll();
+        List<String> UID= new ArrayList<>();
+        for (Commit c : commits) {
+            if (c.log.equals(message)) {
+                UID.add(c.uid);
+            }
+        }
+        return UID;
     }
 
     /**

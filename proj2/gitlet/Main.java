@@ -23,6 +23,7 @@ public class Main {
             case "checkout" -> Methods.checkout(args);
             case "log" -> Methods.log(args);
             case "global-log" -> Methods.globalLog(args);
+            case "find" -> Methods.find(args);
             default -> Methods.Exit("No command with that name exists.");
         }
     }

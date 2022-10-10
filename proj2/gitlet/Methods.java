@@ -1,6 +1,7 @@
 package gitlet;
 
 import java.io.File;
+import java.util.List;
 
 import static gitlet.Repository.*;
 import static gitlet.Utils.*;
@@ -79,7 +80,7 @@ public class Methods {
             File file = join(CWD, args[2]);
             Checkout.checkoutFile(file);
         } else if (args.length == 4 && args[2].equals("--")) {
-            Commit commit = Commit.find(args[1]);
+            Commit commit = Commit.findWithUid(args[1]);
             if (commit == null) {
                 Exit("No commit with that id exists.");
             }
@@ -88,16 +89,39 @@ public class Methods {
         }
     }
 
+    /**
+     * Command 'log'
+     * to print logs of current commit tree
+     */
     public static void log(String[] args) {
         exitUnlessRepoExists();
         judgeOperands(0, args);
         Log.log(readHEAD());
     }
 
+    /**
+     * Command 'global-log'
+     * to print logs of all commits
+     */
     public static void globalLog(String[] args) {
         exitUnlessRepoExists();
         judgeOperands(0, args);
         Log.globalLog();
+    }
+
+    /**
+     * Command 'find + message'
+     * Prints out the ids of all commits that have the given commit message,
+     * one per line.
+     */
+    public static void find(String[] args) {
+        exitUnlessRepoExists();
+        judgeOperands(1, args);
+        List<String> UID = Commit.findWithMessage(args[1]);
+        if (UID.isEmpty()) {
+            Exit("Found no commit with that message.");
+        }
+        System.out.println(UID);
     }
 
     /**
