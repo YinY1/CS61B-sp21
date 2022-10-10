@@ -1,6 +1,8 @@
 package gitlet;
 
 import java.io.File;
+import java.util.List;
+import java.util.TreeMap;
 
 import static gitlet.Utils.*;
 
@@ -17,7 +19,7 @@ public class Checkout {
      * The new version of the file is not staged.
      */
     public static void checkoutFile(File file) {
-        checkoutFile(Methods.readHEAD(), file);
+        checkoutFile(Methods.readHEADAsCommit(), file);
     }
 
     /**
@@ -39,5 +41,30 @@ public class Checkout {
         //rewrite old file
         Blob oldBlob = readObject(checkFrom, Blob.class);
         writeContents(file, oldBlob.content);
+    }
+
+    public static void checkoutBranch(String name) {
+        if (Branch.isExists(name)) {
+            Methods.Exit("No such branch exists.");
+        }
+        Branch b = Methods.readHEADAsBranch();
+        if (b.getName().equals(name)) {
+            Methods.Exit("No need to checkout the current branch.");
+        }
+        Commit c = Methods.readHEADAsCommit();
+        List<String> cwd = plainFilenamesIn(Repository.CWD);
+        File blob = join(Repository.BLOBS_DIR, c.getShortUid());
+        List<String> blobs = plainFilenamesIn(blob);
+        if (!cwd.equals(blobs)) {
+            Methods.Exit("There is an untracked file in the way; delete it, or add and commit it first.");
+        }
+        b = Branch.readBranch(name);
+        c = Methods.toCommit(b.getHEAD());
+        TreeMap<File, File> old = c.getBlobs();
+        Repository.clean(Repository.CWD);
+        for (File oldFile : old.keySet()) {
+            Methods.writeFile(old.get(oldFile), Repository.CWD, oldFile.getName());
+        }
+        Repository.cleanStagingArea(c);
     }
 }

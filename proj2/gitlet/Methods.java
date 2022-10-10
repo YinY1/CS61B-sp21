@@ -48,7 +48,7 @@ public class Methods {
         if (!inFile.exists()) {
             Exit("File does not exist.");
         }
-        Commit parent = readHEAD();
+        Commit parent = readHEADAsCommit();
         Add.add(inFile, name, parent);
     }
 
@@ -77,7 +77,7 @@ public class Methods {
         }
         judgeOperands(1, args);
         String message = args[1];
-        String h = Utils.readContentsAsString(HEAD);
+        String h = Utils.readObject(HEAD, Branch.class).getHEAD();
         Commit commit = new Commit(message, h);
         commit.makeCommit();
     }
@@ -101,6 +101,10 @@ public class Methods {
             }
             File file = join(CWD, args[3]);
             Checkout.checkoutFile(commit, file);
+        } else if (args.length == 2) {
+            Checkout.checkoutBranch(args[1]);
+        } else {
+            Exit("Incorrect operands.");
         }
     }
 
@@ -111,7 +115,7 @@ public class Methods {
     public static void log(String[] args) {
         exitUnlessRepoExists();
         judgeOperands(0, args);
-        Log.log(readHEAD());
+        Log.log(readHEADAsCommit());
     }
 
     /**
@@ -137,6 +141,13 @@ public class Methods {
             Exit("Found no commit with that message.");
         }
         System.out.println(UID);
+    }
+
+    public static void branch(String[] args) {
+        exitUnlessRepoExists();
+        judgeOperands(1, args);
+        Branch b = new Branch(args[1], readHEADContent());
+        b.updateBranch();
     }
 
     /**
@@ -205,14 +216,26 @@ public class Methods {
      * Sets HEAD pointer point to a commit
      */
     public static void setHEAD(Commit commit) {
-        writeContents(HEAD, commit.getUid());
+        Branch h = readHEADAsBranch();
+        h.setHEAD(commit.getUid());
+        writeObject(HEAD, h);
+        h.updateBranch();
+    }
+
+    public static Branch readHEADAsBranch() {
+        return readObject(HEAD, Branch.class);
     }
 
     /**
      * @return the commit which HEAD points to
      */
-    public static Commit readHEAD() {
-        String uid = readContentsAsString(HEAD);
+    public static Commit readHEADAsCommit() {
+        String uid = readHEADContent();
         return Methods.toCommit(uid);
+    }
+
+    public static String readHEADContent() {
+        Branch h = readHEADAsBranch();
+        return h.getHEAD();
     }
 }
