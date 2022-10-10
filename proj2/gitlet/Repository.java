@@ -2,6 +2,8 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 
 import static gitlet.Utils.*;
@@ -108,12 +110,12 @@ public class Repository implements Serializable {
      */
     public static boolean compareToOrigin(File inFile, Commit parent) {
         String currentName = Blob.getBlobName(inFile);
-        File oldBlob = parent.blobs.get(inFile);
+        File oldBlob = parent.getBlobs().get(inFile);
         if (oldBlob == null) {
             return false;
         }
         String oldName = oldBlob.getName();
-        return !parent.blobs.isEmpty() && oldName.equals(currentName);
+        return !parent.getBlobs().isEmpty() && oldName.equals(currentName);
     }
 
     /**
@@ -121,22 +123,41 @@ public class Repository implements Serializable {
      * TODO: recursively
      */
     public static void cleanStagingArea(Commit commit) {
-        if (commit.getParent() != null) {
+        if (commit.getParentAsString() != null) {
             // move blobs to BLOB_DIR
-            Blob.moveBlobs(blobs, commit);
-            for (File f : blobs.keySet()) {
-                String name = f.getName();
-                File added = join(ADDITION_DIR, name);
-                if (!added.delete()) {
-                    Methods.Exit("DeleteError"); //DEBUG
-                }
-            }
+            Blob.moveTempBlobs(commit);
+            Blob.moveOlderBlobs(commit);
+            clean(ADDITION_DIR);
+            clean(REMOVAL_DIR);
             // change blobs DIR in commit
             File newBlobsDIR = join(BLOBS_DIR, commit.getShortUid());
-            Blob.readBlobs(newBlobsDIR);
-            commit.blobs = blobs;
+            Blob.readBlobsToRepo(newBlobsDIR);
+            commit.setBlobs(blobs);
             blobs = null;
         }
+    }
+
+    /**
+     * Deletes all files in DIR
+     */
+    private static void clean(File DIR) {
+        List<String> files = plainFilenamesIn(DIR);
+        for (String name : files) {
+            File f = join(DIR, name);
+            if (!f.delete()) {
+                Methods.Exit("DeleteError"); //DEBUG
+            }
+        }
+    }
+
+    public static List<File> readRemovalFiles() {
+        List<File> ret = new ArrayList<>();
+        List<String> names = plainFilenamesIn(REMOVAL_DIR);
+        for (String n : names) {
+            File rm = join(REMOVAL_DIR, n);
+            ret.add(rm);
+        }
+        return ret;
     }
 
     /**
