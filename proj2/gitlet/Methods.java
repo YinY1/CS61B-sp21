@@ -51,6 +51,16 @@ public class Methods {
         Add.add(inFile, name, parent);
     }
 
+    public static void remove(String[] args) {
+        exitUnlessRepoExists();
+        judgeOperands(1, args);
+        String name = args[1];
+        File inFile = join(CWD, name);
+        if (!Remove.remove(inFile, name)) {
+            Exit("No reason to remove the file.");
+        }
+    }
+
     /**
      * Command 'commit + message'
      * to make a commit
