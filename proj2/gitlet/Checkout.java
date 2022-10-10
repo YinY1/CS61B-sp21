@@ -2,7 +2,6 @@ package gitlet;
 
 import java.io.File;
 
-import static gitlet.Repository.*;
 import static gitlet.Utils.*;
 
 /**
@@ -18,7 +17,7 @@ public class Checkout {
      * The new version of the file is not staged.
      */
     public static void checkoutFile(File file) {
-        checkoutFile(readHEAD(), file);
+        checkoutFile(Methods.readHEAD(), file);
     }
 
     /**

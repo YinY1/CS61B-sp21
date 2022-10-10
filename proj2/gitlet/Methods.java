@@ -1,6 +1,7 @@
 package gitlet;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import static gitlet.Repository.*;
@@ -43,14 +44,18 @@ public class Methods {
         exitUnlessRepoExists();
         judgeOperands(1, args);
         String name = args[1];
-        Commit parent = readHEAD();
         File inFile = join(CWD, name);
         if (!inFile.exists()) {
             Exit("File does not exist.");
         }
+        Commit parent = readHEAD();
         Add.add(inFile, name, parent);
     }
 
+    /**
+     * Command 'rm + fileName'.
+     * to remove file to unstage
+     */
     public static void remove(String[] args) {
         exitUnlessRepoExists();
         judgeOperands(1, args);
@@ -172,5 +177,42 @@ public class Methods {
             return null;
         }
         return readObject(c, Commit.class);
+    }
+
+    /**
+     * Reads all files in REMOVAL_DIR
+     */
+    public static List<File> readRemovalFiles() {
+        List<File> ret = new ArrayList<>();
+        List<String> names = plainFilenamesIn(REMOVAL_DIR);
+        for (String n : names) {
+            File rm = join(REMOVAL_DIR, n);
+            ret.add(rm);
+        }
+        return ret;
+    }
+
+    /**
+     * write inFile to destination DIR with a fileName
+     */
+    public static void writeFile(File inFile, File desDIR, String fileName) {
+        byte[] outByte = readContents(inFile);
+        File out = join(desDIR, fileName);
+        writeContents(out, outByte);
+    }
+
+    /**
+     * Sets HEAD pointer point to a commit
+     */
+    public static void setHEAD(Commit commit) {
+        writeContents(HEAD, commit.getUid());
+    }
+
+    /**
+     * @return the commit which HEAD points to
+     */
+    public static Commit readHEAD() {
+        String uid = readContentsAsString(HEAD);
+        return Methods.toCommit(uid);
     }
 }

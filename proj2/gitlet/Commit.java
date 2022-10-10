@@ -67,7 +67,7 @@ public class Commit implements Serializable {
         File out = join(COMMITS_DIR, this.uid);
         cleanStagingArea(this);
         writeObject(out, this);
-        setHEAD(this);
+        Methods.setHEAD(this);
     }
 
     /**
@@ -87,7 +87,7 @@ public class Commit implements Serializable {
      * delete blobs in commit
      */
     private boolean unStage(boolean flag) {
-        List<File> rm = Repository.readRemovalFiles();
+        List<File> rm = Methods.readRemovalFiles();
         if (!rm.isEmpty()) {
             flag = true;
         }

@@ -49,33 +49,18 @@ public class Blob implements Serializable {
         return sha1(name);
     }
 
-    /**
-     * Moves Blobs from TEMP_DIR to BLOBS_DIR.
-     */
-    public static void moveTempBlobs(Commit commit) {
-        for (File b : blobs.values()) {
-            // first copy them
-            String blobName = b.getName();
-            File tempBlob = join(TEMP_BLOBS_DIR, blobName);
-            String shortCommitName = commit.getShortUid();
-            File blob_DIR = join(BLOBS_DIR, shortCommitName);
-            blob_DIR.mkdir();
-            writeFile(tempBlob, blob_DIR, blobName);
-            // then delete them
-            tempBlob.delete();
-        }
-    }
 
     /**
-     * Copies blobs from Parent's BLOB_DIR to current BLOB_DIR
+     * Compare the inFile to the file in the parent commit with the same name
+     * return ture if they are the same file
      */
-    public static void moveOlderBlobs(Commit commit) {
-        Commit p = commit.getParentAsCommit();
-        for (File b : p.getBlobs().values()) {
-            String blobName = b.getName();
-            String shortCommitName = commit.getShortUid();
-            File blob_DIR = join(BLOBS_DIR, shortCommitName);
-            writeFile(b, blob_DIR, blobName);
+    public static boolean compareToOrigin(File inFile, Commit parent) {
+        String currentName = Blob.getBlobName(inFile);
+        File oldBlob = parent.getBlobs().get(inFile);
+        if (oldBlob == null) {
+            return false;
         }
+        String oldName = oldBlob.getName();
+        return !parent.getBlobs().isEmpty() && oldName.equals(currentName);
     }
 }

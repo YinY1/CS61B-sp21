@@ -2,7 +2,6 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -71,8 +70,14 @@ public class Repository implements Serializable {
      */
     public static final File BRANCHES_DIR = join(GITLET_DIR, "branches");
 
+    /**
+     * The HEAD pointer.
+     */
     public static final File HEAD = join(GITLET_DIR, "HEAD");
 
+    /**
+     * Temp blobs of current command.
+     */
     public static TreeMap<File, File> blobs;
 
     /**
@@ -89,34 +94,6 @@ public class Repository implements Serializable {
         }
     }
 
-    /**
-     * Sets HEAD pointer point to a commit
-     */
-    public static void setHEAD(Commit commit) {
-        writeContents(HEAD, commit.getUid());
-    }
-
-    /**
-     * @return the commit which HEAD points to
-     */
-    public static Commit readHEAD() {
-        String uid = readContentsAsString(HEAD);
-        return Methods.toCommit(uid);
-    }
-
-    /**
-     * compare the inFile to the file in the parent commit with the same name
-     * return ture if they are the same file
-     */
-    public static boolean compareToOrigin(File inFile, Commit parent) {
-        String currentName = Blob.getBlobName(inFile);
-        File oldBlob = parent.getBlobs().get(inFile);
-        if (oldBlob == null) {
-            return false;
-        }
-        String oldName = oldBlob.getName();
-        return !parent.getBlobs().isEmpty() && oldName.equals(currentName);
-    }
 
     /**
      * delete all files in Staging Area
@@ -125,8 +102,8 @@ public class Repository implements Serializable {
     public static void cleanStagingArea(Commit commit) {
         if (commit.getParentAsString() != null) {
             // move blobs to BLOB_DIR
-            Blob.moveTempBlobs(commit);
-            Blob.moveOlderBlobs(commit);
+            moveTempBlobs(commit);
+            moveOlderBlobs(commit);
             clean(ADDITION_DIR);
             clean(REMOVAL_DIR);
             // change blobs DIR in commit
@@ -145,27 +122,38 @@ public class Repository implements Serializable {
         for (String name : files) {
             File f = join(DIR, name);
             if (!f.delete()) {
-                Methods.Exit("DeleteError"); //DEBUG
+                Methods.Exit("DeleteError");
             }
         }
     }
 
-    public static List<File> readRemovalFiles() {
-        List<File> ret = new ArrayList<>();
-        List<String> names = plainFilenamesIn(REMOVAL_DIR);
-        for (String n : names) {
-            File rm = join(REMOVAL_DIR, n);
-            ret.add(rm);
+    /**
+     * Moves Blobs from TEMP_DIR to BLOBS_DIR.
+     */
+    private static void moveTempBlobs(Commit commit) {
+        for (File b : blobs.values()) {
+            // first copy them
+            String blobName = b.getName();
+            File tempBlob = join(TEMP_BLOBS_DIR, blobName);
+            String shortCommitName = commit.getShortUid();
+            File blob_DIR = join(BLOBS_DIR, shortCommitName);
+            blob_DIR.mkdir();
+            Methods.writeFile(tempBlob, blob_DIR, blobName);
+            // then delete them
+            tempBlob.delete();
         }
-        return ret;
     }
 
     /**
-     * write inFile to destination DIR with a fileName
+     * Copies blobs from Parent's BLOB_DIR to current BLOB_DIR
      */
-    public static void writeFile(File inFile, File desDIR, String fileName) {
-        byte[] outByte = readContents(inFile);
-        File out = join(desDIR, fileName);
-        writeContents(out, outByte);
+    private static void moveOlderBlobs(Commit commit) {
+        Commit p = commit.getParentAsCommit();
+        for (File b : p.getBlobs().values()) {
+            String blobName = b.getName();
+            String shortCommitName = commit.getShortUid();
+            File blob_DIR = join(BLOBS_DIR, shortCommitName);
+            Methods.writeFile(b, blob_DIR, blobName);
+        }
     }
 }

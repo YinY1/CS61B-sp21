@@ -19,11 +19,11 @@ public class Add {
         if (added.exists()) {
             deleteOldFiles(added);
         }
-        if (Repository.compareToOrigin(inFile, parent)) {
+        if (Blob.compareToOrigin(inFile, parent)) {
             Methods.Exit("the file has no changes, no need to add");
         }
         // copy file to ADD_DIR
-        Repository.writeFile(inFile, Repository.ADDITION_DIR, name);
+        Methods.writeFile(inFile, Repository.ADDITION_DIR, name);
         // make temp blob
         Blob b = new Blob(inFile);
         Blob.makeBlob(b);
