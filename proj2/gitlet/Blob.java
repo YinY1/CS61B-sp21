@@ -23,9 +23,9 @@ public class Blob implements Serializable {
     }
 
     /**
-     * read blobs from DIR to `Repository.blobs`
+     * Reads blobs from DIR to `Repository.blobs`
      */
-    public static void readBlobs(File DIR) {
+    public static void readBlobsToRepo(File DIR) {
         List<String> names = plainFilenamesIn(DIR);
         Repository.blobs = new TreeMap<>();
         for (String name : names) {
@@ -36,7 +36,7 @@ public class Blob implements Serializable {
     }
 
     /**
-     * write Blob as Object to TEMP_DIR.
+     * Writes Blob as Object to TEMP_DIR.
      */
     public static void makeBlob(Blob b) {
         String name = getBlobName(b.file);
@@ -50,10 +50,9 @@ public class Blob implements Serializable {
     }
 
     /**
-     * move Blobs from TEMP_DIR to BLOBS_DIR.
+     * Moves Blobs from TEMP_DIR to BLOBS_DIR.
      */
-    public static void moveBlobs(TreeMap<File, File> blobs, Commit commit) {
-        //move blobs from temp to BLOB_DIR
+    public static void moveTempBlobs(Commit commit) {
         for (File b : blobs.values()) {
             // first copy them
             String blobName = b.getName();
@@ -64,6 +63,19 @@ public class Blob implements Serializable {
             writeFile(tempBlob, blob_DIR, blobName);
             // then delete them
             tempBlob.delete();
+        }
+    }
+
+    /**
+     * Copies blobs from Parent's BLOB_DIR to current BLOB_DIR
+     */
+    public static void moveOlderBlobs(Commit commit) {
+        Commit p = commit.getParentAsCommit();
+        for (File b : p.getBlobs().values()) {
+            String blobName = b.getName();
+            String shortCommitName = commit.getShortUid();
+            File blob_DIR = join(BLOBS_DIR, shortCommitName);
+            writeFile(b, blob_DIR, blobName);
         }
     }
 }

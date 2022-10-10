@@ -18,7 +18,7 @@ public class Log {
     public static void log(Commit c) {
         while (c != null) {
             printLog(c);
-            c = Commit.findWithUid(c.getParent());
+            c = Commit.findWithUid(c.getParentAsString());
         }
     }
 

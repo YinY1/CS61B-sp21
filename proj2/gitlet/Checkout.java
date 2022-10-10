@@ -28,7 +28,7 @@ public class Checkout {
      * The new version of the file is not staged.
      */
     public static void checkoutFile(Commit commit, File file) {
-        File checkFrom = commit.blobs.get(file);
+        File checkFrom = commit.getBlobs().get(file);
         if (checkFrom == null) {
             Methods.Exit("File does not exist in that commit.");
         }/*
