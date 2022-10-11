@@ -19,6 +19,7 @@ public class Main {
         switch (firstArg) {
             case "init" -> Methods.init(args);
             case "add" -> Methods.add(args);
+            case "rm" -> Methods.remove(args);
             case "commit" -> Methods.commit(args);
             case "rm" -> Methods.remove(args);
             case "log" -> Methods.log(args);
