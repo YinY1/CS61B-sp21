@@ -31,7 +31,7 @@ public class Checkout {
     public static void checkoutFile(Commit commit, File file) {
         File checkFrom = commit.getBlobs().get(file);
         if (checkFrom == null) {
-            Methods.Exit("File does not exist in that commit.");
+            Methods.exit("File does not exist in that commit.");
         }/*
         // delete current file in ADD_DIR, if added
         File added = join(Repository.ADDITION_DIR, fileName);
@@ -44,27 +44,29 @@ public class Checkout {
     }
 
     public static void checkoutBranch(String name) {
-        if (Branch.isExists(name)) {
-            Methods.Exit("No such branch exists.");
+        if (!Branch.isExists(name)) {
+            Methods.exit("No such branch exists.");
         }
-        Branch b = Methods.readHEADAsBranch();
-        if (b.getName().equals(name)) {
-            Methods.Exit("No need to checkout the current branch.");
+        Branch currentBranch = Methods.readHEADAsBranch();
+        if (currentBranch.getName().equals(name)) {
+            Methods.exit("No need to checkout the current branch.");
         }
-        Commit c = Methods.readHEADAsCommit();
+        Commit currentCommit = Methods.readHEADAsCommit();
         List<String> cwd = plainFilenamesIn(Repository.CWD);
-        File blob = join(Repository.BLOBS_DIR, c.getShortUid());
-        List<String> blobs = plainFilenamesIn(blob);
-        if (!cwd.equals(blobs)) {
-            Methods.Exit("There is an untracked file in the way; delete it, or add and commit it first.");
+        for (String f : cwd) {
+            File file = join(Repository.CWD, f);
+            if (!currentCommit.isTracked(file)) {
+                Methods.exit("There is an untracked file in the way; delete it," +
+                        " or add and commit it first.");
+            }
         }
-        b = Branch.readBranch(name);
-        c = Methods.toCommit(b.getHEAD());
-        TreeMap<File, File> old = c.getBlobs();
-        Repository.clean(Repository.CWD);
+        Branch branchToSwitch = Branch.readBranch(name);
+        Commit oldCommit = Methods.toCommit(branchToSwitch.getHEAD());
+        TreeMap<File, File> old = oldCommit.getBlobs();
         for (File oldFile : old.keySet()) {
             Methods.writeFile(old.get(oldFile), Repository.CWD, oldFile.getName());
         }
-        Repository.cleanStagingArea(c);
+        Repository.cleanStagingArea(currentCommit);
+        Methods.setHEAD(oldCommit, branchToSwitch);
     }
 }

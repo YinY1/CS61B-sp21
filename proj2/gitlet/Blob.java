@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.TreeMap;
 
-import static gitlet.Repository.*;
+import static gitlet.Repository.TEMP_BLOBS_DIR;
 import static gitlet.Utils.*;
 
 /**
@@ -15,7 +15,7 @@ import static gitlet.Utils.*;
  */
 public class Blob implements Serializable {
     final byte[] content;
-    File file;
+    final File file;
 
     public Blob(File f) {
         this.content = readContents(f);
@@ -25,11 +25,11 @@ public class Blob implements Serializable {
     /**
      * Reads blobs from DIR to `Repository.blobs`
      */
-    public static void readBlobsToRepo(File DIR) {
-        List<String> names = plainFilenamesIn(DIR);
+    public static void readBlobsToRepo(File dir) {
+        List<String> names = plainFilenamesIn(dir);
         Repository.blobs = new TreeMap<>();
         for (String name : names) {
-            File blob = join(DIR, name);
+            File blob = join(dir, name);
             Blob b = readObject(blob, Blob.class);
             Repository.blobs.put(b.file, blob);
         }

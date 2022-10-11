@@ -49,43 +49,42 @@ public class Repository implements Serializable {
      * Staged for addition.
      */
     public static final File ADDITION_DIR = join(STAGING_DIR, "addition");
-
+    /**
+     * Staged for temp blobs
+     */
+    public static final File TEMP_BLOBS_DIR = join(ADDITION_DIR, "temp");
     /**
      * Staged for removal.
      */
     public static final File REMOVAL_DIR = join(STAGING_DIR, "removal");
-
     /**
      * The blobs' directory.
      */
     public static final File BLOBS_DIR = join(GITLET_DIR, "objects");
-    public static final File TEMP_BLOBS_DIR = join(ADDITION_DIR, "temp");
     /**
      * The commit directory.
      */
     public static final File COMMITS_DIR = join(GITLET_DIR, "commits");
-
     /**
      * The branch directory.
      */
     public static final File BRANCHES_DIR = join(GITLET_DIR, "branches");
-
     /**
      * The HEAD pointer.
      */
     public static final File HEAD = join(GITLET_DIR, "HEAD");
-
     /**
      * Temp blobs of current command.
      */
-    public static TreeMap<File, File> blobs;
+    static TreeMap<File, File> blobs;
 
     /**
      * Creates a new Gitlet version-control system in the current directory.
      */
     public static void initializeRepo() {
-        File[] Dir = {GITLET_DIR, STAGING_DIR, ADDITION_DIR, TEMP_BLOBS_DIR, REMOVAL_DIR, BLOBS_DIR, COMMITS_DIR, BRANCHES_DIR};
-        for (File f : Dir) {
+        File[] dir = {GITLET_DIR, STAGING_DIR, ADDITION_DIR, TEMP_BLOBS_DIR,
+                REMOVAL_DIR, BLOBS_DIR, COMMITS_DIR, BRANCHES_DIR};
+        for (File f : dir) {
             f.mkdir();
         }
         File f = HEAD;
@@ -119,12 +118,12 @@ public class Repository implements Serializable {
     /**
      * Deletes all files in DIR
      */
-    public static void clean(File DIR) {
-        List<String> files = plainFilenamesIn(DIR);
+    public static void clean(File dir) {
+        List<String> files = plainFilenamesIn(dir);
         for (String name : files) {
-            File f = join(DIR, name);
+            File f = join(dir, name);
             if (!f.delete()) {
-                Methods.Exit("DeleteError");
+                Methods.exit("DeleteError");
             }
         }
     }
@@ -133,16 +132,18 @@ public class Repository implements Serializable {
      * Moves Blobs from TEMP_DIR to BLOBS_DIR.
      */
     private static void moveTempBlobs(Commit commit) {
-        for (File b : blobs.values()) {
-            // first copy them
-            String blobName = b.getName();
-            File tempBlob = join(TEMP_BLOBS_DIR, blobName);
-            String shortCommitName = commit.getShortUid();
-            File blob_DIR = join(BLOBS_DIR, shortCommitName);
-            blob_DIR.mkdir();
-            Methods.writeFile(tempBlob, blob_DIR, blobName);
-            // then delete them
-            tempBlob.delete();
+        if (blobs != null) {
+            for (File b : blobs.values()) {
+                // first copy them
+                String blobName = b.getName();
+                File tempBlob = join(TEMP_BLOBS_DIR, blobName);
+                String shortCommitName = commit.getShortUid();
+                File blob_DIR = join(BLOBS_DIR, shortCommitName);
+                blob_DIR.mkdir();
+                Methods.writeFile(tempBlob, blob_DIR, blobName);
+                // then delete them
+                tempBlob.delete();
+            }
         }
     }
 
@@ -154,8 +155,8 @@ public class Repository implements Serializable {
         for (File b : p.getBlobs().values()) {
             String blobName = b.getName();
             String shortCommitName = commit.getShortUid();
-            File blob_DIR = join(BLOBS_DIR, shortCommitName);
-            Methods.writeFile(b, blob_DIR, blobName);
+            File blobDir = join(BLOBS_DIR, shortCommitName);
+            Methods.writeFile(b, blobDir, blobName);
         }
     }
 }

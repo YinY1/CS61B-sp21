@@ -20,7 +20,7 @@ public class Add {
             deleteOldFiles(added);
         }
         if (Blob.compareToOrigin(inFile, parent)) {
-            Methods.Exit("the file has no changes, no need to add");
+            Methods.exit(null);
         }
         // copy file to ADD_DIR
         Methods.writeFile(inFile, Repository.ADDITION_DIR, name);

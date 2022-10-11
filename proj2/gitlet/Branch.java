@@ -2,7 +2,6 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Branch implements Serializable {
@@ -12,7 +11,7 @@ public class Branch implements Serializable {
 
     public Branch(String name, String head) {
         if (isExists(name)) {
-            Methods.Exit("A branch with that name already exists.");
+            Methods.exit("A branch with that name already exists.");
         }
         this.name = name;
         this.HEAD = head;
@@ -31,7 +30,7 @@ public class Branch implements Serializable {
     public void updateBranch() {
         this.HEAD = Utils.readObject(Repository.HEAD, Branch.class).getHEAD();
         File h = Utils.join(Repository.BRANCHES_DIR, this.name);
-        Utils.writeObject(h, Branch.class);
+        Utils.writeObject(h, this);
     }
 
     public void setHEAD(String content) {
