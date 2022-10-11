@@ -2,7 +2,10 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TreeMap;
 
 import static gitlet.Repository.*;
 import static gitlet.Utils.*;
@@ -19,22 +22,25 @@ public class Commit implements Serializable {
      * The message of this Commit.
      */
     private final String log;
-
-    /**
-     * The SHA-1 id of this Commit.
-     */
-    private TreeMap<File, File> blobs;
-
     /**
      * The parent Commit of this Commit.
      */
     private final String parent;
-
     /**
      * The timestamp of this Commit.
      */
     private final Date date;
-
+    /**
+     * The snapshots of files of this commit.
+     * <p>
+     * The keys are files in CWD
+     * <p>
+     * The values are blobs in BLOB_DIR/shortCommitUid
+     */
+    private TreeMap<File, File> blobs;
+    /**
+     * The SHA-1 id of this Commit.
+     */
     private String uid;
 
     public Commit(String message, String parent) {
@@ -49,6 +55,47 @@ public class Commit implements Serializable {
     }
 
     /**
+     * Finds a commit object matched the Uid
+     */
+    public static Commit findWithUid(String Uid) {
+        List<String> commits = plainFilenamesIn(COMMITS_DIR);
+        for (String commit : commits) {
+            if (commit.equals(Uid) || commit.substring(0, 6).equals(Uid)) {
+                return Methods.toCommit(commit);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Finds out the ids of all commits that have the given commit message
+     *
+     * @return A list of commits' UID
+     */
+    public static List<String> findWithMessage(String message) {
+        List<Commit> commits = findAll();
+        List<String> Uid = new ArrayList<>();
+        for (Commit c : commits) {
+            if (c.log.equals(message)) {
+                Uid.add(c.uid);
+            }
+        }
+        return Uid;
+    }
+
+    /**
+     * @return All commits have ever made.
+     */
+    public static List<Commit> findAll() {
+        List<String> commits = plainFilenamesIn(COMMITS_DIR);
+        List<Commit> ret = new ArrayList<>();
+        for (String commit : commits) {
+            ret.add(Methods.toCommit(commit));
+        }
+        return ret;
+    }
+
+    /**
      * Writes this commit Object to COMMIT_DIR
      * and reset the HEAD pointer
      */
@@ -60,14 +107,14 @@ public class Commit implements Serializable {
         boolean flag = stage();
         flag = unStage(flag);
         if (this.parent != null && !flag) {
-            Methods.Exit("No changes added to the commit.");
+            Methods.exit("No changes added to the commit.");
         }
         byte[] uid = serialize(this);
         setUid(sha1(uid));
         File out = join(COMMITS_DIR, this.uid);
         cleanStagingArea(this);
         writeObject(out, this);
-        Methods.setHEAD(this);
+        Methods.setHEAD(this, Methods.readHEADAsBranch());
     }
 
     /**
@@ -97,61 +144,16 @@ public class Commit implements Serializable {
         return flag;
     }
 
-    /**
-     * Finds a commit object matched the Uid
-     */
-    public static Commit findWithUid(String Uid) {
-        List<String> commits = plainFilenamesIn(COMMITS_DIR);
-        for (String commit : commits) {
-            if (commit.equals(Uid)) {
-                return Methods.toCommit(commit);
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Finds out the ids of all commits that have the given commit message
-     *
-     * @return A list of commits' UID
-     */
-    public static List<String> findWithMessage(String message) {
-        List<Commit> commits = findAll();
-        List<String> UID = new ArrayList<>();
-        for (Commit c : commits) {
-            if (c.log.equals(message)) {
-                UID.add(c.uid);
-            }
-        }
-        return UID;
-    }
-
-    /**
-     * @return All commits have ever made.
-     */
-    public static List<Commit> findAll() {
-        List<String> commits = plainFilenamesIn(COMMITS_DIR);
-        List<Commit> ret = new ArrayList<>();
-        for (String commit : commits) {
-            ret.add(Methods.toCommit(commit));
-        }
-        return ret;
-    }
-
     public boolean isTracked(File file) {
         return this.blobs.get(file) != null;
     }
 
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
-
-    public void setBlobs(TreeMap<File, File> b) {
-        this.blobs = b;
-    }
-
     public String getUid() {
         return this.uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public String getParentAsString() {
@@ -176,5 +178,9 @@ public class Commit implements Serializable {
 
     public TreeMap<File, File> getBlobs() {
         return blobs;
+    }
+
+    public void setBlobs(TreeMap<File, File> b) {
+        this.blobs = b;
     }
 }

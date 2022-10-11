@@ -16,8 +16,10 @@ public class Methods {
     /**
      * exit(0) before print message
      */
-    public static void Exit(String message) {
-        System.out.println(message);
+    public static void exit(String message) {
+        if (message != null) {
+            System.out.println(message);
+        }
         System.exit(0);
     }
 
@@ -29,7 +31,7 @@ public class Methods {
         judgeOperands(0, args);
         File repo = join(CWD, ".gitlet");
         if (repo.exists()) {
-            Exit("A Gitlet version-control system already exists in the current directory.");
+            exit("A Gitlet version-control system already exists in the current directory.");
         }
         initializeRepo();
         Commit commit = new Commit("initial commit", null);
@@ -46,7 +48,7 @@ public class Methods {
         String name = args[1];
         File inFile = join(CWD, name);
         if (!inFile.exists()) {
-            Exit("File does not exist.");
+            exit("File does not exist.");
         }
         Commit parent = readHEADAsCommit();
         Add.add(inFile, name, parent);
@@ -62,7 +64,7 @@ public class Methods {
         String name = args[1];
         File inFile = join(CWD, name);
         if (!Remove.remove(inFile, name)) {
-            Exit("No reason to remove the file.");
+            exit("No reason to remove the file.");
         }
     }
 
@@ -72,12 +74,12 @@ public class Methods {
      */
     public static void commit(String[] args) {
         exitUnlessRepoExists();
-        if (args.length < 2) {
-            Exit("Please enter a commit message.");
+        if (args.length < 2 || args[1].equals("")) {
+            exit("Please enter a commit message.");
         }
         judgeOperands(1, args);
         String message = args[1];
-        String h = Utils.readObject(HEAD, Branch.class).getHEAD();
+        String h = readHEADContent();
         Commit commit = new Commit(message, h);
         commit.makeCommit();
     }
@@ -97,14 +99,14 @@ public class Methods {
         } else if (args.length == 4 && args[2].equals("--")) {
             Commit commit = Commit.findWithUid(args[1]);
             if (commit == null) {
-                Exit("No commit with that id exists.");
+                exit("No commit with that id exists.");
             }
             File file = join(CWD, args[3]);
             Checkout.checkoutFile(commit, file);
         } else if (args.length == 2) {
             Checkout.checkoutBranch(args[1]);
         } else {
-            Exit("Incorrect operands.");
+            exit("Incorrect operands.");
         }
     }
 
@@ -136,11 +138,11 @@ public class Methods {
     public static void find(String[] args) {
         exitUnlessRepoExists();
         judgeOperands(1, args);
-        List<String> UID = Commit.findWithMessage(args[1]);
-        if (UID.isEmpty()) {
-            Exit("Found no commit with that message.");
+        List<String> uid = Commit.findWithMessage(args[1]);
+        if (uid.isEmpty()) {
+            exit("Found no commit with that message.");
         }
-        System.out.println(UID);
+        System.out.println(uid);
     }
 
     public static void branch(String[] args) {
@@ -156,7 +158,7 @@ public class Methods {
     public static void exitUnlessRepoExists() {
         File repo = join(CWD, ".gitlet");
         if (!repo.exists()) {
-            Exit("Not in an initialized Gitlet directory.");
+            exit("Not in an initialized Gitlet directory.");
         }
     }
 
@@ -174,7 +176,7 @@ public class Methods {
      */
     public static void judgeOperands(int min, int max, String[] args) {
         if (args.length < min + 1 || args.length > max + 1) {
-            Exit("Incorrect operands.");
+            exit("Incorrect operands.");
         }
     }
 
@@ -215,11 +217,10 @@ public class Methods {
     /**
      * Sets HEAD pointer point to a commit
      */
-    public static void setHEAD(Commit commit) {
-        Branch h = readHEADAsBranch();
-        h.setHEAD(commit.getUid());
-        writeObject(HEAD, h);
-        h.updateBranch();
+    public static void setHEAD(Commit commit, Branch b) {
+        b.setHEAD(commit.getUid());
+        writeObject(HEAD, b);
+        b.updateBranch();
     }
 
     public static Branch readHEADAsBranch() {
