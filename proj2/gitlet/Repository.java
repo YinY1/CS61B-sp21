@@ -83,7 +83,7 @@ public class Repository implements Serializable {
      */
     public static void initializeRepo() {
         File[] dir = {GITLET_DIR, STAGING_DIR, ADDITION_DIR, TEMP_BLOBS_DIR,
-                REMOVAL_DIR, BLOBS_DIR, COMMITS_DIR, BRANCHES_DIR};
+                        REMOVAL_DIR, BLOBS_DIR, COMMITS_DIR, BRANCHES_DIR};
         for (File f : dir) {
             f.mkdir();
         }
@@ -103,8 +103,10 @@ public class Repository implements Serializable {
     public static void cleanStagingArea(Commit commit) {
         if (commit.getParentAsString() != null) {
             // move blobs to BLOB_DIR
-            moveTempBlobs(commit);
-            moveOlderBlobs(commit);
+            File blobDir = join(BLOBS_DIR, commit.getShortUid());
+            blobDir.mkdir();
+            moveTempBlobs(blobDir);
+            moveOlderBlobs(commit, blobDir);
             clean(ADDITION_DIR);
             clean(REMOVAL_DIR);
             // change blobs DIR in commit
@@ -131,16 +133,13 @@ public class Repository implements Serializable {
     /**
      * Moves Blobs from TEMP_DIR to BLOBS_DIR.
      */
-    private static void moveTempBlobs(Commit commit) {
+    private static void moveTempBlobs(File blobDir) {
         if (blobs != null) {
             for (File b : blobs.values()) {
                 // first copy them
                 String blobName = b.getName();
                 File tempBlob = join(TEMP_BLOBS_DIR, blobName);
-                String shortCommitName = commit.getShortUid();
-                File blob_DIR = join(BLOBS_DIR, shortCommitName);
-                blob_DIR.mkdir();
-                Methods.writeFile(tempBlob, blob_DIR, blobName);
+                Methods.writeFile(tempBlob, blobDir, blobName);
                 // then delete them
                 tempBlob.delete();
             }
@@ -150,12 +149,10 @@ public class Repository implements Serializable {
     /**
      * Copies blobs from Parent's BLOB_DIR to current BLOB_DIR
      */
-    private static void moveOlderBlobs(Commit commit) {
+    private static void moveOlderBlobs(Commit commit, File blobDir) {
         Commit p = commit.getParentAsCommit();
         for (File b : p.getBlobs().values()) {
             String blobName = b.getName();
-            String shortCommitName = commit.getShortUid();
-            File blobDir = join(BLOBS_DIR, shortCommitName);
             Methods.writeFile(b, blobDir, blobName);
         }
     }

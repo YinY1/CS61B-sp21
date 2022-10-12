@@ -60,7 +60,7 @@ public class Commit implements Serializable {
     public static Commit findWithUid(String Uid) {
         List<String> commits = plainFilenamesIn(COMMITS_DIR);
         for (String commit : commits) {
-            if (commit.equals(Uid) || commit.substring(0, 6).equals(Uid)) {
+            if (Uid != null && commit.contains(Uid)) {
                 return Methods.toCommit(commit);
             }
         }
@@ -74,13 +74,13 @@ public class Commit implements Serializable {
      */
     public static List<String> findWithMessage(String message) {
         List<Commit> commits = findAll();
-        List<String> Uid = new ArrayList<>();
+        List<String> ids = new ArrayList<>();
         for (Commit c : commits) {
             if (c.log.equals(message)) {
-                Uid.add(c.uid);
+                ids.add(c.uid);
             }
         }
-        return Uid;
+        return ids;
     }
 
     /**
@@ -109,8 +109,8 @@ public class Commit implements Serializable {
         if (this.parent != null && !flag) {
             Methods.exit("No changes added to the commit.");
         }
-        byte[] uid = serialize(this);
-        setUid(sha1(uid));
+        byte[] name = serialize(this);
+        setUid(sha1(name));
         File out = join(COMMITS_DIR, this.uid);
         cleanStagingArea(this);
         writeObject(out, this);
