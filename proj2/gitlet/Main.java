@@ -13,21 +13,21 @@ public class Main {
      */
     public static void main(String[] args) {
         if (args.length == 0) {
-            Methods.Exit("Please enter a command.");
+            Methods.exit("Please enter a command.");
         }
         String firstArg = args[0];
         switch (firstArg) {
             case "init" -> Methods.init(args);
             case "add" -> Methods.add(args);
-            case "rm" -> Methods.remove(args);
             case "commit" -> Methods.commit(args);
             case "rm" -> Methods.remove(args);
             case "log" -> Methods.log(args);
             case "global-log" -> Methods.globalLog(args);
             case "find" -> Methods.find(args);
             case "checkout" -> Methods.checkout(args);
+            case "status" -> Methods.status(args);
             case "branch" -> Methods.branch(args);
-            default -> Methods.Exit("No command with that name exists.");
+            default -> Methods.exit("No command with that name exists.");
         }
     }
 }
