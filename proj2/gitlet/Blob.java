@@ -2,8 +2,8 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
-import java.util.TreeMap;
 
 import static gitlet.Repository.TEMP_BLOBS_DIR;
 import static gitlet.Utils.*;
@@ -14,11 +14,11 @@ import static gitlet.Utils.*;
  * @author Edward Tsang
  */
 public class Blob implements Serializable {
-    final byte[] content;
+    final String content;
     final File file;
 
     public Blob(File f) {
-        this.content = readContents(f);
+        this.content = readContentsAsString(f);
         this.file = f;
     }
 
@@ -27,11 +27,11 @@ public class Blob implements Serializable {
      */
     public static void readBlobsToRepo(File dir) {
         List<String> names = plainFilenamesIn(dir);
-        Repository.blobs = new TreeMap<>();
+        Repository.blobs = new HashMap<>();
         for (String name : names) {
             File blob = join(dir, name);
             Blob b = readObject(blob, Blob.class);
-            Repository.blobs.put(b.file, blob);
+            Repository.blobs.put(b.file.getAbsolutePath(), blob.getAbsolutePath());
         }
     }
 
@@ -45,8 +45,7 @@ public class Blob implements Serializable {
     }
 
     public static String getBlobName(File f) {
-        String name = readContentsAsString(f) + f.getName();
-        return sha1(name);
+        return sha1(readContentsAsString(f) + f.getAbsolutePath());
     }
 
 
@@ -56,11 +55,10 @@ public class Blob implements Serializable {
      */
     public static boolean compareToOrigin(File inFile, Commit parent) {
         String currentName = Blob.getBlobName(inFile);
-        File oldBlob = parent.getBlobs().get(inFile);
-        if (oldBlob == null) {
+        String oldBlobName = parent.getBlobs().get(inFile.getAbsolutePath());
+        if (oldBlobName == null) {
             return false;
         }
-        String oldName = oldBlob.getName();
-        return !parent.getBlobs().isEmpty() && oldName.equals(currentName);
+        return !parent.getBlobs().isEmpty() && oldBlobName.equals(currentName);
     }
 }

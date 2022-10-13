@@ -29,7 +29,7 @@ public class Remove {
         // delete file in CWD
         Commit h = Methods.readHEADAsCommit();
         if (h.isTracked(file)) {
-            File blob = h.getBlobs().remove(file);
+            File blob = new File(h.getBlobs().remove(file.getAbsolutePath()));
             Methods.writeFile(blob, REMOVAL_DIR, blob.getName());
             file.delete();
             // TODO : maybe should update commit blob.

@@ -2,8 +2,8 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
-import java.util.TreeMap;
 
 import static gitlet.Utils.*;
 
@@ -76,14 +76,14 @@ public class Repository implements Serializable {
     /**
      * Temp blobs of current command.
      */
-    static TreeMap<File, File> blobs;
+    static HashMap<String, String> blobs;
 
     /**
      * Creates a new Gitlet version-control system in the current directory.
      */
     public static void initializeRepo() {
         File[] dir = {GITLET_DIR, STAGING_DIR, ADDITION_DIR, TEMP_BLOBS_DIR,
-                        REMOVAL_DIR, BLOBS_DIR, COMMITS_DIR, BRANCHES_DIR};
+                REMOVAL_DIR, BLOBS_DIR, COMMITS_DIR, BRANCHES_DIR};
         for (File f : dir) {
             f.mkdir();
         }
@@ -113,7 +113,6 @@ public class Repository implements Serializable {
             File newBlobsDIR = join(BLOBS_DIR, commit.getShortUid());
             Blob.readBlobsToRepo(newBlobsDIR);
             commit.setBlobs(blobs);
-            blobs = null;
         }
     }
 
@@ -135,15 +134,20 @@ public class Repository implements Serializable {
      */
     private static void moveTempBlobs(File blobDir) {
         if (blobs != null) {
-            for (File b : blobs.values()) {
+            for (String blobPath : blobs.values()) {
                 // first copy them
-                String blobName = b.getName();
-                File tempBlob = join(TEMP_BLOBS_DIR, blobName);
-                Methods.writeFile(tempBlob, blobDir, blobName);
+                File from = new File(blobPath);
+                copyBlobTo(from, blobDir);
                 // then delete them
-                tempBlob.delete();
+                from.delete();
             }
         }
+    }
+
+    private static void copyBlobTo(File from, File destination) {
+        Blob ob = readObject(from, Blob.class);
+        File to = join(destination, from.getName());
+        writeObject(to, ob);
     }
 
     /**
@@ -151,9 +155,16 @@ public class Repository implements Serializable {
      */
     private static void moveOlderBlobs(Commit commit, File blobDir) {
         Commit p = commit.getParentAsCommit();
-        for (File b : p.getBlobs().values()) {
-            String blobName = b.getName();
-            Methods.writeFile(b, blobDir, blobName);
+        for (String blobPath : p.getBlobs().values()) {
+            copyBlobTo(new File(blobPath), blobDir);
         }
+    }
+
+    public static boolean isStaged(File inFile) {
+        return join(ADDITION_DIR, inFile.getName()).exists();
+    }
+
+    public static boolean isRemoved(File inFile) {
+        return join(REMOVAL_DIR, inFile.getName()).exists();
     }
 }
