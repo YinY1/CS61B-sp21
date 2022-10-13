@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import java.util.TreeMap;
 
 import static gitlet.Repository.*;
 import static gitlet.Utils.*;
@@ -37,7 +37,7 @@ public class Commit implements Serializable {
      * <p>
      * The values are blobs in BLOB_DIR/shortCommitUid
      */
-    private TreeMap<File, File> blobs;
+    private HashMap<String, String> blobs;
     /**
      * The SHA-1 id of this Commit.
      */
@@ -51,16 +51,16 @@ public class Commit implements Serializable {
         } else {
             this.date = new Date();
         }
-        this.blobs = new TreeMap<>();
+        this.blobs = new HashMap<>();
     }
 
     /**
      * Finds a commit object matched the Uid
      */
-    public static Commit findWithUid(String Uid) {
+    public static Commit findWithUid(String id) {
         List<String> commits = plainFilenamesIn(COMMITS_DIR);
         for (String commit : commits) {
-            if (Uid != null && commit.contains(Uid)) {
+            if (id != null && commit.contains(id)) {
                 return Methods.toCommit(commit);
             }
         }
@@ -109,8 +109,7 @@ public class Commit implements Serializable {
         if (this.parent != null && !flag) {
             Methods.exit("No changes added to the commit.");
         }
-        byte[] name = serialize(this);
-        setUid(sha1(name));
+        setUid();
         File out = join(COMMITS_DIR, this.uid);
         cleanStagingArea(this);
         writeObject(out, this);
@@ -139,21 +138,21 @@ public class Commit implements Serializable {
             flag = true;
         }
         for (File f : rm) {
-            blobs.remove(f);
+            blobs.remove(f.getAbsolutePath());
         }
         return flag;
     }
 
     public boolean isTracked(File file) {
-        return this.blobs.get(file) != null;
+        return this.blobs.get(file.getAbsolutePath()) != null;
     }
 
     public String getUid() {
         return this.uid;
     }
 
-    public void setUid(String uid) {
-        this.uid = uid;
+    public void setUid() {
+        this.uid = sha1(this.parent + this.date + this.log + this.blobs.toString());
     }
 
     public String getParentAsString() {
@@ -176,11 +175,11 @@ public class Commit implements Serializable {
         return log;
     }
 
-    public TreeMap<File, File> getBlobs() {
+    public HashMap<String, String> getBlobs() {
         return blobs;
     }
 
-    public void setBlobs(TreeMap<File, File> b) {
+    public void setBlobs(HashMap<String, String> b) {
         this.blobs = b;
     }
 }
