@@ -4,7 +4,7 @@ import java.io.File;
 
 import static gitlet.Repository.ADDITION_DIR;
 import static gitlet.Repository.REMOVAL_DIR;
-import static gitlet.Utils.join;
+import static gitlet.Utils.*;
 
 /**
  * Represents a gitlet checkout object
@@ -28,11 +28,12 @@ public class Remove {
         }
         // delete file in CWD
         Commit h = Methods.readHEADAsCommit();
-        if (h.isTracked(file)) {
+        if (Methods.isTracked(file,h)) {
             File blob = new File(h.getBlobs().remove(file.getAbsolutePath()));
-            Methods.writeFile(blob, REMOVAL_DIR, blob.getName());
+            Blob b = readObject(blob, Blob.class);
+            File to = join(REMOVAL_DIR, b.file.getName());
+            writeContents(to, b.content);
             file.delete();
-            // TODO : maybe should update commit blob.
             flag = true;
         }
         return flag;
