@@ -14,16 +14,20 @@ public class Add {
      * Adds a copy of the file as it currently exists to the staging area.
      */
     public static void add(File inFile, String name, Commit parent) {
-        File added = join(Repository.ADDITION_DIR, name);
+        // if removed, delete the rm
+        File rm = join(Repository.REMOVAL_DIR, name);
+        rm.delete();
+
         // if exists, delete the old files
+        File added = join(Repository.ADDITION_DIR, name);
         if (added.exists()) {
             deleteOldFiles(added);
         }
-        if (Blob.compareToOrigin(inFile, parent)) {
+        if (!Methods.isModified(inFile, parent)) {
             Methods.exit(null);
         }
         // copy file to ADD_DIR
-        Methods.writeFile(inFile, Repository.ADDITION_DIR, name);
+        Methods.copyFile(inFile, Repository.ADDITION_DIR, name);
         // make temp blob
         Blob b = new Blob(inFile);
         Blob.makeBlob(b);
