@@ -147,9 +147,7 @@ public class Commit implements Serializable {
         return flag;
     }
 
-    public boolean isTracked(File file) {
-        return this.blobs.get(file.getAbsolutePath()) != null && !join(ADDITION_DIR, file.getName()).exists();
-    }
+
 
     public String getUid() {
         return this.uid;

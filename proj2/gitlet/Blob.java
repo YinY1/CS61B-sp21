@@ -49,18 +49,4 @@ public class Blob implements Serializable {
     public static String getBlobName(File f) {
         return sha1(readContentsAsString(f) + f.getName());
     }
-
-
-    /**
-     * Compare the inFile to the file in the parent commit with the same name
-     * return ture if they are the same file
-     */
-    public static boolean compareToOrigin(File inFile, Commit parent) {
-        String currentName = Blob.getBlobName(inFile);
-        String oldBlobName = parent.getBlobs().get(inFile.getAbsolutePath());
-        if (oldBlobName == null) {
-            return false;
-        }
-        return !parent.getBlobs().isEmpty() && oldBlobName.equals(currentName);
-    }
 }

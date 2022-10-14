@@ -130,6 +130,12 @@ public class Methods {
         Log.globalLog();
     }
 
+    public static void status(String[] args) {
+        exitUnlessRepoExists();
+        judgeOperands(0, args);
+        Status.printStatus();
+    }
+
     /**
      * Command 'find + message'
      * Prints out the ids of all commits that have the given commit message,
@@ -210,7 +216,7 @@ public class Methods {
     /**
      * write inFile to destination DIR with a fileName
      */
-    public static void writeFile(File inFile, File desDIR, String fileName) {
+    public static void copyFile(File inFile, File desDIR, String fileName) {
         byte[] outByte = readContents(inFile);
         File out = join(desDIR, fileName);
         writeContents(out, outByte);
@@ -240,5 +246,30 @@ public class Methods {
     public static String readHEADContent() {
         Branch h = readHEADAsBranch();
         return h.getHEAD();
+    }
+
+    /**
+     * Compare the inFile to the file in the parent commit with the same name
+     * return ture if it is modified
+     */
+    public static boolean isModified(File inFile, Commit parent) {
+        String currentName = Blob.getBlobName(inFile);
+        String oldBlobPath = parent.getBlobs().get(inFile.getAbsolutePath());
+        if (oldBlobPath == null) {
+            return true;
+        }
+        File obp = join(oldBlobPath);
+        return parent.getBlobs().isEmpty() || !obp.getName().equals(currentName);
+    }
+
+    public static boolean isTracked(File file, Commit c) {
+        return c.getBlobs().get(file.getAbsolutePath()) != null || Methods.isStaged(file);
+    }
+    public static boolean isStaged(File inFile) {
+        return join(ADDITION_DIR, inFile.getName()).exists();
+    }
+
+    public static boolean isRemoved(File inFile) {
+        return join(REMOVAL_DIR, inFile.getName()).exists();
     }
 }

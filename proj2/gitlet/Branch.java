@@ -27,6 +27,9 @@ public class Branch implements Serializable {
         return Utils.readObject(b, Branch.class);
     }
 
+    /**
+     * Writes current HEAD to this branch
+     */
     public void updateBranch() {
         this.HEAD = Utils.readObject(Repository.HEAD, Branch.class).getHEAD();
         File h = Utils.join(Repository.BRANCHES_DIR, this.name);

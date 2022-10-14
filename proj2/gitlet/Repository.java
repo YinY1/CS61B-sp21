@@ -105,10 +105,10 @@ public class Repository implements Serializable {
             // move blobs to BLOB_DIR
             Commit p = c.getParentAsCommit();
             if (p != null) {
-                copyBlobs(p, join(BLOBS_DIR, p.getShortUid()));
+                copyAllBlobs(p, join(BLOBS_DIR, p.getShortUid()), BLOBS_DIR);
             }
 
-            copyBlobs(c, TEMP_BLOBS_DIR);
+            copyAllBlobs(c, TEMP_BLOBS_DIR, BLOBS_DIR);
 
             deleteBlobs(c);
 
@@ -137,36 +137,35 @@ public class Repository implements Serializable {
         }
     }
 
-    public static void copyBlobs(Commit c, File sourceDir) {
+    public static void copyAllBlobs(Commit c, File sourceDir, File desDir) {
         List<String> blobs = plainFilenamesIn(sourceDir);
         if (blobs != null) {
             for (String b : blobs) {
-                File from = join(sourceDir, b);
-                File to = join(BLOBS_DIR, c.getShortUid());
-                to.mkdir();
-                to = join(to, b);
-                Blob blob = readObject(from, Blob.class);
-                writeObject(to, blob);
+                copyBlob(c, sourceDir, desDir, b);
             }
         }
+    }
+
+    /**
+     * copy a blob from sourceDir to desDir
+     */
+    private static void copyBlob(Commit c, File sourceDir, File desDir, String blobName) {
+        File from = join(sourceDir, blobName);
+        File to = join(desDir, c.getShortUid());
+        to.mkdir();
+        to = join(to, blobName);
+        Blob blob = readObject(from, Blob.class);
+        writeObject(to, blob);
     }
 
     public static void deleteBlobs(Commit c) {
-        List<String> blobs = plainFilenamesIn(REMOVAL_DIR);
-        if (blobs != null) {
-            for (String b : blobs) {
-                File from = join(REMOVAL_DIR, b);
-                File to = join(BLOBS_DIR, c.getShortUid(), from.getName());
+        List<String> files = plainFilenamesIn(REMOVAL_DIR);
+        if (files != null) {
+            for (String f : files) {
+                File from = join(REMOVAL_DIR, f);
+                File to = join(BLOBS_DIR, c.getShortUid(), Blob.getBlobName(from));
                 to.delete();
             }
         }
-    }
-
-    public static boolean isStaged(File inFile) {
-        return join(ADDITION_DIR, inFile.getName()).exists();
-    }
-
-    public static boolean isRemoved(File inFile) {
-        return join(REMOVAL_DIR, inFile.getName()).exists();
     }
 }
