@@ -28,10 +28,12 @@ public class Blob implements Serializable {
     public static void readBlobsToRepo(File dir) {
         List<String> names = plainFilenamesIn(dir);
         Repository.blobs = new HashMap<>();
-        for (String name : names) {
-            File blob = join(dir, name);
-            Blob b = readObject(blob, Blob.class);
-            Repository.blobs.put(b.file.getAbsolutePath(), blob.getAbsolutePath());
+        if (names != null) {
+            for (String name : names) {
+                File blob = join(dir, name);
+                Blob b = readObject(blob, Blob.class);
+                Repository.blobs.put(b.file.getAbsolutePath(), blob.getAbsolutePath());
+            }
         }
     }
 
@@ -45,7 +47,7 @@ public class Blob implements Serializable {
     }
 
     public static String getBlobName(File f) {
-        return sha1(readContentsAsString(f) + f.getAbsolutePath());
+        return sha1(readContentsAsString(f) + f.getName());
     }
 
 

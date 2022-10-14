@@ -100,19 +100,25 @@ public class Repository implements Serializable {
      * delete all files in Staging Area
      * TODO: recursively
      */
-    public static void cleanStagingArea(Commit commit) {
-        if (commit.getParentAsString() != null) {
+    public static void cleanStagingArea(Commit c) {
+        if (c.getParentAsString() != null) {
             // move blobs to BLOB_DIR
-            File blobDir = join(BLOBS_DIR, commit.getShortUid());
-            blobDir.mkdir();
-            moveTempBlobs(blobDir);
-            moveOlderBlobs(commit, blobDir);
-            clean(ADDITION_DIR);
-            clean(REMOVAL_DIR);
-            // change blobs DIR in commit
-            File newBlobsDIR = join(BLOBS_DIR, commit.getShortUid());
+            Commit p = c.getParentAsCommit();
+            if (p != null) {
+                copyBlobs(p, join(BLOBS_DIR, p.getShortUid()));
+            }
+
+            copyBlobs(c, TEMP_BLOBS_DIR);
+
+            deleteBlobs(c);
+
+            File newBlobsDIR = join(BLOBS_DIR, c.getShortUid());
             Blob.readBlobsToRepo(newBlobsDIR);
-            commit.setBlobs(blobs);
+            c.setBlobs(blobs);
+
+            clean(ADDITION_DIR);
+            clean(TEMP_BLOBS_DIR);
+            clean(REMOVAL_DIR);
         }
     }
 
@@ -121,42 +127,38 @@ public class Repository implements Serializable {
      */
     public static void clean(File dir) {
         List<String> files = plainFilenamesIn(dir);
-        for (String name : files) {
-            File f = join(dir, name);
-            if (!f.delete()) {
-                Methods.exit("DeleteError");
+        if (files != null) {
+            for (String name : files) {
+                File f = join(dir, name);
+                if (!f.delete()) {
+                    Methods.exit("DeleteError");
+                }
             }
         }
     }
 
-    /**
-     * Moves Blobs from TEMP_DIR to BLOBS_DIR.
-     */
-    private static void moveTempBlobs(File blobDir) {
+    public static void copyBlobs(Commit c, File sourceDir) {
+        List<String> blobs = plainFilenamesIn(sourceDir);
         if (blobs != null) {
-            for (String blobPath : blobs.values()) {
-                // first copy them
-                File from = new File(blobPath);
-                copyBlobTo(from, blobDir);
-                // then delete them
-                from.delete();
+            for (String b : blobs) {
+                File from = join(sourceDir, b);
+                File to = join(BLOBS_DIR, c.getShortUid());
+                to.mkdir();
+                to = join(to, b);
+                Blob blob = readObject(from, Blob.class);
+                writeObject(to, blob);
             }
         }
     }
 
-    private static void copyBlobTo(File from, File destination) {
-        Blob ob = readObject(from, Blob.class);
-        File to = join(destination, from.getName());
-        writeObject(to, ob);
-    }
-
-    /**
-     * Copies blobs from Parent's BLOB_DIR to current BLOB_DIR
-     */
-    private static void moveOlderBlobs(Commit commit, File blobDir) {
-        Commit p = commit.getParentAsCommit();
-        for (String blobPath : p.getBlobs().values()) {
-            copyBlobTo(new File(blobPath), blobDir);
+    public static void deleteBlobs(Commit c) {
+        List<String> blobs = plainFilenamesIn(REMOVAL_DIR);
+        if (blobs != null) {
+            for (String b : blobs) {
+                File from = join(REMOVAL_DIR, b);
+                File to = join(BLOBS_DIR, c.getShortUid(), from.getName());
+                to.delete();
+            }
         }
     }
 

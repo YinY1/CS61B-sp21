@@ -59,9 +59,11 @@ public class Commit implements Serializable {
      */
     public static Commit findWithUid(String id) {
         List<String> commits = plainFilenamesIn(COMMITS_DIR);
-        for (String commit : commits) {
-            if (id != null && commit.contains(id)) {
-                return Methods.toCommit(commit);
+        if (commits != null) {
+            for (String commit : commits) {
+                if (id != null && commit.contains(id)) {
+                    return Methods.toCommit(commit);
+                }
             }
         }
         return null;
@@ -89,8 +91,10 @@ public class Commit implements Serializable {
     public static List<Commit> findAll() {
         List<String> commits = plainFilenamesIn(COMMITS_DIR);
         List<Commit> ret = new ArrayList<>();
-        for (String commit : commits) {
-            ret.add(Methods.toCommit(commit));
+        if (commits != null) {
+            for (String commit : commits) {
+                ret.add(Methods.toCommit(commit));
+            }
         }
         return ret;
     }
@@ -144,7 +148,7 @@ public class Commit implements Serializable {
     }
 
     public boolean isTracked(File file) {
-        return this.blobs.get(file.getAbsolutePath()) != null;
+        return this.blobs.get(file.getAbsolutePath()) != null && !join(ADDITION_DIR, file.getName()).exists();
     }
 
     public String getUid() {
@@ -152,7 +156,7 @@ public class Commit implements Serializable {
     }
 
     public void setUid() {
-        this.uid = sha1(this.parent + this.date + this.log + this.blobs.toString());
+        this.uid = sha1(this.parent + this.date + this.log);
     }
 
     public String getParentAsString() {
