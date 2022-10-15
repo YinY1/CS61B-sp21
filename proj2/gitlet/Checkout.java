@@ -3,8 +3,7 @@ package gitlet;
 import java.io.File;
 import java.util.HashMap;
 
-import static gitlet.Utils.readObject;
-import static gitlet.Utils.writeContents;
+import static gitlet.Utils.*;
 
 /**
  * Represents a gitlet checkout object
@@ -61,7 +60,7 @@ public class Checkout {
         assert oldCommit != null;
         HashMap<String, String> old = oldCommit.getBlobs();
         for (String oldFile : old.keySet()) {
-            reStoreBlob(new File(oldFile), new File(old.get(oldFile)));
+            reStoreBlob(join(oldFile), join(old.get(oldFile)));
         }
 
         Repository.cleanStagingArea(currentCommit);

@@ -83,7 +83,7 @@ public class Repository implements Serializable {
      */
     public static void initializeRepo() {
         File[] dir = {GITLET_DIR, STAGING_DIR, ADDITION_DIR, TEMP_BLOBS_DIR,
-                REMOVAL_DIR, BLOBS_DIR, COMMITS_DIR, BRANCHES_DIR};
+                         REMOVAL_DIR, BLOBS_DIR, COMMITS_DIR, BRANCHES_DIR};
         for (File f : dir) {
             f.mkdir();
         }
@@ -102,17 +102,18 @@ public class Repository implements Serializable {
      */
     public static void cleanStagingArea(Commit c) {
         if (c.getParentAsString() != null) {
+            File newBlobsDIR = join(BLOBS_DIR, c.getShortUid());
+            newBlobsDIR.mkdir();
             // move blobs to BLOB_DIR
             Commit p = c.getParentAsCommit();
             if (p != null) {
-                copyAllBlobs(p, join(BLOBS_DIR, p.getShortUid()), BLOBS_DIR);
+                copyAllBlobs(join(BLOBS_DIR, p.getShortUid()), newBlobsDIR);
             }
 
-            copyAllBlobs(c, TEMP_BLOBS_DIR, BLOBS_DIR);
+            copyAllBlobs(TEMP_BLOBS_DIR, newBlobsDIR);
 
             deleteBlobs(c);
 
-            File newBlobsDIR = join(BLOBS_DIR, c.getShortUid());
             Blob.readBlobsToRepo(newBlobsDIR);
             c.setBlobs(blobs);
 
@@ -128,32 +129,23 @@ public class Repository implements Serializable {
     public static void clean(File dir) {
         List<String> files = plainFilenamesIn(dir);
         if (files != null) {
-            for (String name : files) {
-                File f = join(dir, name);
-                if (!f.delete()) {
-                    Methods.exit("DeleteError");
-                }
-            }
+            files.forEach(n -> join(dir, n).delete());
         }
     }
 
-    public static void copyAllBlobs(Commit c, File sourceDir, File desDir) {
-        List<String> blobs = plainFilenamesIn(sourceDir);
-        if (blobs != null) {
-            for (String b : blobs) {
-                copyBlob(c, sourceDir, desDir, b);
-            }
+    public static void copyAllBlobs(File sourceDir, File desDir) {
+        List<String> blobNames = plainFilenamesIn(sourceDir);
+        if (blobNames != null) {
+            blobNames.forEach(b -> copyBlob(sourceDir, desDir, b));// TODO
         }
     }
 
     /**
      * copy a blob from sourceDir to desDir
      */
-    private static void copyBlob(Commit c, File sourceDir, File desDir, String blobName) {
+    private static void copyBlob(File sourceDir, File desDir, String blobName) {
         File from = join(sourceDir, blobName);
-        File to = join(desDir, c.getShortUid());
-        to.mkdir();
-        to = join(to, blobName);
+        File to = join(desDir, blobName);
         Blob blob = readObject(from, Blob.class);
         writeObject(to, blob);
     }

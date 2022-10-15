@@ -92,9 +92,7 @@ public class Commit implements Serializable {
         List<String> commits = plainFilenamesIn(COMMITS_DIR);
         List<Commit> ret = new ArrayList<>();
         if (commits != null) {
-            for (String commit : commits) {
-                ret.add(Methods.toCommit(commit));
-            }
+            commits.forEach(c -> ret.add(Methods.toCommit(c)));
         }
         return ret;
     }
@@ -141,12 +139,9 @@ public class Commit implements Serializable {
         if (!rm.isEmpty()) {
             flag = true;
         }
-        for (File f : rm) {
-            blobs.remove(f.getAbsolutePath());
-        }
+        rm.forEach(f -> blobs.remove(f.getAbsolutePath()));
         return flag;
     }
-
 
 
     public String getUid() {

@@ -88,7 +88,8 @@ public class Methods {
      * Command `checkout -- [file name]`
      * <p>
      * or  `checkout [commit id] -- [file name]`
-     * TODO:       [branch name]
+     * <p>
+     * or  `checkout [branch name]`
      */
     public static void checkout(String[] args) {
         exitUnlessRepoExists();
@@ -148,9 +149,7 @@ public class Methods {
         if (uid.isEmpty()) {
             exit("Found no commit with that message.");
         }
-        for (String u : uid) {
-            System.out.println(u);
-        }
+        uid.forEach(System.out::println);
     }
 
     public static void branch(String[] args) {
@@ -206,9 +205,8 @@ public class Methods {
     public static List<File> readRemovalFiles() {
         List<File> ret = new ArrayList<>();
         List<String> names = plainFilenamesIn(REMOVAL_DIR);
-        for (String n : names) {
-            File rm = join(REMOVAL_DIR, n);
-            ret.add(rm);
+        if (names != null) {
+            names.forEach(n -> ret.add(join(CWD, n)));
         }
         return ret;
     }
@@ -253,6 +251,9 @@ public class Methods {
      * return ture if it is modified
      */
     public static boolean isModified(File inFile, Commit parent) {
+        if (!inFile.exists()) {
+            return false;
+        }
         String currentName = Blob.getBlobName(inFile);
         String oldBlobPath = parent.getBlobs().get(inFile.getAbsolutePath());
         if (oldBlobPath == null) {
@@ -265,6 +266,7 @@ public class Methods {
     public static boolean isTracked(File file, Commit c) {
         return c.getBlobs().get(file.getAbsolutePath()) != null || Methods.isStaged(file);
     }
+
     public static boolean isStaged(File inFile) {
         return join(ADDITION_DIR, inFile.getName()).exists();
     }
