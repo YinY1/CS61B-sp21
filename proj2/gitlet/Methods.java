@@ -45,13 +45,11 @@ public class Methods {
     public static void add(String[] args) {
         exitUnlessRepoExists();
         judgeOperands(1, args);
-        String name = args[1];
-        File inFile = join(CWD, name);
+        File inFile = join(CWD, args[1]);
         if (!inFile.exists()) {
             exit("File does not exist.");
         }
-        Commit parent = readHEADAsCommit();
-        Add.add(inFile, name, parent);
+        git().add(inFile);
     }
 
     /**
@@ -61,9 +59,8 @@ public class Methods {
     public static void remove(String[] args) {
         exitUnlessRepoExists();
         judgeOperands(1, args);
-        String name = args[1];
-        File inFile = join(CWD, name);
-        if (!Remove.remove(inFile, name)) {
+        File inFile = join(CWD, args[1]);
+        if (!git().remove(inFile)) {
             exit("No reason to remove the file.");
         }
     }
@@ -80,8 +77,7 @@ public class Methods {
         judgeOperands(1, args);
         String message = args[1];
         String h = readHEADContent();
-        Commit commit = new Commit(message, h);
-        commit.makeCommit();
+        new Commit(message, h).makeCommit();
     }
 
     /**
@@ -188,15 +184,12 @@ public class Methods {
     }
 
     /**
-     * @param name uid of the commit
+     * @param uid uid of the commit
      * @return the commit which has the uid if exists
      */
-    public static Commit toCommit(String name) {
-        File c = join(COMMITS_DIR, name);
-        if (!c.exists()) {
-            return null;
-        }
-        return readObject(c, Commit.class);
+    public static Commit toCommit(String uid) {
+        File c = join(getObjectsDir(uid), getObjectName(uid));
+        return c.exists() ? readObject(c, Commit.class) : null;
     }
 
     /**
@@ -263,15 +256,7 @@ public class Methods {
         return parent.getBlobs().isEmpty() || !obp.getName().equals(currentName);
     }
 
-    public static boolean isTracked(File file, Commit c) {
-        return c.getBlobs().get(file.getAbsolutePath()) != null || Methods.isStaged(file);
-    }
-
-    public static boolean isStaged(File inFile) {
-        return join(ADDITION_DIR, inFile.getName()).exists();
-    }
-
-    public static boolean isRemoved(File inFile) {
-        return join(REMOVAL_DIR, inFile.getName()).exists();
+    public static Index git() {
+        return readObject(INDEX, Index.class);
     }
 }

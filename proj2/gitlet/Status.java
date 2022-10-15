@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static gitlet.Methods.*;
-import static gitlet.Repository.ADDITION_DIR;
-import static gitlet.Repository.REMOVAL_DIR;
 import static gitlet.Utils.join;
 import static gitlet.Utils.plainFilenamesIn;
 
@@ -53,15 +51,16 @@ public class Status {
     }
 
     public static ArrayList<String> getModifiedButNotStagedFilesNames() {
+        Index judge = git();
         ArrayList<String> ret = new ArrayList<>();
         Commit h = readHEADAsCommit();
         for (String filePath : h.getBlobs().keySet()) {
             File f = join(filePath);
             String filename = f.getName();
-            if (!f.exists() && (isStaged(f) || (!isRemoved(f) && isTracked(f, h)))) {
+            if (!f.exists() && (judge.isStaged(f) || (!judge.isRemoved(f) && judge.isTracked(f, h)))) {
                 ret.add(filename + " (deleted)");
-            } else if ((isTracked(f, h) && isModified(f, h) && !isStaged(f))
-                    || (isStaged(f) && isModified(f, h))) {
+            } else if ((judge.isTracked(f, h) && isModified(f, h) && !judge.isStaged(f))
+                    || (judge.isStaged(f) && isModified(f, h))) {
                 ret.add(filename + " (modified)");
             }
 
@@ -81,7 +80,7 @@ public class Status {
         ArrayList<String> ret = new ArrayList<>();
         for (String f : files) {
             File file = join(Repository.CWD, f);
-            boolean flag = isTracked(file, currentCommit);
+            boolean flag = git().isTracked(file, currentCommit);
             if (mode.equals("untracked")) {
                 flag = !flag;
             } else if (!mode.equals("tracked")) {

@@ -5,7 +5,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 
-import static gitlet.Repository.TEMP_BLOBS_DIR;
 import static gitlet.Utils.*;
 
 /**
@@ -16,10 +15,12 @@ import static gitlet.Utils.*;
 public class Blob implements Serializable {
     final String content;
     final File file;
+    private final String uid;
 
     public Blob(File f) {
         this.content = readContentsAsString(f);
         this.file = f;
+        this.uid = getBlobName(f);
     }
 
     /**
@@ -37,16 +38,27 @@ public class Blob implements Serializable {
         }
     }
 
-    /**
-     * Writes Blob as Object to TEMP_DIR.
-     */
-    public static void makeBlob(Blob b) {
-        String name = getBlobName(b.file);
-        File out = join(TEMP_BLOBS_DIR, name);
-        writeObject(out, b);
-    }
-
     public static String getBlobName(File f) {
         return sha1(readContentsAsString(f) + f.getName());
+    }
+
+    /**
+     * Writes Blob as Object to TEMP_DIR.
+     *
+     * @return blob 40-length uid
+     */
+    public String makeBlob() {
+        String name = getBlobName(this.file);
+        File out = join(getBlobDir(), getBlobName());
+        writeObject(out, this);
+        return name;
+    }
+
+    public File getBlobDir() {
+        return join(Repository.OBJECTS_DIR, this.uid.substring(0, 2));
+    }
+
+    public String getBlobName() {
+        return this.uid.substring(2);
     }
 }

@@ -11,21 +11,11 @@ import static gitlet.Utils.*;
  * Represents a gitlet repository.
  * <p>
  * .gitlet
- * <br>├── branches
- * <br>│ ├── master
- * <br>│ └── ...
- * <br>├── commits
- * <br>│ ├── initial
- * <br>│ └── ...
- * <br>├── index
- * <br>│ ├── additional
- * <br>│ └── removal
- * <br>├── objects
- * <br>│ ├── commit1
- * <br>│ │ ├── blob1
- * <br>│ │ └── ...
- * <br>│ └── ...
- * <br>└── HEAD
+ * <br>├── refs/
+ * <br>│ └── heads
+ * <br>├── objects/
+ * <br>├── HEAD
+ * <br>└── index
  *
  * @author Edward Tsang
  */
@@ -40,39 +30,26 @@ public class Repository implements Serializable {
      */
     public static final File GITLET_DIR = join(CWD, ".gitlet");
 
-    /**
-     * The staging directory.
-     */
-    public static final File STAGING_DIR = join(GITLET_DIR, "index");
-
-    /**
-     * Staged for addition.
-     */
-    public static final File ADDITION_DIR = join(STAGING_DIR, "addition");
-    /**
-     * Staged for temp blobs
-     */
-    public static final File TEMP_BLOBS_DIR = join(ADDITION_DIR, "temp");
-    /**
-     * Staged for removal.
-     */
-    public static final File REMOVAL_DIR = join(STAGING_DIR, "removal");
-    /**
-     * The blobs' directory.
-     */
-    public static final File BLOBS_DIR = join(GITLET_DIR, "objects");
-    /**
-     * The commit directory.
-     */
-    public static final File COMMITS_DIR = join(GITLET_DIR, "commits");
+    public static final File REFS_DIR = join(GITLET_DIR, "refs");
     /**
      * The branch directory.
      */
-    public static final File BRANCHES_DIR = join(GITLET_DIR, "branches");
+    public static final File BRANCHES_DIR = join(REFS_DIR, "heads");
+
+    /**
+     * The objects directory which stored blobs and commits
+     */
+    public static final File OBJECTS_DIR = join(GITLET_DIR, "objects");
     /**
      * The HEAD pointer.
      */
     public static final File HEAD = join(GITLET_DIR, "HEAD");
+
+    /**
+     * The index object which stored refs of
+     * added files and removed files
+     */
+    public static final File INDEX = join(GITLET_DIR, "index");
     /**
      * Temp blobs of current command.
      */
@@ -82,37 +59,12 @@ public class Repository implements Serializable {
      * Creates a new Gitlet version-control system in the current directory.
      */
     public static void initializeRepo() {
-        File[] dir = {GITLET_DIR, STAGING_DIR, ADDITION_DIR, TEMP_BLOBS_DIR,
-                         REMOVAL_DIR, BLOBS_DIR, COMMITS_DIR, BRANCHES_DIR};
-        for (File f : dir) {
-            f.mkdir();
-        }
-        File f = HEAD;
-        if (!f.exists()) {
-            Branch h = new Branch("master", "");
-            writeObject(f, h);
-            h.updateBranch();
-        }
-    }
-
-
-    /**
-     * delete all files in Staging Area
-     */
-    public static void cleanStagingArea(Commit c) {
-        if (c.getParentAsString() != null) {
-            // move blobs to BLOB_DIR
-            Commit p = c.getParentAsCommit();
-            c.addBlobs(p.getBlobs());
-            copyAllBlobs(c, TEMP_BLOBS_DIR, BLOBS_DIR);
-            File newBlobsDIR = join(BLOBS_DIR, c.getShortUid());
-            Blob.readBlobsToRepo(newBlobsDIR);
-            c.addBlobs(blobs);
-            deleteBlobs(c);
-            clean(ADDITION_DIR);
-            clean(TEMP_BLOBS_DIR);
-            clean(REMOVAL_DIR);
-        }
+        List<File> dirs = List.of(GITLET_DIR, REFS_DIR, OBJECTS_DIR, BRANCHES_DIR);
+        dirs.forEach(File::mkdir);
+        Branch h = new Branch("master", "");
+        writeObject(HEAD, h);
+        h.updateBranch();
+        writeObject(INDEX, new Index());
     }
 
     /**
@@ -125,32 +77,11 @@ public class Repository implements Serializable {
         }
     }
 
-    public static void copyAllBlobs(Commit c, File sourceDir, File desDir) {
-        List<String> blobs = plainFilenamesIn(sourceDir);
-        if (blobs != null) {
-            blobs.forEach(b -> copyBlob(c, sourceDir, desDir, b));
-        }
+    public static File getObjectsDir(String id) {
+        return join(OBJECTS_DIR, id.substring(0, 2));
     }
 
-    /**
-     * copy a blob from sourceDir to desDir
-     */
-    private static void copyBlob(Commit c, File sourceDir, File desDir, String blobName) {
-        File from = join(sourceDir, blobName);
-        File to = join(desDir, c.getShortUid());
-        to.mkdir();
-        to = join(to, blobName);
-        Blob blob = readObject(from, Blob.class);
-        writeObject(to, blob);
-    }
-
-    public static void deleteBlobs(Commit c) {
-        List<String> files = plainFilenamesIn(REMOVAL_DIR);
-        if (files != null) {
-            for (String f : files) {
-                File rm = join(CWD, f);
-                c.removeBlob(rm.getAbsolutePath());
-            }
-        }
+    public static String getObjectName(String id) {
+        return id.substring(2);
     }
 }

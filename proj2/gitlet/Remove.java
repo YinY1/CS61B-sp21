@@ -28,7 +28,7 @@ public class Remove {
         }
         // delete file in CWD
         Commit h = Methods.readHEADAsCommit();
-        if (Methods.isTracked(file, h)) {
+        if (Methods.git().isTracked(file, h)) {
             File blob = new File(h.getBlobs().remove(file.getAbsolutePath()));
             Blob b = readObject(blob, Blob.class);
             File to = join(REMOVAL_DIR, b.file.getName());

@@ -57,16 +57,8 @@ public class Commit implements Serializable {
     /**
      * Finds a commit object matched the Uid
      */
-    public static Commit findWithUid(String id) {
-        List<String> commits = plainFilenamesIn(COMMITS_DIR);
-        if (commits != null) {
-            for (String commit : commits) {
-                if (id != null && commit.contains(id)) {
-                    return Methods.toCommit(commit);
-                }
-            }
-        }
-        return null;
+    public static Commit findWithUid(String uid) {
+        return Methods.toCommit(getObjectName(uid));
     }
 
     /**
@@ -106,14 +98,14 @@ public class Commit implements Serializable {
         if (this.parent != null) {
             this.blobs = this.getParentAsCommit().blobs;
         }
-        boolean flag = stage();
+        boolean flag = getStage();
         flag = unStage(flag);
         if (this.parent != null && !flag) {
             Methods.exit("No changes added to the commit.");
         }
         setUid();
         File out = join(COMMITS_DIR, this.uid);
-        cleanStagingArea(this);
+        Methods.git().cleanStagingArea();
         writeObject(out, this);
         Methods.setHEAD(this, Methods.readHEADAsBranch());
     }
@@ -121,11 +113,10 @@ public class Commit implements Serializable {
     /**
      * Adds staging area (added) to blobs
      */
-    private boolean stage() {
+    private boolean getStage() {
         boolean flag = false;
-        Blob.readBlobsToRepo(TEMP_BLOBS_DIR);
-        this.blobs.putAll(Repository.blobs);
-        if (!Repository.blobs.isEmpty()) {
+        this.blobs.putAll(Methods.git().getAdded());
+        if (!this.blobs.isEmpty()) {
             flag = true;
         }
         return flag;
