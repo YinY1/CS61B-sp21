@@ -98,25 +98,17 @@ public class Repository implements Serializable {
 
     /**
      * delete all files in Staging Area
-     * TODO: recursively
      */
     public static void cleanStagingArea(Commit c) {
         if (c.getParentAsString() != null) {
-            File newBlobsDIR = join(BLOBS_DIR, c.getShortUid());
-            newBlobsDIR.mkdir();
             // move blobs to BLOB_DIR
             Commit p = c.getParentAsCommit();
-            if (p != null) {
-                copyAllBlobs(join(BLOBS_DIR, p.getShortUid()), newBlobsDIR);
-            }
-
-            copyAllBlobs(TEMP_BLOBS_DIR, newBlobsDIR);
-
-            deleteBlobs(c);
-
+            c.addBlobs(p.getBlobs());
+            copyAllBlobs(c, TEMP_BLOBS_DIR, BLOBS_DIR);
+            File newBlobsDIR = join(BLOBS_DIR, c.getShortUid());
             Blob.readBlobsToRepo(newBlobsDIR);
-            c.setBlobs(blobs);
-
+            c.addBlobs(blobs);
+            deleteBlobs(c);
             clean(ADDITION_DIR);
             clean(TEMP_BLOBS_DIR);
             clean(REMOVAL_DIR);
@@ -133,19 +125,21 @@ public class Repository implements Serializable {
         }
     }
 
-    public static void copyAllBlobs(File sourceDir, File desDir) {
-        List<String> blobNames = plainFilenamesIn(sourceDir);
-        if (blobNames != null) {
-            blobNames.forEach(b -> copyBlob(sourceDir, desDir, b));// TODO
+    public static void copyAllBlobs(Commit c, File sourceDir, File desDir) {
+        List<String> blobs = plainFilenamesIn(sourceDir);
+        if (blobs != null) {
+            blobs.forEach(b -> copyBlob(c, sourceDir, desDir, b));
         }
     }
 
     /**
      * copy a blob from sourceDir to desDir
      */
-    private static void copyBlob(File sourceDir, File desDir, String blobName) {
+    private static void copyBlob(Commit c, File sourceDir, File desDir, String blobName) {
         File from = join(sourceDir, blobName);
-        File to = join(desDir, blobName);
+        File to = join(desDir, c.getShortUid());
+        to.mkdir();
+        to = join(to, blobName);
         Blob blob = readObject(from, Blob.class);
         writeObject(to, blob);
     }
@@ -154,9 +148,8 @@ public class Repository implements Serializable {
         List<String> files = plainFilenamesIn(REMOVAL_DIR);
         if (files != null) {
             for (String f : files) {
-                File from = join(REMOVAL_DIR, f);
-                File to = join(BLOBS_DIR, c.getShortUid(), Blob.getBlobName(from));
-                to.delete();
+                File rm = join(CWD, f);
+                c.removeBlob(rm.getAbsolutePath());
             }
         }
     }

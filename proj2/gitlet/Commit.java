@@ -176,7 +176,11 @@ public class Commit implements Serializable {
         return blobs;
     }
 
-    public void setBlobs(HashMap<String, String> b) {
-        this.blobs = b;
+    public String removeBlob(String file) {
+        return this.blobs.remove(file);
+    }
+
+    public void addBlobs(HashMap<String, String> b) {
+        this.blobs.putAll(b);
     }
 }

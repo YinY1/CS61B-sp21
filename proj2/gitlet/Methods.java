@@ -206,7 +206,7 @@ public class Methods {
         List<File> ret = new ArrayList<>();
         List<String> names = plainFilenamesIn(REMOVAL_DIR);
         if (names != null) {
-            names.forEach(n -> ret.add(join(CWD, n)));
+            names.forEach(n -> ret.add(join(REMOVAL_DIR, n)));
         }
         return ret;
     }
