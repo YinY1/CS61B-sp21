@@ -187,10 +187,25 @@ public class Methods {
      * @return the commit which has the uid if exists
      */
     public static Commit toCommit(String uid) {
-        if(uid==null){
+        if (uid == null) {
             return null;
         }
-        File c = join(getObjectsDir(uid), getObjectName(uid));
+        File c = join(getObjectsDir(uid));
+        String rest = getObjectName(uid);
+        if (uid.length() < 10) {
+            List<String> commits = plainFilenamesIn(c);
+            if (commits == null) {
+                return null;
+            }
+            for (String commit : commits) {
+                if (commit.substring(0, 6).equals(rest)) {
+                    c = join(c, commit);
+                    break;
+                }
+            }
+        } else {
+            c = join(c, rest);
+        }
         return c.exists() ? readObject(c, Commit.class) : null;
     }
 
