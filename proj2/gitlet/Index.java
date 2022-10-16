@@ -2,18 +2,15 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Index implements Serializable {
     private final Map<String, String> added;
-    private final List<String> removed;
+    private final Set<String> removed;
 
     public Index() {
         added = new HashMap<>();
-        removed = new ArrayList<>();
+        removed = new HashSet<>();
     }
 
     public void add(File file) {
@@ -25,6 +22,7 @@ public class Index implements Serializable {
         // write blob object
         Blob b = new Blob(file);
         added.put(f, b.makeBlob());
+        stage();
     }
 
     public boolean remove(File file) {
@@ -38,12 +36,14 @@ public class Index implements Serializable {
             removed.add(f);
             flag = true;
         }
+        stage();
         return flag;
     }
 
     public void cleanStagingArea() {
         added.clear();
         removed.clear();
+        stage();
     }
 
     public void stage() {
@@ -64,14 +64,14 @@ public class Index implements Serializable {
     }
 
     public boolean isTracked(File file, Commit c) {
-        return c.getBlobs().get(file.getAbsolutePath()) != null || Methods.isStaged(file);
+        return c.getBlobs().get(file.getAbsolutePath()) != null || isStaged(file);
     }
 
     public Map<String, String> getAdded() {
         return added;
     }
 
-    public List<String> getRemoved() {
+    public Set<String> getRemoved() {
         return removed;
     }
 }
