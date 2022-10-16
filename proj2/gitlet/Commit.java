@@ -55,8 +55,11 @@ public class Commit implements Serializable {
      * Finds a commit object matched the Uid
      */
     public static Commit findWithUid(String id) {
+        if (id == null) {
+            return null;
+        }
         Commit ret = Methods.toCommit(id);
-        return ret == null ? null : Methods.toCommit(id.substring(0, 8));
+        return ret != null ? ret : Methods.toCommit(id.substring(0, 8));
     }
 
     /**
@@ -121,9 +124,10 @@ public class Commit implements Serializable {
      */
     private boolean getStage(Index i) {
         boolean flag = false;
-        this.blobs.putAll(i.getAdded());
-        if (!this.blobs.isEmpty()) {
+        Map<String, String> added = i.getAdded();
+        if (!added.isEmpty()) {
             flag = true;
+            this.blobs.putAll(i.getAdded());
         }
         return flag;
     }
