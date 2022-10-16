@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.*;
 
-import static gitlet.Repository.*;
+import static gitlet.Repository.BRANCHES_DIR;
 import static gitlet.Utils.*;
 
 /**
@@ -55,7 +55,8 @@ public class Commit implements Serializable {
      * Finds a commit object matched the Uid
      */
     public static Commit findWithUid(String id) {
-        return Methods.toCommit(id);
+        Commit ret = Methods.toCommit(id);
+        return ret == null ? null : Methods.toCommit(id.substring(0, 8));
     }
 
     /**
@@ -84,7 +85,7 @@ public class Commit implements Serializable {
             for (String b : branches) {
                 Branch branch = Branch.readBranch(b);
                 Commit commit = Methods.toCommit(branch.getHEAD());
-                while (commit!= null) {
+                while (commit != null) {
                     ret.add(commit);
                     commit = commit.getParentAsCommit();
                 }
@@ -134,8 +135,11 @@ public class Commit implements Serializable {
         Set<String> rm = i.getRemoved();
         if (!rm.isEmpty()) {
             flag = true;
+            rm.forEach(f -> {
+                blobs.remove(f);
+                restrictedDelete(f);
+            });
         }
-        rm.forEach(f -> blobs.remove(f));
         return flag;
     }
 

@@ -34,7 +34,7 @@ public class Checkout {
         }
         //rewrite old file
         assert oldBlob != null;
-        File checkFrom = new File(oldBlob);
+        File checkFrom = join(Repository.getObjectsDir(oldBlob), Repository.getObjectName(oldBlob));
         reStoreBlob(file, checkFrom);
     }
 
@@ -47,28 +47,29 @@ public class Checkout {
         if (currentBranch.getName().equals(name)) {
             Methods.exit("No need to checkout the current branch.");
         }
+
         if (!Status.getFilesNames("untracked").isEmpty()) {
             Methods.exit("There is an untracked file in the way; delete it,"
                     + " or add and commit it first.");
         }
 
-        Commit currentCommit = Methods.readHEADAsCommit();
         Repository.clean(Repository.CWD);
         Branch branchToSwitch = Branch.readBranch(name);
 
-        Commit oldCommit = Methods.toCommit(branchToSwitch.getHEAD());
-        assert oldCommit != null;
-        HashMap<String, String> old = oldCommit.getBlobs();
+        Commit commitToSwitch = Methods.toCommit(branchToSwitch.getHEAD());
+        assert commitToSwitch != null;
+        HashMap<String, String> old = commitToSwitch.getBlobs();
         for (String oldFile : old.keySet()) {
-            reStoreBlob(join(oldFile), join(old.get(oldFile)));
+            String branchName = old.get(oldFile);
+            reStoreBlob(join(oldFile), join(Repository.makeObjectDir(branchName)));
         }
 
-        Repository.cleanStagingArea(currentCommit);
-        Methods.setHEAD(oldCommit, branchToSwitch);
+        Methods.git().cleanStagingArea();
+        Methods.setHEAD(commitToSwitch, branchToSwitch);
     }
 
     private static void reStoreBlob(File file, File checkFrom) {
         Blob oldBlob = readObject(checkFrom, Blob.class);
-        writeContents(file, oldBlob.content);
+        writeContents(file, oldBlob.getContent());
     }
 }
