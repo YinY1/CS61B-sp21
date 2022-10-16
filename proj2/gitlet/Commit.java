@@ -2,10 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static gitlet.Repository.*;
 import static gitlet.Utils.*;
@@ -33,7 +30,7 @@ public class Commit implements Serializable {
     /**
      * The snapshots of files of this commit.
      * <p>
-     * The keys are files in CWD
+     * The keys are files in CWD with absolute path.
      * <p>
      * The values are blobs in BLOB_DIR/shortCommitUid
      */
@@ -57,8 +54,8 @@ public class Commit implements Serializable {
     /**
      * Finds a commit object matched the Uid
      */
-    public static Commit findWithUid(String uid) {
-        return Methods.toCommit(getObjectName(uid));
+    public static Commit findWithUid(String id) {
+        return Methods.toCommit(id);
     }
 
     /**
@@ -67,7 +64,7 @@ public class Commit implements Serializable {
      * @return A list of commits' UID
      */
     public static List<String> findWithMessage(String message) {
-        List<Commit> commits = findAll();
+        Set<Commit> commits = findAll();
         List<String> ids = new ArrayList<>();
         for (Commit c : commits) {
             if (c.log.equals(message)) {
@@ -80,11 +77,18 @@ public class Commit implements Serializable {
     /**
      * @return All commits have ever made.
      */
-    public static List<Commit> findAll() {
-        List<String> commits = plainFilenamesIn(COMMITS_DIR);
-        List<Commit> ret = new ArrayList<>();
-        if (commits != null) {
-            commits.forEach(c -> ret.add(Methods.toCommit(c)));
+    public static Set<Commit> findAll() {
+        List<String> branches = plainFilenamesIn(BRANCHES_DIR);
+        Set<Commit> ret = new HashSet<>();
+        if (branches != null) {
+            for (String b : branches) {
+                Branch branch = Branch.readBranch(b);
+                Commit commit = Methods.toCommit(branch.getHEAD());
+                while (commit!= null) {
+                    ret.add(commit);
+                    commit = commit.getParentAsCommit();
+                }
+            }
         }
         return ret;
     }
@@ -98,14 +102,15 @@ public class Commit implements Serializable {
         if (this.parent != null) {
             this.blobs = this.getParentAsCommit().blobs;
         }
-        boolean flag = getStage();
-        flag = unStage(flag);
+        Index idx = Methods.git();
+        boolean flag = getStage(idx);
+        flag = unStage(flag, idx);
         if (this.parent != null && !flag) {
             Methods.exit("No changes added to the commit.");
         }
         setUid();
-        File out = join(COMMITS_DIR, this.uid);
-        Methods.git().cleanStagingArea();
+        File out = Repository.makeObjectDir(this.uid);
+        idx.cleanStagingArea();
         writeObject(out, this);
         Methods.setHEAD(this, Methods.readHEADAsBranch());
     }
@@ -113,9 +118,9 @@ public class Commit implements Serializable {
     /**
      * Adds staging area (added) to blobs
      */
-    private boolean getStage() {
+    private boolean getStage(Index i) {
         boolean flag = false;
-        this.blobs.putAll(Methods.git().getAdded());
+        this.blobs.putAll(i.getAdded());
         if (!this.blobs.isEmpty()) {
             flag = true;
         }
@@ -125,12 +130,12 @@ public class Commit implements Serializable {
     /**
      * delete blobs in commit
      */
-    private boolean unStage(boolean flag) {
-        List<File> rm = Methods.readRemovalFiles();
+    private boolean unStage(boolean flag, Index i) {
+        Set<String> rm = i.getRemoved();
         if (!rm.isEmpty()) {
             flag = true;
         }
-        rm.forEach(f -> blobs.remove(f.getAbsolutePath()));
+        rm.forEach(f -> blobs.remove(f));
         return flag;
     }
 

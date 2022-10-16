@@ -2,7 +2,6 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
 
 import static gitlet.Utils.*;
@@ -50,10 +49,6 @@ public class Repository implements Serializable {
      * added files and removed files
      */
     public static final File INDEX = join(GITLET_DIR, "index");
-    /**
-     * Temp blobs of current command.
-     */
-    static HashMap<String, String> blobs;
 
     /**
      * Creates a new Gitlet version-control system in the current directory.
@@ -83,5 +78,11 @@ public class Repository implements Serializable {
 
     public static String getObjectName(String id) {
         return id.substring(2);
+    }
+
+    public static File makeObjectDir(String id) {
+        File out = getObjectsDir(id);
+        out.mkdir();
+        return join(out, getObjectName(id));
     }
 }

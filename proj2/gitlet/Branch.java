@@ -36,7 +36,7 @@ public class Branch implements Serializable {
         Utils.writeObject(h, this);
     }
 
-    public void setHEAD(String content) {
+    public void setHEADContent(String content) {
         this.HEAD = content;
     }
 
