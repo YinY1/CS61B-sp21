@@ -1,8 +1,8 @@
 package gitlet;
 
 import java.text.SimpleDateFormat;
-import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Represents a gitlet log object
@@ -27,7 +27,7 @@ public class Log {
      * Displays information about all commits ever made.
      */
     public static void globalLog() {
-        List<Commit> commits = Commit.findAll();
+        Set<Commit> commits = Commit.findAll();
         for (Commit commit : commits) {
             printLog(commit);
         }

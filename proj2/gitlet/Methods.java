@@ -1,7 +1,6 @@
 package gitlet;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 import static gitlet.Repository.*;
@@ -188,20 +187,11 @@ public class Methods {
      * @return the commit which has the uid if exists
      */
     public static Commit toCommit(String uid) {
+        if(uid==null){
+            return null;
+        }
         File c = join(getObjectsDir(uid), getObjectName(uid));
         return c.exists() ? readObject(c, Commit.class) : null;
-    }
-
-    /**
-     * Reads all files in REMOVAL_DIR
-     */
-    public static List<File> readRemovalFiles() {
-        List<File> ret = new ArrayList<>();
-        List<String> names = plainFilenamesIn(REMOVAL_DIR);
-        if (names != null) {
-            names.forEach(n -> ret.add(join(REMOVAL_DIR, n)));
-        }
-        return ret;
     }
 
     /**
@@ -217,7 +207,7 @@ public class Methods {
      * Sets HEAD pointer point to a commit
      */
     public static void setHEAD(Commit commit, Branch b) {
-        b.setHEAD(commit.getUid());
+        b.setHEADContent(commit.getUid());
         writeObject(HEAD, b);
         b.updateBranch();
     }
