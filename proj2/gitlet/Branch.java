@@ -39,8 +39,8 @@ public class Branch implements Serializable {
         Utils.writeObject(h, this);
     }
 
-    public boolean remove(String name) {
-        File b = join(BRANCHES_DIR, name);
+    public boolean remove(String branchName) {
+        File b = join(BRANCHES_DIR, branchName);
         if (!b.exists()) {
             return false;
         }

@@ -48,7 +48,7 @@ public class Methods {
         if (!inFile.exists()) {
             exit("File does not exist.");
         }
-        git().add(inFile);
+        readStagingArea().add(inFile);
     }
 
     /**
@@ -59,7 +59,7 @@ public class Methods {
         exitUnlessRepoExists();
         judgeOperands(1, args);
         File inFile = join(CWD, args[1]);
-        if (!git().remove(inFile)) {
+        if (!readStagingArea().remove(inFile)) {
             exit("No reason to remove the file.");
         }
     }
@@ -166,6 +166,17 @@ public class Methods {
         }
     }
 
+    public static void reset(String[] args) {
+        exitUnlessRepoExists();
+        judgeOperands(1, args);
+        Commit commit = toCommit(args[1]);
+        if (commit == null) {
+            exit("No commit with that id exists.");
+        }
+        untrackedExist();
+        Checkout.reset(commit);
+    }
+
     /**
      * return true if `.gitlet` exists
      */
@@ -222,15 +233,6 @@ public class Methods {
     }
 
     /**
-     * write inFile to destination DIR with a fileName
-     */
-    public static void copyFile(File inFile, File desDIR, String fileName) {
-        byte[] outByte = readContents(inFile);
-        File out = join(desDIR, fileName);
-        writeContents(out, outByte);
-    }
-
-    /**
      * Sets HEAD pointer point to a commit
      */
     public static void setHEAD(Commit commit, Branch b) {
@@ -256,24 +258,14 @@ public class Methods {
         return h.getHEAD();
     }
 
-    /**
-     * Compare the inFile to the file in the parent commit with the same name
-     * return ture if it is modified
-     */
-    public static boolean isModified(File inFile, Commit parent) {
-        if (!inFile.exists()) {
-            return false;
+    public static void untrackedExist() {
+        if (!Status.getFilesNames("untracked").isEmpty()) {
+            Methods.exit("There is an untracked file in the way; delete it,"
+                    + " or add and commit it first.");
         }
-        String currentName = Blob.getBlobName(inFile);
-        String oldBlobPath = parent.getBlobs().get(inFile.getAbsolutePath());
-        if (oldBlobPath == null) {
-            return true;
-        }
-        File obp = join(oldBlobPath);
-        return parent.getBlobs().isEmpty() || !obp.getName().equals(currentName);
     }
 
-    public static Index git() {
+    public static Index readStagingArea() {
         return readObject(INDEX, Index.class);
     }
 }

@@ -1,21 +1,20 @@
 package gitlet;
 
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static gitlet.Methods.git;
 import static gitlet.Methods.readHEADAsCommit;
+import static gitlet.Methods.readStagingArea;
 import static gitlet.Utils.join;
 import static gitlet.Utils.plainFilenamesIn;
 
 public class Status {
 
     public static void printStatus() {
-        Index idx = Methods.git();
+        Index idx = Methods.readStagingArea();
         printFilenames("=== Branches ===", getBranchesNames());
 
         printFilenames("\n=== Staged Files ===", idx.getAddedFilenames());
@@ -54,7 +53,7 @@ public class Status {
     }
 
     public static Set<String> getModifiedButNotStagedFilesNames() {
-        Index judge = git();
+        Index judge = readStagingArea();
         Set<String> ret = new HashSet<>();
         Commit h = readHEADAsCommit();
         for (String filePath : h.getBlobs().keySet()) {
@@ -81,13 +80,13 @@ public class Status {
      * return untracked\tracked filenames
      */
     public static Set<String> getFilesNames(String mode) {
+        Set<String> ret = new HashSet<>();
         Commit currentCommit = Methods.readHEADAsCommit();
         List<String> files = plainFilenamesIn(Repository.CWD);
         if (files == null) {
-            return null;
+            return ret;
         }
-        Set<String> ret = new HashSet<>();
-        Index idx = git();
+        Index idx = readStagingArea();
         for (String f : files) {
             File file = join(Repository.CWD, f);
             boolean flag = idx.isTracked(file, currentCommit);

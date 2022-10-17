@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map;
 
 import static gitlet.Utils.*;
 
@@ -34,7 +35,7 @@ public class Checkout {
         }
         //rewrite old file
         assert oldBlob != null;
-        File checkFrom = join(Repository.getObjectsDir(oldBlob), Repository.getObjectName(oldBlob));
+        File checkFrom = join(Repository.makeObjectDir(oldBlob));
         reStoreBlob(file, checkFrom);
     }
 
@@ -48,10 +49,7 @@ public class Checkout {
             Methods.exit("No need to checkout the current branch.");
         }
 
-        if (!Status.getFilesNames("untracked").isEmpty()) {
-            Methods.exit("There is an untracked file in the way; delete it,"
-                    + " or add and commit it first.");
-        }
+        Methods.untrackedExist();
 
         Repository.clean(Repository.CWD);
         Branch branchToSwitch = Branch.readBranch(name);
@@ -64,8 +62,16 @@ public class Checkout {
             reStoreBlob(join(oldFile), join(Repository.makeObjectDir(branchName)));
         }
 
-        Methods.git().cleanStagingArea();
+        Methods.readStagingArea().cleanStagingArea();
         Methods.setHEAD(commitToSwitch, branchToSwitch);
+    }
+
+    public static void reset(Commit commit) {
+        Repository.clean(Repository.CWD);
+        Methods.readStagingArea().cleanStagingArea();
+        Map<String, String> olds = commit.getBlobs();
+        olds.keySet().forEach(f -> checkoutFile(commit, join(f)));
+        Methods.setHEAD(commit, Methods.readHEADAsBranch());
     }
 
     private static void reStoreBlob(File file, File checkFrom) {

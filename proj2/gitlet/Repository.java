@@ -34,7 +34,7 @@ public class Repository implements Serializable {
      * The branch directory.
      */
     public static final File BRANCHES_DIR = join(REFS_DIR, "heads");
-
+    public static final File COMMITS = join(REFS_DIR, "commits");
     /**
      * The objects directory which stored blobs and commits
      */
@@ -43,7 +43,6 @@ public class Repository implements Serializable {
      * The HEAD pointer.
      */
     public static final File HEAD = join(GITLET_DIR, "HEAD");
-
     /**
      * The index object which stored refs of
      * added files and removed files
@@ -60,6 +59,7 @@ public class Repository implements Serializable {
         writeObject(HEAD, h);
         h.updateBranch();
         writeObject(INDEX, new Index());
+        writeContents(COMMITS, "");
     }
 
     /**

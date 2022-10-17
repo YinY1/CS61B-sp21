@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.*;
 
-import static gitlet.Repository.BRANCHES_DIR;
 import static gitlet.Utils.*;
 
 /**
@@ -82,19 +81,13 @@ public class Commit implements Serializable {
      * @return All commits have ever made.
      */
     public static Set<Commit> findAll() {
-        List<String> branches = plainFilenamesIn(BRANCHES_DIR);
-        Set<Commit> ret = new HashSet<>();
-        if (branches != null) {
-            for (String b : branches) {
-                Branch branch = Branch.readBranch(b);
-                Commit commit = Methods.toCommit(branch.getHEAD());
-                while (commit != null) {
-                    ret.add(commit);
-                    commit = commit.getParentAsCommit();
-                }
-            }
+        Set<Commit> commits = new HashSet<>();
+        String cs = readContentsAsString(Repository.COMMITS);
+        while (!cs.isEmpty()) {
+            commits.add(Methods.toCommit(cs.substring(0, 40)));
+            cs = cs.substring(40);
         }
-        return ret;
+        return commits;
     }
 
     /**
@@ -106,7 +99,7 @@ public class Commit implements Serializable {
         if (this.parent != null) {
             this.blobs = this.getParentAsCommit().blobs;
         }
-        Index idx = Methods.git();
+        Index idx = Methods.readStagingArea();
         boolean flag = getStage(idx);
         flag = unStage(flag, idx);
         if (this.parent != null && !flag) {
@@ -117,6 +110,9 @@ public class Commit implements Serializable {
         idx.cleanStagingArea();
         writeObject(out, this);
         Methods.setHEAD(this, Methods.readHEADAsBranch());
+        String cs = readContentsAsString(Repository.COMMITS);
+        cs += this.uid;
+        writeContents(Repository.COMMITS, cs);
     }
 
     /**
@@ -164,10 +160,6 @@ public class Commit implements Serializable {
         return Methods.toCommit(this.parent);
     }
 
-    public String getShortUid() {
-        return this.uid.substring(0, 6);
-    }
-
     public Date getDate() {
         return date;
     }
@@ -178,13 +170,5 @@ public class Commit implements Serializable {
 
     public HashMap<String, String> getBlobs() {
         return blobs;
-    }
-
-    public String removeBlob(String file) {
-        return this.blobs.remove(file);
-    }
-
-    public void addBlobs(HashMap<String, String> b) {
-        this.blobs.putAll(b);
     }
 }
