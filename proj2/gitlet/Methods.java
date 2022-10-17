@@ -154,6 +154,18 @@ public class Methods {
         b.updateBranch();
     }
 
+    public static void removeBranch(String[] args) {
+        exitUnlessRepoExists();
+        judgeOperands(1, args);
+        String name = args[1];
+        Branch cur = readHEADAsBranch();
+        if (name.equals(cur.getName())) {
+            exit("Cannot remove the current branch.");
+        } else if (!cur.remove(name)) {
+            exit("A branch with that name does not exist.");
+        }
+    }
+
     /**
      * return true if `.gitlet` exists
      */

@@ -27,6 +27,7 @@ public class Main {
             case "checkout" -> Methods.checkout(args);
             case "status" -> Methods.status(args);
             case "branch" -> Methods.branch(args);
+            case "rm-branch" -> Methods.removeBranch(args);
             default -> Methods.exit("No command with that name exists.");
         }
     }
