@@ -126,6 +126,10 @@ public class Methods {
         Log.globalLog();
     }
 
+    /**
+     * Command 'status'
+     * to print status of current working directory.
+     */
     public static void status(String[] args) {
         exitUnlessRepoExists();
         judgeOperands(0, args);
@@ -147,6 +151,10 @@ public class Methods {
         uid.forEach(System.out::println);
     }
 
+    /**
+     * Command 'branch [branch name]'
+     * to create a branch with given name.
+     */
     public static void branch(String[] args) {
         exitUnlessRepoExists();
         judgeOperands(1, args);
@@ -154,6 +162,10 @@ public class Methods {
         b.updateBranch();
     }
 
+    /**
+     * Command 'rm-branch [branch name]'
+     * to remove the branch with given name.
+     */
     public static void removeBranch(String[] args) {
         exitUnlessRepoExists();
         judgeOperands(1, args);
@@ -166,6 +178,10 @@ public class Methods {
         }
     }
 
+    /**
+     * Command 'reset [commit id]'
+     * to reset status of given commit.
+     */
     public static void reset(String[] args) {
         exitUnlessRepoExists();
         judgeOperands(1, args);
@@ -206,8 +222,10 @@ public class Methods {
     }
 
     /**
+     * make a commit with given id(8-length of 40-length
+     *
      * @param uid uid of the commit
-     * @return the commit which has the uid if exists
+     * @return the commit with given uid if exists
      */
     public static Commit toCommit(String uid) {
         if (uid == null) {
@@ -215,7 +233,7 @@ public class Methods {
         }
         File c = join(getObjectsDir(uid));
         String rest = getObjectName(uid);
-        if (uid.length() < 10) {
+        if (uid.length() == 8) {
             List<String> commits = plainFilenamesIn(c);
             if (commits == null) {
                 return null;
@@ -241,23 +259,31 @@ public class Methods {
         b.updateBranch();
     }
 
+    /**
+     * @return Current branch pointer.
+     */
     public static Branch readHEADAsBranch() {
         return readObject(HEAD, Branch.class);
     }
 
     /**
-     * @return the commit which HEAD points to
+     * @return The commit which HEAD points to
      */
     public static Commit readHEADAsCommit() {
         String uid = readHEADContent();
         return Methods.toCommit(uid);
     }
 
+    /**
+     * @return The commit id which HEAD points to
+     */
     public static String readHEADContent() {
-        Branch h = readHEADAsBranch();
-        return h.getHEAD();
+        return readHEADAsBranch().getHEAD();
     }
 
+    /**
+     * Test if there is any untracked file.
+     */
     public static void untrackedExist() {
         if (!Status.getFilesNames("untracked").isEmpty()) {
             Methods.exit("There is an untracked file in the way; delete it,"
@@ -265,6 +291,9 @@ public class Methods {
         }
     }
 
+    /**
+     * @return The index object.
+     */
     public static Index readStagingArea() {
         return readObject(INDEX, Index.class);
     }

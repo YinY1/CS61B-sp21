@@ -39,6 +39,10 @@ public class Commit implements Serializable {
      */
     private String uid;
 
+    /**
+     * Instantiate a commit object with a message and parent commit uid.
+     * The first commit with a message "initial commit" has no parent.
+     */
     public Commit(String message, String parent) {
         this.log = message;
         this.parent = parent;
@@ -78,7 +82,7 @@ public class Commit implements Serializable {
     }
 
     /**
-     * @return All commits have ever made.
+     * @return All commits have ever made, including orphan.
      */
     public static Set<Commit> findAll() {
         Set<Commit> commits = new HashSet<>();
@@ -129,7 +133,7 @@ public class Commit implements Serializable {
     }
 
     /**
-     * delete blobs in commit
+     * Delete blobs in commit
      */
     private boolean unStage(boolean flag, Index i) {
         Set<String> rm = i.getRemoved();
@@ -142,7 +146,6 @@ public class Commit implements Serializable {
         }
         return flag;
     }
-
 
     public String getUid() {
         return this.uid;

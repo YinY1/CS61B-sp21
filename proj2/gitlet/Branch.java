@@ -7,11 +7,25 @@ import java.util.List;
 import static gitlet.Repository.BRANCHES_DIR;
 import static gitlet.Utils.join;
 
+/**
+ * Represents gitlet branch pointer object.
+ *
+ * @author Edward Tsang
+ */
 public class Branch implements Serializable {
+    /**
+     * The branch name.
+     */
     private final String name;
-
+    /**
+     * The HEAD commit uid
+     */
     private String HEAD;
 
+    /**
+     * Instantiate a branch object with a branch name and HEAD commit uid.
+     * Exit when a branch with the same name already exists.
+     */
     public Branch(String name, String head) {
         if (isExists(name)) {
             Methods.exit("A branch with that name already exists.");
@@ -20,11 +34,17 @@ public class Branch implements Serializable {
         this.HEAD = head;
     }
 
+    /**
+     * Test whether branch with given name exists.
+     */
     public static boolean isExists(String name) {
         List<String> names = Utils.plainFilenamesIn(BRANCHES_DIR);
         return names != null && names.contains(name);
     }
 
+    /**
+     * Read branch object with given name
+     */
     public static Branch readBranch(String name) {
         File b = join(BRANCHES_DIR, name);
         return Utils.readObject(b, Branch.class);
@@ -39,13 +59,15 @@ public class Branch implements Serializable {
         Utils.writeObject(h, this);
     }
 
+    /**
+     * Remove branch with given name
+     *
+     * @return true if and only if branch exists and is successfully deleted,
+     * false otherwise.
+     */
     public boolean remove(String branchName) {
         File b = join(BRANCHES_DIR, branchName);
-        if (!b.exists()) {
-            return false;
-        }
-        b.delete();
-        return true;
+        return b.delete();
     }
 
     public void setHEADContent(String content) {

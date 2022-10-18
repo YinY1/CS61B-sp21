@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 /**
- * Represents a gitlet log object
+ * Represents gitlet-log, gitlet-global-log.
  *
  * @author Edward Tsang
  */
@@ -34,11 +34,11 @@ public class Log {
      * <br><br>
      * ===
      * <br>
-     * commit ___the uid of the commit___
+     * commit {commit id}
      * <br>
-     * Date: E MMM dd HH:mm:ss yyyy Z ___the timestamp___
+     * Date: E MMM dd HH:mm:ss yyyy Z {commit timestamp}
      * <br>
-     * ___the message___
+     * {commit message}
      */
     private static void printLog(Commit c) {
         System.out.println("===");

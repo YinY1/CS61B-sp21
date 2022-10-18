@@ -11,6 +11,7 @@ import static gitlet.Utils.*;
  * <p>
  * .gitlet
  * <br>├── refs/
+ * <br>│ ├── HEAD
  * <br>│ └── heads
  * <br>├── objects/
  * <br>├── HEAD
@@ -23,17 +24,21 @@ public class Repository implements Serializable {
      * The current working directory.
      */
     public static final File CWD = new File(System.getProperty("user.dir"));
-
     /**
      * The .gitlet directory.
      */
     public static final File GITLET_DIR = join(CWD, ".gitlet");
-
+    /**
+     * The references' directory.
+     */
     public static final File REFS_DIR = join(GITLET_DIR, "refs");
     /**
      * The branch directory.
      */
     public static final File BRANCHES_DIR = join(REFS_DIR, "heads");
+    /**
+     * The commits file contains all commits' id.
+     */
     public static final File COMMITS = join(REFS_DIR, "commits");
     /**
      * The objects directory which stored blobs and commits
@@ -72,14 +77,23 @@ public class Repository implements Serializable {
         }
     }
 
+    /**
+     * Get directory of a commit object or a blob object with its first two id.
+     */
     public static File getObjectsDir(String id) {
         return join(OBJECTS_DIR, id.substring(0, 2));
     }
 
+    /**
+     * Get filename of a commit object or a blob object with its last thirty-eight id.
+     */
     public static String getObjectName(String id) {
         return id.substring(2);
     }
 
+    /**
+     * Get filepath of a commit object or a blob object with its id.
+     */
     public static File makeObjectDir(String id) {
         File out = getObjectsDir(id);
         out.mkdir();

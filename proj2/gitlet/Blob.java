@@ -11,16 +11,29 @@ import static gitlet.Utils.*;
  * @author Edward Tsang
  */
 public class Blob implements Serializable {
+    /**
+     * The content of the file blob points to.
+     */
     private final String content;
-    private final File file;
+    /**
+     * The SHA-1 id of the blob object.
+     */
     private final String uid;
 
+    /**
+     * Instantiate a blob object with a File.
+     * A blob means a snapshot of tracked file.
+     */
     public Blob(File f) {
         this.content = readContentsAsString(f);
-        this.file = f;
         this.uid = getBlobName(f);
     }
 
+    /**
+     * create blob id using file content and filename.
+     *
+     * @return The blob SHA-1 id
+     */
     public static String getBlobName(File f) {
         return sha1(readContentsAsString(f) + f.getName());
     }
@@ -36,15 +49,7 @@ public class Blob implements Serializable {
         return this.uid;
     }
 
-    public String getUid() {
-        return uid;
-    }
-
     public String getContent() {
         return content;
-    }
-
-    public File getFile() {
-        return file;
     }
 }
