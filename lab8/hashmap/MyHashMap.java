@@ -173,7 +173,9 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
             return null;
         }
         Set<K> ret = new HashSet<>();
-        this.forEach(ret::add);
+        for (K k : this) {
+            ret.add(k);
+        }
         return ret;
     }
 
@@ -212,25 +214,31 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
     public Iterator<K> iterator() {
         return new Iterator<>() {
             private final Collection<Node>[] b = buckets;
-            private int pos = 0;
+            private int pos = findPos(0);
 
             private Collection<Node> curBuck = b[pos];
             private Iterator<Node> curIter = curBuck.iterator();
-            private Node curNode;
+
+            private int findPos(int cur) {
+                int pos = cur;
+                while (pos < size && b[pos] == null) {
+                    pos++;
+                }
+                return pos;
+            }
 
             @Override
             public boolean hasNext() {
-                return curBuck != null && curIter.hasNext();
+                return curIter.hasNext() || findPos(pos + 1) < size;
             }
 
             @Override
             public K next() {
                 if (curIter.hasNext()) {
-                    K ret = curNode.key;
-                    curNode = curIter.next();
-                    return ret;
+                    Node curNode = curIter.next();
+                    return curNode.key;
                 }
-                pos++;
+                pos = findPos(pos + 1);
                 curBuck = b[pos];
                 curIter = curBuck.iterator();
                 return curIter.next().key;
@@ -240,11 +248,12 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
 
     private void reSize() {
         MyHashMap<K, V> temp = new MyHashMap<>(size * 2);
+        getPosition((K) "hi42");
         for (K key : this) {
             temp.put(key, get(key));
         }
-        buckets = temp.buckets;
         size *= 2;
+        buckets = temp.buckets;
     }
 
     private boolean isOverload() {
