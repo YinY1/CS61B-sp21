@@ -100,7 +100,9 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
      */
     @Override
     public void clear() {
-
+        size = 16;
+        length = 0;
+        buckets = createTable(size);
     }
 
     /**
@@ -160,6 +162,12 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
         if (buckets[pos] == null) {
             buckets[pos] = createBucket();
         }
+        for (Node node : buckets[pos]) {
+            if (node.key == key) {
+                node.value = value;
+                return;
+            }
+        }
         buckets[pos].add(p);
         length++;
     }
@@ -188,7 +196,18 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
      */
     @Override
     public V remove(K key) {
-        throw new UnsupportedOperationException();
+        int pos = getPosition(key);
+        Collection<Node> set = buckets[pos];
+        if (set == null) {
+            return null;
+        }
+        for (Node p : set) {
+            if (p.key.equals(key)) {
+                set.remove(p);
+                return p.value;
+            }
+        }
+        return null;
     }
 
     /**
@@ -201,7 +220,14 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
      */
     @Override
     public V remove(K key, V value) {
-        throw new UnsupportedOperationException();
+        int pos = getPosition(key);
+        Node p = createNode(key, value);
+        Collection<Node> set = buckets[pos];
+        if (set == null || !set.contains(p)) {
+            return null;
+        }
+        buckets[pos].remove(p);
+        return value;
     }
     // You should probably define some more!
 
@@ -248,7 +274,6 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
 
     private void reSize() {
         MyHashMap<K, V> temp = new MyHashMap<>(size * 2);
-        getPosition((K) "hi42");
         for (K key : this) {
             temp.put(key, get(key));
         }
