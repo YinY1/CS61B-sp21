@@ -1,0 +1,23 @@
+Buckets Speed Test
+Size\Type    AL      LL      TS      HS      PQ
+1024        0.00    0.00    0.01    0.00    0.00
+16384       0.02    0.01    0.02    0.01    0.01
+131072      0.12    0.17    0.16    0.16    0.13
+1048576     1.22    1.26    1.42    1.27    1.31
+# run in a length of 16 of strings.
+
+InOrder Speed Test
+            ULL             My          Built-in
+1024        0.00            0.00        0.00
+16384       1.53            0.02        0.00
+131072   Stack Overflow     0.06        0.03
+1048576  Stack Overflow     0.95        0.31
+16777216 Stack Overflow  Out of Memory  5.08
+
+Random Speed Test
+            ULL             My          Built-in
+1024        0.01            0.00        0.00
+16384       0.91            0.02        0.01
+131072   Stack Overflow     0.13        0.07
+1048576  Stack Overflow     1.26        0.51
+16777216 Stack Overflow  Out of Memory  10.48
