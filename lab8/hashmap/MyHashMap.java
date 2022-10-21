@@ -163,7 +163,7 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
             buckets[pos] = createBucket();
         }
         for (Node node : buckets[pos]) {
-            if (node.key == key) {
+            if (node.key.equals(key)) {
                 node.value = value;
                 return;
             }
