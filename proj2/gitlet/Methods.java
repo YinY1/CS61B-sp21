@@ -171,7 +171,7 @@ public class Methods {
         judgeOperands(1, args);
         String name = args[1];
         Branch cur = readHEADAsBranch();
-        if (name.equals(cur.getName())) {
+        if (name.equals(cur.toString())) {
             exit("Cannot remove the current branch.");
         } else if (!cur.remove(name)) {
             exit("A branch with that name does not exist.");
@@ -191,6 +191,21 @@ public class Methods {
         }
         untrackedExist();
         Checkout.reset(commit);
+    }
+
+    public static void merge(String[] args) {
+        exitUnlessRepoExists();
+        judgeOperands(1, args);
+        Branch cur = Methods.readHEADAsBranch();
+        Branch b = Branch.readBranch(args[1]);
+        if (b.equals(cur)) {
+            exit("Cannot merge a branch with itself.");
+        }
+        if (!readStagingArea().isCommitted()) {
+            exit("You have uncommitted changes.");
+        }
+        untrackedExist();
+        Merge.merge(cur, b);
     }
 
     /**
@@ -228,6 +243,22 @@ public class Methods {
      * @return the commit with given uid if exists
      */
     public static Commit toCommit(String uid) {
+        File c = getObject(uid);
+        if (c == null) {
+            return null;
+        }
+        return c.exists() ? readObject(c, Commit.class) : null;
+    }
+
+    public static Blob toBlob(String uid) {
+        File c = getObject(uid);
+        if (c == null) {
+            return null;
+        }
+        return c.exists() ? readObject(c, Blob.class) : null;
+    }
+
+    private static File getObject(String uid) {
         if (uid == null) {
             return null;
         }
@@ -247,7 +278,7 @@ public class Methods {
         } else {
             c = join(c, rest);
         }
-        return c.exists() ? readObject(c, Commit.class) : null;
+        return c;
     }
 
     /**
@@ -278,7 +309,7 @@ public class Methods {
      * @return The commit id which HEAD points to
      */
     public static String readHEADContent() {
-        return readHEADAsBranch().getHEAD();
+        return readHEADAsBranch().getHEADAsString();
     }
 
     /**

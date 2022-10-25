@@ -29,6 +29,7 @@ public class Main {
             case "branch" -> Methods.branch(args);
             case "rm-branch" -> Methods.removeBranch(args);
             case "reset" -> Methods.reset(args);
+            case "merge" -> Methods.merge(args);
             default -> Methods.exit("No command with that name exists.");
         }
     }
