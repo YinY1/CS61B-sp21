@@ -98,7 +98,7 @@ public class Commit implements Serializable {
      * Writes this commit Object to COMMIT_DIR
      * and reset the HEAD pointer
      */
-    void makeCommit() {
+    public void makeCommit() {
         //Loads parent's blobs
         if (this.parent != null) {
             this.blobs = this.getParentAsCommit().blobs;
@@ -173,5 +173,9 @@ public class Commit implements Serializable {
 
     public HashMap<String, String> getBlobs() {
         return blobs;
+    }
+
+    public String getBlob(File f) {
+        return blobs.get(f.getAbsolutePath());
     }
 }

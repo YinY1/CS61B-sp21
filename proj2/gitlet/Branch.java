@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import static gitlet.Repository.BRANCHES_DIR;
@@ -54,7 +55,7 @@ public class Branch implements Serializable {
      * Writes current HEAD to this branch
      */
     public void updateBranch() {
-        this.HEAD = Utils.readObject(Repository.HEAD, Branch.class).getHEAD();
+        this.HEAD = Utils.readObject(Repository.HEAD, Branch.class).getHEADAsString();
         File h = join(BRANCHES_DIR, this.name);
         Utils.writeObject(h, this);
     }
@@ -70,15 +71,30 @@ public class Branch implements Serializable {
         return b.delete();
     }
 
+    public LinkedHashSet<String> findAllAncestors() {
+        LinkedHashSet<String> ret = new LinkedHashSet<>();
+        Commit c = Methods.readHEADAsCommit();
+        while (c != null) {
+            ret.add(c.getUid());
+            c = c.getParentAsCommit();
+        }
+        return ret;
+    }
+
     public void setHEADContent(String content) {
         this.HEAD = content;
     }
 
-    public String getHEAD() {
+    public String getHEADAsString() {
         return this.HEAD;
     }
 
-    public String getName() {
+    public Commit getHEADAsCommit() {
+        return Methods.toCommit(this.HEAD);
+    }
+
+    @Override
+    public String toString() {
         return name;
     }
 }

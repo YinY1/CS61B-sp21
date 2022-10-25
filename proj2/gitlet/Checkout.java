@@ -29,7 +29,7 @@ public class Checkout {
      * The new version of the file is not staged.
      */
     public static void checkoutFile(Commit commit, File file) {
-        String oldBlob = commit.getBlobs().get(file.getAbsolutePath());
+        String oldBlob = commit.getBlob(file);
         if (oldBlob == null) {
             Methods.exit("File does not exist in that commit.");
         }
@@ -54,7 +54,7 @@ public class Checkout {
         }
 
         Branch currentBranch = Methods.readHEADAsBranch();
-        if (currentBranch.getName().equals(name)) {
+        if (currentBranch.toString().equals(name)) {
             Methods.exit("No need to checkout the current branch.");
         }
 
@@ -63,7 +63,7 @@ public class Checkout {
         Repository.clean(Repository.CWD);
         Branch branchToSwitch = Branch.readBranch(name);
 
-        Commit commitToSwitch = Methods.toCommit(branchToSwitch.getHEAD());
+        Commit commitToSwitch = branchToSwitch.getHEADAsCommit();
         HashMap<String, String> old = commitToSwitch.getBlobs();
         for (String oldFile : old.keySet()) {
             String branchName = old.get(oldFile);
