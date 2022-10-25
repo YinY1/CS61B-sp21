@@ -42,6 +42,21 @@ public class Index implements Serializable {
     }
 
     /**
+     * Test file is whether modified or not in given commit.
+     *
+     * @return true if and only if file exists and
+     * isn't modified compare to the status of given commit.
+     */
+    public static boolean isModified(File inFile, Commit c) {
+        if (!inFile.exists()) {
+            return true;
+        }
+        String current = Blob.getBlobName(inFile);
+        String oldBlobName = c.getBlob(inFile);
+        return oldBlobName == null || !oldBlobName.equals(current);
+    }
+
+    /**
      * Adds a copy of the file as it currently exists to the staging area.
      * For this reason, adding a file is also called staging the file for addition.
      * Staging an already-staged file overwrites the previous entry
@@ -61,7 +76,7 @@ public class Index implements Serializable {
             added.put(f, new Blob(file).makeBlob());
             tracked.add(f);
         }
-        stage();
+        save();
     }
 
     /**
@@ -82,7 +97,7 @@ public class Index implements Serializable {
             restrictedDelete(f);
             flag = true;
         }
-        stage();
+        save();
         return flag;
     }
 
@@ -93,13 +108,13 @@ public class Index implements Serializable {
         added.clear();
         removed.clear();
         tracked.clear();
-        stage();
+        save();
     }
 
     /**
      * Write index object.
      */
-    public void stage() {
+    public void save() {
         Utils.writeObject(Repository.INDEX, this);
     }
 
@@ -118,21 +133,6 @@ public class Index implements Serializable {
     }
 
     /**
-     * Test file is whether modified or not in given commit.
-     *
-     * @return true if and only if file exists and
-     * isn't modified compare to the status of given commit.
-     */
-    public boolean isModified(File inFile, Commit c) {
-        if (!inFile.exists()) {
-            return false;
-        }
-        String current = Blob.getBlobName(inFile);
-        String oldBlobName = c.getBlobs().get(inFile.getAbsolutePath());
-        return oldBlobName == null || !oldBlobName.equals(current);
-    }
-
-    /**
      * Test whether given file is tracked but not commit.
      */
     private boolean isTracked(File file) {
@@ -143,7 +143,11 @@ public class Index implements Serializable {
      * Test whether given file is tracked.
      */
     public boolean isTracked(File file, Commit c) {
-        return c.getBlobs().get(file.getAbsolutePath()) != null || isTracked(file);
+        return c.getBlob(file) != null || isTracked(file);
+    }
+
+    public boolean isCommitted() {
+        return added.isEmpty() && removed.isEmpty();
     }
 
     public Map<String, String> getAdded() {

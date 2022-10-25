@@ -62,7 +62,7 @@ public class Status {
             return null;
         }
         List<String> branches = new ArrayList<>(bs);
-        String name = Methods.readHEADAsBranch().getName();
+        String name = Methods.readHEADAsBranch().toString();
         branches.remove(name);
         branches.add(0, "*" + name);
         return branches;
@@ -75,7 +75,8 @@ public class Status {
      * Tracked in the current commit, changed in the working directory, but not staged; or
      * <br>Staged for addition, but with different contents than in the working directory; or
      * <br>Staged for addition, but deleted in the working directory; or
-     * <br>Not staged for removal, but tracked in the current commit and deleted from the working directory.
+     * <br>Not staged for removal,
+     * but tracked in the current commit and deleted from the working directory.
      */
     private static Set<String> getModifiedButNotStagedFilesNames() {
         Index judge = readStagingArea();
@@ -88,10 +89,10 @@ public class Status {
             boolean staged = judge.isStaged(f);
             boolean removed = judge.isRemoved(f);
             boolean tracked = judge.isTracked(f, h);
-            boolean modified = judge.isModified(f, h);
+            boolean modified = Index.isModified(f, h);
             if (!exists && (staged || (!removed && tracked))) {
                 ret.add(filename + " (deleted)");
-            } else if (modified && (tracked || staged)) {
+            } else if (exists && modified && (tracked || staged)) {
                 ret.add(filename + " (modified)");
             }
 
