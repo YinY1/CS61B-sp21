@@ -73,7 +73,7 @@ public class Branch implements Serializable {
 
     public LinkedHashSet<String> findAllAncestors() {
         LinkedHashSet<String> ret = new LinkedHashSet<>();
-        Commit c = Methods.readHEADAsCommit();
+        Commit c = Methods.toCommit(HEAD);
         while (c != null) {
             ret.add(c.getUid());
             c = c.getParentAsCommit();
