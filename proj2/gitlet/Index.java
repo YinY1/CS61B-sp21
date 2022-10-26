@@ -2,10 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static gitlet.Utils.join;
 import static gitlet.Utils.restrictedDelete;
@@ -54,6 +51,12 @@ public class Index implements Serializable {
         String current = Blob.getBlobName(inFile);
         String oldBlobName = c.getBlob(inFile);
         return oldBlobName == null || !oldBlobName.equals(current);
+    }
+
+    public static boolean isModified(File inFile, Commit current, Commit target) {
+        String cur = current.getBlob(inFile);
+        String tar = target.getBlob(inFile);
+        return !Objects.equals(tar, cur);
     }
 
     /**

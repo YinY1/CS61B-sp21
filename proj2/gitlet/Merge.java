@@ -5,8 +5,7 @@ import java.util.*;
 
 import static gitlet.Checkout.checkoutFile;
 import static gitlet.Index.isModified;
-import static gitlet.Utils.join;
-import static gitlet.Utils.plainFilenamesIn;
+import static gitlet.Utils.*;
 
 public class Merge {
     /**
@@ -29,7 +28,7 @@ public class Merge {
         files.addAll(tar.getBlobs().keySet());
         List<String> cwd = plainFilenamesIn(Repository.CWD);
         if (cwd != null) {
-            files.addAll(cwd);
+            cwd.forEach(n -> files.add(join(Repository.CWD, n).getAbsolutePath()));
         }
         String msg = "Merged " + given + " into " + current + ".";
         doMerge(files, sp, cur, tar, msg);
@@ -45,22 +44,22 @@ public class Merge {
     private static void doMerge(Set<String> files, Commit split,
                                 Commit current, Commit given, String msg) {
         Index idx = Methods.readStagingArea();
-        for (String file : files) {
-            File f = join(file);
-            boolean flag = onlyModifiedInGivenBranch(f, current, given, idx);
-            flag = onlyAbsentInGivenBranch(f, current, given, split, idx, flag);
-            flag = onlyPresentInGivenBranch(f, current, given, split, idx, flag);
-            if (flag) {
-                if (conflict(f, current, given)) {
-                    Methods.exit("Encountered a merge conflict.");
-                }
-                new Commit(msg, current.getUid()).makeCommit();
-                //TODO: 2 parents
-            }
-        }
+        files.forEach(f -> merge(split, current, given, idx, join(f)));
+        new Commit(msg, current.getUid()).makeCommit();
+        //TODO: 2 parents
     }
 
-    private static void doNothing() {
+    private static void merge(Commit split, Commit current, Commit given, Index idx, File f) {
+        boolean flag = onlyPresentInCurrentBranch(f, current, given, split);
+        flag = onlyAbsentInCurrentBranch(f, current, given, split, flag);
+        flag = onlyPresentInGivenBranch(f, current, given, split, idx, flag);
+        flag = onlyAbsentInGivenBranch(f, current, given, split, idx, flag);
+        flag = onlyModifiedInGivenBranch(f, current, given, split, idx, flag);
+        flag = onlyModifiedInCurrentBranch(f, current, given, split, flag);
+        flag = modifiedInSame(f, current, given, split, flag);
+        if (!flag && conflict(f, current, given, idx)) {
+            System.out.println("Encountered a merge conflict.");
+        }
     }
 
     /**
@@ -74,13 +73,16 @@ public class Merge {
      * has different content from the version of the file at the split point.
      * Remember: blobs are content addressable!
      */
-    private static boolean onlyModifiedInGivenBranch(File file, Commit current,
-                                                     Commit given, Index index) {
-        if (!isModified(file, current)) {
+    private static boolean onlyModifiedInGivenBranch(File file, Commit current, Commit split,
+                                                     Commit given, Index index, boolean flag) {
+        if (flag) {
+            return true;
+        }
+        if (!isModified(file, current, split)) {
             if (given.getBlob(file) == null) {
                 index.remove(file);
                 return true;
-            } else if (isModified(file, given)) {
+            } else if (isModified(file, given, split)) {
                 checkoutFile(given, file);
                 index.add(file);
                 return true;
@@ -93,10 +95,12 @@ public class Merge {
      * Any files that have been modified in the current branch
      * but not in the given branch since the split point should stay as they are.
      */
-    private static void step2(File file, Commit current, Commit given) {
-        if (isModified(file, current) && !isModified(file, given)) {
-            doNothing();
+    private static boolean onlyModifiedInCurrentBranch(File file, Commit current,
+                                                       Commit given, Commit split, boolean flag) {
+        if (flag) {
+            return true;
         }
+        return isModified(file, current, split) && !isModified(file, given, split);
     }
 
     /**
@@ -107,22 +111,22 @@ public class Merge {
      * but a file of the same name is present in the working directory,
      * it is left alone and continues to be absent (not tracked nor staged) in the merge.
      */
-    private static void step3(File file, Commit current, Commit given) {
-        if (isModified(file, current)
-                && Objects.equals(current.getBlob(file), given.getBlob(file))) {
-            doNothing();
+    private static boolean modifiedInSame(File file, Commit current, Commit given, Commit split, boolean flag) {
+        if (flag) {
+            return true;
         }
+        return isModified(file, current, split)
+                && Objects.equals(current.getBlob(file), given.getBlob(file));
     }
 
     /**
      * Any files that were not present at the split point
      * and are present only in the current branch should remain as they are.
      */
-    private static void step4(File file, Commit current, Commit given, Commit split) {
-        if (split.getBlob(file) == null
-                && current.getBlob(file) != null && given.getBlob(file) == null) {
-            doNothing();
-        }
+    private static boolean onlyPresentInCurrentBranch(File file, Commit current,
+                                                      Commit given, Commit split) {
+        return split.getBlob(file) == null
+                && current.getBlob(file) != null && given.getBlob(file) == null;
     }
 
     /**
@@ -153,7 +157,7 @@ public class Merge {
         if (flag) {
             return true;
         }
-        if (split.getBlob(file) != null && !isModified(file, current)
+        if (split.getBlob(file) != null && !isModified(file, current, split)
                 && given.getBlob(file) == null) {
             index.remove(file);
             return true;
@@ -166,11 +170,13 @@ public class Merge {
      * unmodified in the given branch,
      * and absent in the current branch should remain absent.
      */
-    private static void step7(File file, Commit current, Commit given, Commit split) {
-        if (split.getBlob(file) != null && !isModified(file, given)
-                && current.getBlob(file) == null) {
-            doNothing();
+    private static boolean onlyAbsentInCurrentBranch(File file, Commit current,
+                                                     Commit given, Commit split, boolean flag) {
+        if (flag) {
+            return true;
         }
+        return split.getBlob(file) != null && !isModified(file, given, split)
+                && current.getBlob(file) == null;
     }
 
     /**
@@ -198,7 +204,7 @@ public class Merge {
      * pathological files because they don’t know the difference between
      * a line terminator and a line separator deserve what they get.
      */
-    private static boolean conflict(File file, Commit current, Commit given) {
+    private static boolean conflict(File file, Commit current, Commit given, Index index) {
         String cur = current.getBlob(file);
         String tar = given.getBlob(file);
         if (!Objects.equals(cur, tar)) {
@@ -210,10 +216,9 @@ public class Merge {
             if (tar != null) {
                 tarContent = Methods.toBlob(tar).getContent();
             }
-            System.out.println(
-                    "<<<<<<< HEAD\n"
-                            + curContent + "=======\n"
-                            + tarContent + ">>>>>>>");
+            writeContents(file,
+                    "<<<<<<< HEAD\n" + curContent + "=======\n" + tarContent + ">>>>>>>");
+            index.add(file);
             return true;
         }
         return false;
