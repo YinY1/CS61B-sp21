@@ -17,15 +17,17 @@ public class Commit implements Serializable {
     /**
      * The message of this Commit.
      */
-    private final String log;
+    private String log;
     /**
      * The parent Commit of this Commit.
      */
-    private final String parent;
+    private String parent;
+
+    private String secondParent;
     /**
      * The timestamp of this Commit.
      */
-    private final Date date;
+    private Date date;
     /**
      * The snapshots of files of this commit.
      * <p>
@@ -44,14 +46,11 @@ public class Commit implements Serializable {
      * The first commit with a message "initial commit" has no parent.
      */
     public Commit(String message, String parent) {
-        this.log = message;
-        this.parent = parent;
-        if (parent == null) {
-            this.date = new Date(0);
-        } else {
-            this.date = new Date();
-        }
-        this.blobs = new HashMap<>();
+        instantiateCommit(message, parent, null);
+    }
+
+    public Commit(String message, String parent, String secondParent) {
+        instantiateCommit(message, parent, secondParent);
     }
 
     /**
@@ -92,6 +91,18 @@ public class Commit implements Serializable {
             cs = cs.substring(40);
         }
         return commits;
+    }
+
+    private void instantiateCommit(String message, String parent, String secondParent) {
+        this.log = message;
+        this.parent = parent;
+        this.secondParent = secondParent;
+        if (parent == null) {
+            this.date = new Date(0);
+        } else {
+            this.date = new Date();
+        }
+        this.blobs = new HashMap<>();
     }
 
     /**
@@ -178,4 +189,13 @@ public class Commit implements Serializable {
     public String getBlob(File f) {
         return blobs.get(f.getAbsolutePath());
     }
+
+    public String getSecondParentAsString() {
+        return secondParent;
+    }
+
+    public Commit getSecondParentAsCommit() {
+        return Methods.toCommit(this.secondParent);
+    }
+
 }

@@ -35,17 +35,35 @@ public class Merge {
     }
 
     private static String getSplitPoint(Branch current, Branch given) {
-        LinkedHashSet<String> cur = current.findAllAncestors();
+        List<String> splits = new ArrayList<>();
+        Set<String> commits = new HashSet<>();
+        dfs(current.getHEADAsCommit(), commits, splits);
+        dfs(given.getHEADAsCommit(), commits, splits);
+        /*LinkedHashSet<String> cur = current.findAllAncestors();
         LinkedHashSet<String> target = given.findAllAncestors();
         target.retainAll(cur);
-        return new ArrayList<>(target).get(0);
+        return new ArrayList<>(target).get(0);*/
+        return splits.get(splits.size() - 1);
+    }
+
+    private static void dfs(Commit b, Set<String> commits, List<String> splits) {
+        if (b == null) {
+            return;
+        }
+        if (commits.contains(b.getUid())) {
+            splits.add(b.getUid());
+            return;
+        }
+        commits.add(b.getUid());
+        dfs(b.getParentAsCommit(), commits, splits);
+        dfs(b.getSecondParentAsCommit(), commits, splits);
     }
 
     private static void doMerge(Set<String> files, Commit split,
                                 Commit current, Commit given, String msg) {
         Index idx = Methods.readStagingArea();
         files.forEach(f -> merge(split, current, given, idx, join(f)));
-        new Commit(msg, current.getUid()).makeCommit();
+        new Commit(msg, current.getUid(), given.getUid()).makeCommit();
         //TODO: 2 parents
     }
 
@@ -111,7 +129,8 @@ public class Merge {
      * but a file of the same name is present in the working directory,
      * it is left alone and continues to be absent (not tracked nor staged) in the merge.
      */
-    private static boolean modifiedInSame(File file, Commit current, Commit given, Commit split, boolean flag) {
+    private static boolean modifiedInSame(File file, Commit current,
+                                          Commit given, Commit split, boolean flag) {
         if (flag) {
             return true;
         }
@@ -208,16 +227,16 @@ public class Merge {
         String cur = current.getBlob(file);
         String tar = given.getBlob(file);
         if (!Objects.equals(cur, tar)) {
-            String curContent = null;
-            String tarContent = null;
+            String curContent = "";
+            String tarContent = "";
             if (cur != null) {
                 curContent = Methods.toBlob(cur).getContent();
             }
             if (tar != null) {
                 tarContent = Methods.toBlob(tar).getContent();
             }
-            writeContents(file,
-                    "<<<<<<< HEAD\n" + curContent + "=======\n" + tarContent + ">>>>>>>");
+            String content = "<<<<<<< HEAD\n" + curContent + "=======\n" + tarContent + ">>>>>>>\n";
+            writeContents(file, content);
             index.add(file);
             return true;
         }
