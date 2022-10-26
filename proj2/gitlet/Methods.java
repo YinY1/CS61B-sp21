@@ -198,7 +198,10 @@ public class Methods {
         judgeOperands(1, args);
         Branch cur = Methods.readHEADAsBranch();
         Branch b = Branch.readBranch(args[1]);
-        if (b.equals(cur)) {
+        if (b == null) {
+            exit("A branch with that name does not exist.");
+        }
+        if (b.toString().equals(cur.toString())) {
             exit("Cannot merge a branch with itself.");
         }
         if (!readStagingArea().isCommitted()) {

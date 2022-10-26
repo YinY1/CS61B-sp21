@@ -48,7 +48,7 @@ public class Branch implements Serializable {
      */
     public static Branch readBranch(String name) {
         File b = join(BRANCHES_DIR, name);
-        return Utils.readObject(b, Branch.class);
+        return !b.exists() ? null : Utils.readObject(b, Branch.class);
     }
 
     /**
