@@ -11,8 +11,8 @@ import static gitlet.Utils.*;
  * <p>
  * .gitlet
  * <br>├── refs/
- * <br>│ ├── HEAD
- * <br>│ └── heads
+ * <br>│ ├── commits
+ * <br>│ └── heads/
  * <br>├── objects/
  * <br>├── HEAD
  * <br>└── index

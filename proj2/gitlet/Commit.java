@@ -23,6 +23,9 @@ public class Commit implements Serializable {
      */
     private String parent;
 
+    /**
+     * The second parent which not null when creates a merge commit.
+     */
     private String secondParent;
     /**
      * The timestamp of this Commit.
@@ -93,11 +96,11 @@ public class Commit implements Serializable {
         return commits;
     }
 
-    private void instantiateCommit(String message, String parent, String secondParent) {
+    private void instantiateCommit(String message, String first, String second) {
         this.log = message;
-        this.parent = parent;
-        this.secondParent = secondParent;
-        if (parent == null) {
+        this.parent = first;
+        this.secondParent = second;
+        if (first == null) {
             this.date = new Date(0);
         } else {
             this.date = new Date();
@@ -188,10 +191,6 @@ public class Commit implements Serializable {
 
     public String getBlob(File f) {
         return blobs.get(f.getAbsolutePath());
-    }
-
-    public String getSecondParentAsString() {
-        return secondParent;
     }
 
     public Commit getSecondParentAsCommit() {

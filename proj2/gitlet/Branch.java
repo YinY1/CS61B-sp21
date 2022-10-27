@@ -2,7 +2,6 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import static gitlet.Repository.BRANCHES_DIR;
@@ -69,16 +68,6 @@ public class Branch implements Serializable {
     public boolean remove(String branchName) {
         File b = join(BRANCHES_DIR, branchName);
         return b.delete();
-    }
-
-    public LinkedHashSet<String> findAllAncestors() {
-        LinkedHashSet<String> ret = new LinkedHashSet<>();
-        Commit c = Methods.toCommit(HEAD);
-        while (c != null) {
-            ret.add(c.getUid());
-            c = c.getParentAsCommit();
-        }
-        return ret;
     }
 
     public void setHEADContent(String content) {

@@ -108,6 +108,7 @@ public class Status {
      * @param mode decide which kind of filenames to return. "untracked" or "tracked"
      * @return untracked\tracked filenames, empty set if mode is incorrect.
      */
+    //TODO: delete `mode`, no need to use `tracked` mode
     public static Set<String> getFilesNames(String mode) {
         Set<String> ret = new HashSet<>();
         Commit currentCommit = Methods.readHEADAsCommit();

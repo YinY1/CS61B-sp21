@@ -193,6 +193,10 @@ public class Methods {
         Checkout.reset(commit);
     }
 
+    /**
+     * Command 'merge [branch name]'
+     * merge given branch to current branch
+     */
     public static void merge(String[] args) {
         exitUnlessRepoExists();
         judgeOperands(1, args);
@@ -240,7 +244,7 @@ public class Methods {
     }
 
     /**
-     * make a commit with given id(8-length of 40-length
+     * make a commit with given id(8-length or 40-length)
      *
      * @param uid uid of the commit
      * @return the commit with given uid if exists
@@ -253,6 +257,12 @@ public class Methods {
         return c.exists() ? readObject(c, Commit.class) : null;
     }
 
+    /**
+     * make a blob with given id(40-length)
+     *
+     * @param uid uid of the blob
+     * @return the blob with given uid if exists
+     */
     public static Blob toBlob(String uid) {
         File c = getObject(uid);
         if (c == null) {
@@ -261,6 +271,9 @@ public class Methods {
         return c.exists() ? readObject(c, Blob.class) : null;
     }
 
+    /**
+     * @return object filepath
+     */
     private static File getObject(String uid) {
         if (uid == null) {
             return null;

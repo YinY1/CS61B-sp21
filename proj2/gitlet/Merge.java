@@ -36,19 +36,22 @@ public class Merge {
     }
 
     private static String getSplitPoint(Branch current, Branch given) {
-        List<String> splits = new ArrayList<>();
+        List<Commit> splits = new ArrayList<>();
         Set<String> commits = new HashSet<>();
         dfs(current.getHEADAsCommit(), commits, splits);
         dfs(given.getHEADAsCommit(), commits, splits);
-        return splits.get(splits.size() - 1);
+        return splits.stream()
+                .max(Comparator.comparing(Commit::getDate))
+                .get()
+                .getUid();
     }
 
-    private static void dfs(Commit b, Set<String> commits, List<String> splits) {
+    private static void dfs(Commit b, Set<String> commits, List<Commit> splits) {
         if (b == null) {
             return;
         }
         if (commits.contains(b.getUid())) {
-            splits.add(b.getUid());
+            splits.add(b);
             return;
         }
         commits.add(b.getUid());
@@ -61,7 +64,6 @@ public class Merge {
         Index idx = Methods.readStagingArea();
         files.forEach(f -> merge(split, current, given, idx, join(f)));
         new Commit(msg, current.getUid(), given.getUid()).makeCommit();
-        //TODO: 2 parents
     }
 
     private static void merge(Commit split, Commit current, Commit given, Index idx, File f) {
@@ -88,8 +90,8 @@ public class Merge {
      * has different content from the version of the file at the split point.
      * Remember: blobs are content addressable!
      */
-    private static boolean onlyModifiedInGivenBranch(File file, Commit current, Commit split,
-                                                     Commit given, Index index, boolean flag) {
+    private static boolean onlyModifiedInGivenBranch(File file, Commit current, Commit given,
+                                                     Commit split, Index index, boolean flag) {
         if (flag) {
             return true;
         }
