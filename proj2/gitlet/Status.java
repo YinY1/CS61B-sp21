@@ -123,7 +123,7 @@ public class Status {
             if (mode.equals("untracked")) {
                 flag = !flag;
             } else if (!mode.equals("tracked")) {
-                GitletUtils.exit("DEBUG HERE");
+                Methods.exit("DEBUG HERE");
             }
             if (flag) {
                 ret.add(file.getName());

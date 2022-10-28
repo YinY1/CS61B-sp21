@@ -121,7 +121,7 @@ public class Commit implements Serializable {
         boolean flag = getStage(idx);
         flag = unStage(flag, idx);
         if (this.parent != null && !flag) {
-            GitletUtils.exit("No changes added to the commit.");
+            Methods.exit("No changes added to the commit.");
         }
         setUid();
         File out = Repository.makeObjectDir(this.uid);

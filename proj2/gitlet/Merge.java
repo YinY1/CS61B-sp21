@@ -15,11 +15,11 @@ public class Merge {
     public static void merge(Branch current, Branch given) {
         String split = getSplitPoint(current, given);
         if (given.getHEADAsString().equals(split)) {
-            GitletUtils.exit("Given branch is an ancestor of the current branch.");
+            Methods.exit("Given branch is an ancestor of the current branch.");
         }
         if (current.getHEADAsString().equals(split)) {
             checkoutBranch(given.toString());
-            GitletUtils.exit("Current branch fast-forwarded.");
+            Methods.exit("Current branch fast-forwarded.");
         }
 
         Commit sp = Methods.toCommit(split);

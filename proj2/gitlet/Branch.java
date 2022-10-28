@@ -28,7 +28,7 @@ public class Branch implements Serializable {
      */
     public Branch(String name, String head) {
         if (isExists(name)) {
-            GitletUtils.exit("A branch with that name already exists.");
+            Methods.exit("A branch with that name already exists.");
         }
         this.name = name;
         this.HEAD = head;

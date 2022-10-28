@@ -12,15 +12,6 @@ import static gitlet.Utils.*;
  * @author Edward Tsang
  */
 public class Methods {
-    /**
-     * exit(0) before print message
-     */
-    public static void exit(String message) {
-        if (message != null) {
-            System.out.println(message);
-        }
-        System.exit(0);
-    }
 
     /**
      * return true if `.gitlet` exists
@@ -140,7 +131,7 @@ public class Methods {
      */
     public static void untrackedExist() {
         if (!Status.getFilesNames("untracked").isEmpty()) {
-            Methods.exit("There is an untracked file in the way; delete it,"
+            exit("There is an untracked file in the way; delete it,"
                     + " or add and commit it first.");
         }
     }
@@ -150,5 +141,15 @@ public class Methods {
      */
     public static Index readStagingArea() {
         return readObject(INDEX, Index.class);
+    }
+
+    /**
+     * exit(0) before print message
+     */
+    public static void exit(String message) {
+        if (message != null) {
+            System.out.println(message);
+        }
+        System.exit(0);
     }
 }
