@@ -13,24 +13,24 @@ public class Main {
      */
     public static void main(String[] args) {
         if (args.length == 0) {
-            Methods.exit("Please enter a command.");
+            GitletUtils.exit("Please enter a command.");
         }
         String firstArg = args[0];
         switch (firstArg) {
-            case "init" -> Methods.init(args);
-            case "add" -> Methods.add(args);
-            case "commit" -> Methods.commit(args);
-            case "rm" -> Methods.remove(args);
-            case "log" -> Methods.log(args);
-            case "global-log" -> Methods.globalLog(args);
-            case "find" -> Methods.find(args);
-            case "checkout" -> Methods.checkout(args);
-            case "status" -> Methods.status(args);
-            case "branch" -> Methods.branch(args);
-            case "rm-branch" -> Methods.removeBranch(args);
-            case "reset" -> Methods.reset(args);
-            case "merge" -> Methods.merge(args);
-            default -> Methods.exit("No command with that name exists.");
+            case "init" -> GitletUtils.init(args);
+            case "add" -> GitletUtils.add(args);
+            case "commit" -> GitletUtils.commit(args);
+            case "rm" -> GitletUtils.remove(args);
+            case "log" -> GitletUtils.log(args);
+            case "global-log" -> GitletUtils.globalLog(args);
+            case "find" -> GitletUtils.find(args);
+            case "checkout" -> GitletUtils.checkout(args);
+            case "status" -> GitletUtils.status(args);
+            case "branch" -> GitletUtils.branch(args);
+            case "rm-branch" -> GitletUtils.removeBranch(args);
+            case "reset" -> GitletUtils.reset(args);
+            case "merge" -> GitletUtils.merge(args);
+            default -> GitletUtils.exit("No command with that name exists.");
         }
     }
 }
