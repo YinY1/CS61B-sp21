@@ -31,7 +31,7 @@ public class Checkout {
     public static void checkoutFile(Commit commit, File file) {
         String oldBlob = commit.getBlob(file);
         if (oldBlob == null) {
-            Methods.exit("File does not exist in that commit.");
+            GitletUtils.exit("File does not exist in that commit.");
         }
         //rewrite old file
         File checkFrom = join(Repository.makeObjectDir(oldBlob));
@@ -50,12 +50,12 @@ public class Checkout {
      */
     public static void checkoutBranch(String name) {
         if (!Branch.isExists(name)) {
-            Methods.exit("No such branch exists.");
+            GitletUtils.exit("No such branch exists.");
         }
 
         Branch currentBranch = Methods.readHEADAsBranch();
         if (currentBranch.toString().equals(name)) {
-            Methods.exit("No need to checkout the current branch.");
+            GitletUtils.exit("No need to checkout the current branch.");
         }
 
         Methods.untrackedExist();
