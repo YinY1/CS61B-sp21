@@ -55,6 +55,10 @@ public class Methods {
         return c.exists() ? readObject(c, Commit.class) : null;
     }
 
+    public static Commit toCommit(String uid, File targetDir) {
+        return readObject(join(targetDir, uid.substring(0, 2), uid.substring(2)), Commit.class);
+    }
+
     /**
      * make a blob with given id(40-length)
      *

@@ -46,12 +46,19 @@ public class Merge {
                 .getUid();
     }
 
+    //TODO use Set<Commit> instead of Set<String>
+    public static void findAllAncestors(Commit b, Set<String> commits) {
+        dfs(b, commits, null);
+    }
+
     private static void dfs(Commit b, Set<String> commits, List<Commit> splits) {
         if (b == null) {
             return;
         }
         if (commits.contains(b.getUid())) {
-            splits.add(b);
+            if (splits != null) {
+                splits.add(b);
+            }
             return;
         }
         commits.add(b.getUid());

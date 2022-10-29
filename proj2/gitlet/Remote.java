@@ -3,10 +3,13 @@ package gitlet;
 import java.io.File;
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
+import static gitlet.Repository.*;
 import static gitlet.Utils.join;
+import static gitlet.Utils.writeObject;
 
 public class Remote implements Serializable {
 
@@ -52,27 +55,30 @@ public class Remote implements Serializable {
         }
 
         File objectsDir = join(target, "objects");
-        String[] dirs = objectsDir.list();
-        if (dirs != null) {
-            for (String dir : dirs) {
-                File curDir = join(Repository.OBJECTS_DIR, dir);
-                curDir.mkdir();
-                File objs = join(objectsDir, dir);
-                List<String> objects = Utils.plainFilenamesIn(objs);
-                if (objects != null) {
-                    for (String object : objects) {
-                        File obj = join(objs, object);
-                        File cur = join(curDir, object);
-                        if (!cur.exists()) {
-                            Methods.copy(obj, cur);
-                        }
-                    }
-                }
+        Set<String> commits = new LinkedHashSet<>();
+        Merge.findAllAncestors(b.getHEADAsCommitInRemote(objectsDir), commits);
+        for (String commit : commits) {
+            // copy commit object
+            File sourcePath = join(objectsDir, commit.substring(0, 2));
+            getObjectsDir(commit).mkdir();
+            sourcePath = join(sourcePath, commit.substring(2));
+            Methods.copy(sourcePath, makeObjectDir(commit));
+
+            //copy blob objects
+            Commit c = Methods.toCommit(commit, objectsDir);
+            for (String blobID : c.getBlobs().values()) {
+                String blobDir = blobID.substring(0, 2);
+                String blobName = blobID.substring(2);
+                File targetDir = join(OBJECTS_DIR, blobDir);
+                targetDir.mkdir();
+                sourcePath = join(objectsDir, blobDir, blobName);
+                Methods.copy(sourcePath, join(targetDir, blobName));
             }
         }
 
-        Branch nb = new Branch(remoteName + "/" + b.toString(), Methods.readHEADContent());
-        nb.updateBranch();
+
+        Branch nb = new Branch(remoteName + "/" + b, b.getHEADAsString());
+        writeObject(join(Repository.BRANCHES_DIR, nb.toString()), nb);
     }
 
     public void save() {
