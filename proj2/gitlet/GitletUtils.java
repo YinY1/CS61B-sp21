@@ -3,6 +3,7 @@ package gitlet;
 import java.io.File;
 import java.util.List;
 
+import static gitlet.Methods.*;
 import static gitlet.Repository.CWD;
 import static gitlet.Repository.initializeRepo;
 import static gitlet.Utils.join;
@@ -13,10 +14,10 @@ public class GitletUtils {
      * to initialize gitlet repository
      */
     public static void init(String[] args) {
-        Methods.judgeOperands(0, args);
+        judgeOperands(0, args);
         File repo = join(CWD, ".gitlet");
         if (repo.exists()) {
-            Methods.exit("A Gitlet version-control system already exists in the current directory.");
+            exit("A Gitlet version-control system already exists in the current directory.");
         }
         initializeRepo();
         Commit commit = new Commit("initial commit", null);
@@ -28,13 +29,12 @@ public class GitletUtils {
      * to add file to staging for addition
      */
     public static void add(String[] args) {
-        Methods.exitUnlessRepoExists();
-        Methods.judgeOperands(1, args);
+        judgeCommand(args, 1);
         File inFile = join(CWD, args[1]);
         if (!inFile.exists()) {
-            Methods.exit("File does not exist.");
+            exit("File does not exist.");
         }
-        Methods.readStagingArea().add(inFile);
+        readStagingArea().add(inFile);
     }
 
     /**
@@ -42,11 +42,10 @@ public class GitletUtils {
      * to remove file to unstage
      */
     public static void remove(String[] args) {
-        Methods.exitUnlessRepoExists();
-        Methods.judgeOperands(1, args);
+        judgeCommand(args, 1);
         File inFile = join(CWD, args[1]);
-        if (!Methods.readStagingArea().remove(inFile)) {
-            Methods.exit("No reason to remove the file.");
+        if (!readStagingArea().remove(inFile)) {
+            exit("No reason to remove the file.");
         }
     }
 
@@ -55,13 +54,13 @@ public class GitletUtils {
      * to make a commit
      */
     public static void commit(String[] args) {
-        Methods.exitUnlessRepoExists();
+        exitUnlessRepoExists();
         if (args.length < 2 || args[1].equals("")) {
-            Methods.exit("Please enter a commit message.");
+            exit("Please enter a commit message.");
         }
-        Methods.judgeOperands(1, args);
+        judgeOperands(1, args);
         String message = args[1];
-        String h = Methods.readHEADContent();
+        String h = readHEADContent();
         new Commit(message, h).makeCommit();
     }
 
@@ -73,22 +72,22 @@ public class GitletUtils {
      * or  `checkout [branch name]`
      */
     public static void checkout(String[] args) {
-        Methods.exitUnlessRepoExists();
-        Methods.judgeOperands(1, 3, args);
+        exitUnlessRepoExists();
+        judgeOperands(1, 3, args);
         if (args.length == 3 && args[1].equals("--")) {
             File file = join(CWD, args[2]);
             Checkout.checkoutFile(file);
         } else if (args.length == 4 && args[2].equals("--")) {
             Commit commit = Commit.findWithUid(args[1]);
             if (commit == null) {
-                Methods.exit("No commit with that id exists.");
+                exit("No commit with that id exists.");
             }
             File file = join(CWD, args[3]);
             Checkout.checkoutFile(commit, file);
         } else if (args.length == 2) {
             Checkout.checkoutBranch(args[1]);
         } else {
-            Methods.exit("Incorrect operands.");
+            exit("Incorrect operands.");
         }
     }
 
@@ -97,9 +96,8 @@ public class GitletUtils {
      * to print logs of current commit tree
      */
     public static void log(String[] args) {
-        Methods.exitUnlessRepoExists();
-        Methods.judgeOperands(0, args);
-        Log.log(Methods.readHEADAsCommit());
+        judgeCommand(args, 0);
+        Log.log(readHEADAsCommit());
     }
 
     /**
@@ -107,8 +105,7 @@ public class GitletUtils {
      * to print logs of all commits
      */
     public static void globalLog(String[] args) {
-        Methods.exitUnlessRepoExists();
-        Methods.judgeOperands(0, args);
+        judgeCommand(args, 0);
         Log.globalLog();
     }
 
@@ -117,8 +114,7 @@ public class GitletUtils {
      * to print status of current working directory.
      */
     public static void status(String[] args) {
-        Methods.exitUnlessRepoExists();
-        Methods.judgeOperands(0, args);
+        judgeCommand(args, 0);
         Status.printStatus();
     }
 
@@ -128,11 +124,10 @@ public class GitletUtils {
      * one per line.
      */
     public static void find(String[] args) {
-        Methods.exitUnlessRepoExists();
-        Methods.judgeOperands(1, args);
+        judgeCommand(args, 1);
         List<String> uid = Commit.findWithMessage(args[1]);
         if (uid.isEmpty()) {
-            Methods.exit("Found no commit with that message.");
+            exit("Found no commit with that message.");
         }
         uid.forEach(System.out::println);
     }
@@ -142,9 +137,8 @@ public class GitletUtils {
      * to create a branch with given name.
      */
     public static void branch(String[] args) {
-        Methods.exitUnlessRepoExists();
-        Methods.judgeOperands(1, args);
-        Branch b = new Branch(args[1], Methods.readHEADContent());
+        judgeCommand(args, 1);
+        Branch b = new Branch(args[1], readHEADContent());
         b.updateBranch();
     }
 
@@ -153,14 +147,13 @@ public class GitletUtils {
      * to remove the branch with given name.
      */
     public static void removeBranch(String[] args) {
-        Methods.exitUnlessRepoExists();
-        Methods.judgeOperands(1, args);
+        judgeCommand(args, 1);
         String name = args[1];
-        Branch cur = Methods.readHEADAsBranch();
+        Branch cur = readHEADAsBranch();
         if (name.equals(cur.toString())) {
-            Methods.exit("Cannot remove the current branch.");
+            exit("Cannot remove the current branch.");
         } else if (!cur.remove(name)) {
-            Methods.exit("A branch with that name does not exist.");
+            exit("A branch with that name does not exist.");
         }
     }
 
@@ -169,13 +162,12 @@ public class GitletUtils {
      * to reset status of given commit.
      */
     public static void reset(String[] args) {
-        Methods.exitUnlessRepoExists();
-        Methods.judgeOperands(1, args);
-        Commit commit = Methods.toCommit(args[1]);
+        judgeCommand(args, 1);
+        Commit commit = toCommit(args[1]);
         if (commit == null) {
-            Methods.exit("No commit with that id exists.");
+            exit("No commit with that id exists.");
         }
-        Methods.untrackedExist();
+        untrackedExist();
         Checkout.reset(commit);
     }
 
@@ -184,20 +176,42 @@ public class GitletUtils {
      * merge given branch to current branch
      */
     public static void merge(String[] args) {
-        Methods.exitUnlessRepoExists();
-        Methods.judgeOperands(1, args);
-        Branch cur = Methods.readHEADAsBranch();
+        judgeCommand(args, 1);
+        Branch cur = readHEADAsBranch();
         Branch b = Branch.readBranch(args[1]);
         if (b == null) {
-            Methods.exit("A branch with that name does not exist.");
+            exit("A branch with that name does not exist.");
         }
         if (b.toString().equals(cur.toString())) {
-            Methods.exit("Cannot merge a branch with itself.");
+            exit("Cannot merge a branch with itself.");
         }
-        if (!Methods.readStagingArea().isCommitted()) {
-            Methods.exit("You have uncommitted changes.");
+        if (!readStagingArea().isCommitted()) {
+            exit("You have uncommitted changes.");
         }
-        Methods.untrackedExist();
+        untrackedExist();
         Merge.merge(cur, b);
     }
+
+    public static void addRemote(String[] args) {
+        judgeCommand(args, 2);
+        if (!readRemotes().addRemote(args[1], correctPath(args[2]))) {
+            exit("A remote with that name already exists.");
+        }
+    }
+
+    public static void rmRemote(String[] args) {
+        judgeCommand(args, 1);
+        if (!readRemotes().removeRemote(args[1])) {
+            exit("A remote with that name does not exist.");
+        }
+    }
+
+    public static void fetch(String[] args) {
+        judgeCommand(args, 2);
+        Remote r = readRemotes();
+        String remoteName = args[1];
+        String branchName = args[2];
+        r.fetch(remoteName, Branch.readBranch(branchName, remoteName));
+    }
+
 }

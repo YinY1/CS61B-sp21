@@ -143,6 +143,10 @@ public class Methods {
         return readObject(INDEX, Index.class);
     }
 
+    public static Remote readRemotes() {
+        return readObject(REMOTES, Remote.class);
+    }
+
     /**
      * exit(0) before print message
      */
@@ -151,5 +155,19 @@ public class Methods {
             System.out.println(message);
         }
         System.exit(0);
+    }
+
+    public static void judgeCommand(String[] args, int num) {
+        exitUnlessRepoExists();
+        judgeOperands(num, args);
+    }
+
+    public static File correctPath(String path) {
+        path = path.replace("/", File.separator);
+        return join(path);
+    }
+
+    public static void copy(File source, File target) {
+        writeContents(target, readContents(source));
     }
 }

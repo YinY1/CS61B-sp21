@@ -40,6 +40,7 @@ public class Repository implements Serializable {
      * The commits file contains all commits' id.
      */
     public static final File COMMITS = join(REFS_DIR, "commits");
+    public static final File REMOTES = join(REFS_DIR, "remotes");
     /**
      * The objects directory which stored blobs and commits
      */
@@ -64,6 +65,7 @@ public class Repository implements Serializable {
         writeObject(HEAD, h);
         h.updateBranch();
         writeObject(INDEX, new Index());
+        writeObject(REMOTES, new Remote());
         writeContents(COMMITS, "");
     }
 
@@ -98,5 +100,9 @@ public class Repository implements Serializable {
         File out = getObjectsDir(id);
         out.mkdir();
         return join(out, getObjectName(id));
+    }
+
+    public static File getRemoteBranchDir(String name) {
+        return join(Methods.readRemotes().findRemote(name), "refs", "heads");
     }
 }

@@ -30,6 +30,10 @@ public class Main {
             case "rm-branch" -> GitletUtils.removeBranch(args);
             case "reset" -> GitletUtils.reset(args);
             case "merge" -> GitletUtils.merge(args);
+            case "add-remote" -> GitletUtils.addRemote(args);
+            case "rm-remote" -> GitletUtils.rmRemote(args);
+            case "fetch" -> GitletUtils.fetch(args);
+
             default -> Methods.exit("No command with that name exists.");
         }
     }

@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import static gitlet.Repository.BRANCHES_DIR;
+import static gitlet.Repository.getRemoteBranchDir;
 import static gitlet.Utils.join;
 
 /**
@@ -38,6 +39,7 @@ public class Branch implements Serializable {
      * Test whether branch with given name exists.
      */
     public static boolean isExists(String name) {
+        name = correctName(name);
         List<String> names = Utils.plainFilenamesIn(BRANCHES_DIR);
         return names != null && names.contains(name);
     }
@@ -46,8 +48,19 @@ public class Branch implements Serializable {
      * Read branch object with given name
      */
     public static Branch readBranch(String name) {
+        name = correctName(name);
         File b = join(BRANCHES_DIR, name);
         return !b.exists() ? null : Utils.readObject(b, Branch.class);
+    }
+
+    public static Branch readBranch(String name, String remote) {
+        name = correctName(name);
+        File b = join(getRemoteBranchDir(remote), name);
+        return !b.exists() ? null : Utils.readObject(b, Branch.class);
+    }
+
+    public static String correctName(String name) {
+        return name.replace("/", "_");
     }
 
     /**
@@ -55,7 +68,9 @@ public class Branch implements Serializable {
      */
     public void updateBranch() {
         this.HEAD = Utils.readObject(Repository.HEAD, Branch.class).getHEADAsString();
-        File h = join(BRANCHES_DIR, this.name);
+        String name = this.name;
+        name = correctName(name);
+        File h = join(BRANCHES_DIR, name);
         Utils.writeObject(h, this);
     }
 
