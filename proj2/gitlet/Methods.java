@@ -27,7 +27,7 @@ public class Methods {
      * judge whether the number of operands if correct,
      * exit(0) if operands are incorrect.
      */
-    public static void judgeOperands(int num, String[] args) {
+    public static void judgeOperands(String[] args, int num) {
         judgeOperands(num, num, args);
     }
 
@@ -48,15 +48,15 @@ public class Methods {
      * @return the commit with given uid if exists
      */
     public static Commit toCommit(String uid) {
-        File c = getObject(uid);
+        return toCommit(uid, OBJECTS_DIR);
+    }
+
+    public static Commit toCommit(String uid, File targetDir) {
+        File c = getObject(uid, targetDir);
         if (c == null) {
             return null;
         }
         return c.exists() ? readObject(c, Commit.class) : null;
-    }
-
-    public static Commit toCommit(String uid, File targetDir) {
-        return readObject(join(targetDir, uid.substring(0, 2), uid.substring(2)), Commit.class);
     }
 
     /**
@@ -66,45 +66,49 @@ public class Methods {
      * @return the blob with given uid if exists
      */
     public static Blob toBlob(String uid) {
-        File c = getObject(uid);
-        if (c == null) {
+        File b = getObject(uid, OBJECTS_DIR);
+        if (b == null) {
             return null;
         }
-        return c.exists() ? readObject(c, Blob.class) : null;
+        return b.exists() ? readObject(b, Blob.class) : null;
     }
 
     /**
      * @return object filepath
      */
-    private static File getObject(String uid) {
-        if (uid == null) {
+    private static File getObject(String uid, File objectsDir) {
+        if (uid == null || uid.isEmpty()) {
             return null;
         }
-        File c = join(getObjectsDir(uid));
+        File obj = join(objectsDir, uid.substring(0, 2));
         String rest = getObjectName(uid);
         if (uid.length() == 8) {
-            List<String> commits = plainFilenamesIn(c);
-            if (commits == null) {
+            List<String> objects = plainFilenamesIn(obj);
+            if (objects == null) {
                 return null;
             }
-            for (String commit : commits) {
+            for (String commit : objects) {
                 if (commit.substring(0, 6).equals(rest)) {
-                    c = join(c, commit);
+                    obj = join(obj, commit);
                     break;
                 }
             }
         } else {
-            c = join(c, rest);
+            obj = join(obj, rest);
         }
-        return c;
+        return obj;
     }
 
     /**
      * Sets HEAD pointer point to a commit
      */
     public static void setHEAD(Commit commit, Branch b) {
+        setHEAD(commit, b, GITLET_DIR);
+    }
+
+    public static void setHEAD(Commit commit, Branch b, File remote) {
         b.setHEADContent(commit.getUid());
-        writeObject(HEAD, b);
+        writeObject(join(remote, "HEAD"), b);
         b.updateBranch();
     }
 
@@ -163,15 +167,14 @@ public class Methods {
 
     public static void judgeCommand(String[] args, int num) {
         exitUnlessRepoExists();
-        judgeOperands(num, args);
+        judgeOperands(args, num);
     }
 
+    /**
+     * @return the correct path in different system
+     */
     public static File correctPath(String path) {
         path = path.replace("/", File.separator);
         return join(path);
-    }
-
-    public static void copy(File source, File target) {
-        writeContents(target, readContents(source));
     }
 }

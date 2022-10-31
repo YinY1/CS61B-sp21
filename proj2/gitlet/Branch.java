@@ -97,10 +97,6 @@ public class Branch implements Serializable {
         return Methods.toCommit(this.HEAD);
     }
 
-    public Commit getHEADAsCommitInRemote(File targetDir) {
-        return Methods.toCommit(this.HEAD, targetDir);
-    }
-
     @Override
     public String toString() {
         return correctName(name);

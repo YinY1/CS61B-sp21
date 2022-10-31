@@ -8,13 +8,18 @@ import static gitlet.Repository.CWD;
 import static gitlet.Repository.initializeRepo;
 import static gitlet.Utils.join;
 
+/**
+ * Represents gitlet commands
+ *
+ * @author Edward Tsang
+ */
 public class GitletUtils {
     /**
      * Command 'init' initialize `.gitlet`
      * to initialize gitlet repository
      */
     public static void init(String[] args) {
-        judgeOperands(0, args);
+        judgeOperands(args, 0);
         File repo = join(CWD, ".gitlet");
         if (repo.exists()) {
             exit("A Gitlet version-control system already exists in the current directory.");
@@ -58,7 +63,7 @@ public class GitletUtils {
         if (args.length < 2 || args[1].equals("")) {
             exit("Please enter a commit message.");
         }
-        judgeOperands(1, args);
+        judgeOperands(args, 1);
         String message = args[1];
         String h = readHEADContent();
         new Commit(message, h).makeCommit();
@@ -206,11 +211,25 @@ public class GitletUtils {
         }
     }
 
+    public static void push(String[] args) {
+        judgeCommand(args, 2);
+        Remote r = readRemotes();
+        String remoteName = args[1];
+        String branchName = args[2];
+        if (!r.isExists(remoteName)) {
+            Methods.exit("Remote directory not found.");
+        }
+        r.push(remoteName, Branch.readBranch(branchName, remoteName));
+    }
+
     public static void fetch(String[] args) {
         judgeCommand(args, 2);
         Remote r = readRemotes();
         String remoteName = args[1];
         String branchName = args[2];
+        if (!r.isExists(remoteName)) {
+            Methods.exit("Remote directory not found.");
+        }
         r.fetch(remoteName, Branch.readBranch(branchName, remoteName));
     }
 

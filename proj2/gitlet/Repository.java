@@ -103,6 +103,6 @@ public class Repository implements Serializable {
     }
 
     public static File getRemoteBranchDir(String name) {
-        return join(Methods.readRemotes().findRemote(name), "refs", "heads");
+        return join(Methods.readRemotes().getRemote(name), "refs", "heads");
     }
 }

@@ -33,7 +33,7 @@ public class Main {
             case "add-remote" -> GitletUtils.addRemote(args);
             case "rm-remote" -> GitletUtils.rmRemote(args);
             case "fetch" -> GitletUtils.fetch(args);
-
+            case "push" -> GitletUtils.push(args);
             default -> Methods.exit("No command with that name exists.");
         }
     }
