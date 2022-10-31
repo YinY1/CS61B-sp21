@@ -68,9 +68,9 @@ public class Branch implements Serializable {
      */
     public void updateBranch() {
         this.HEAD = Utils.readObject(Repository.HEAD, Branch.class).getHEADAsString();
-        String name = this.name;
-        name = correctName(name);
-        File h = join(BRANCHES_DIR, name);
+        String n = this.name;
+        n = correctName(n);
+        File h = join(BRANCHES_DIR, n);
         Utils.writeObject(h, this);
     }
 
@@ -97,6 +97,9 @@ public class Branch implements Serializable {
         return Methods.toCommit(this.HEAD);
     }
 
+    /**
+     * @return branch name
+     */
     @Override
     public String toString() {
         return correctName(name);

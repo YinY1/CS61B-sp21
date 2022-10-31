@@ -102,6 +102,9 @@ public class Repository implements Serializable {
         return join(out, getObjectName(id));
     }
 
+    /**
+     * Get filepath of given remote's branches directory.
+     */
     public static File getRemoteBranchDir(String name) {
         return join(Methods.readRemotes().getRemote(name), "refs", "heads");
     }

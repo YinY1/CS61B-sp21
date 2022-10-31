@@ -106,6 +106,9 @@ public class Methods {
         setHEAD(commit, b, GITLET_DIR);
     }
 
+    /**
+     * Sets HEAD pointer point to a commit
+     */
     public static void setHEAD(Commit commit, Branch b, File remote) {
         b.setHEADContent(commit.getUid());
         writeObject(join(remote, "HEAD"), b);

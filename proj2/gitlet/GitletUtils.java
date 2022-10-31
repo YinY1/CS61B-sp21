@@ -197,6 +197,10 @@ public class GitletUtils {
         Merge.merge(cur, b);
     }
 
+    /**
+     * Command 'add-remote [remote name] [name of remote directory]/.gitlet'
+     * add a new remote and save the given login information under the given remote name.
+     */
     public static void addRemote(String[] args) {
         judgeCommand(args, 2);
         if (!readRemotes().addRemote(args[1], correctPath(args[2]))) {
@@ -204,6 +208,10 @@ public class GitletUtils {
         }
     }
 
+    /**
+     * Command 'rm-remote [remote name]'
+     * remove information associated with the given remote name
+     */
     public static void rmRemote(String[] args) {
         judgeCommand(args, 1);
         if (!readRemotes().removeRemote(args[1])) {
@@ -211,23 +219,31 @@ public class GitletUtils {
         }
     }
 
+    /**
+     * Command 'push [remote name] [remote branch name]'
+     * push local branch to remote
+     */
     public static void push(String[] args) {
         judgeCommand(args, 2);
         Remote r = readRemotes();
         String remoteName = args[1];
         String branchName = args[2];
-        if (!r.isExists(remoteName)) {
+        if (!r.isExists(remoteName) || !r.getRemote(remoteName).exists()) {
             Methods.exit("Remote directory not found.");
         }
         r.push(remoteName, Branch.readBranch(branchName, remoteName));
     }
 
+    /**
+     * Command 'fetch [remote name] [remote branch name]'
+     * fetch remote branch to local
+     */
     public static void fetch(String[] args) {
         judgeCommand(args, 2);
         Remote r = readRemotes();
         String remoteName = args[1];
         String branchName = args[2];
-        if (!r.isExists(remoteName)) {
+        if (!r.isExists(remoteName) || !r.getRemote(remoteName).exists()) {
             Methods.exit("Remote directory not found.");
         }
         r.fetch(remoteName, Branch.readBranch(branchName, remoteName));

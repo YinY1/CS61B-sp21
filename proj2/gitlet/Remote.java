@@ -72,9 +72,6 @@ public class Remote implements Serializable {
      */
     public void fetch(String remoteName, Branch branch) {
         File sourceRepo = remotes.get(remoteName);
-        if (!sourceRepo.exists()) {
-            Methods.exit("Remote directory not found.");
-        }
         if (branch == null) {
             Methods.exit("That remote does not have that branch.");
         }
