@@ -5,7 +5,6 @@ import java.io.Serializable;
 import java.util.List;
 
 import static gitlet.Repository.BRANCHES_DIR;
-import static gitlet.Repository.getRemoteBranchDir;
 import static gitlet.Utils.join;
 
 /**
@@ -48,14 +47,12 @@ public class Branch implements Serializable {
      * Read branch object with given name
      */
     public static Branch readBranch(String name) {
-        name = correctName(name);
-        File b = join(BRANCHES_DIR, name);
-        return !b.exists() ? null : Utils.readObject(b, Branch.class);
+        return readBranch(name, BRANCHES_DIR);
     }
 
-    public static Branch readBranch(String name, String remote) {
+    public static Branch readBranch(String name, File dir) {
         name = correctName(name);
-        File b = join(getRemoteBranchDir(remote), name);
+        File b = join(dir, name);
         return !b.exists() ? null : Utils.readObject(b, Branch.class);
     }
 

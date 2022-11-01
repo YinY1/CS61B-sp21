@@ -34,6 +34,7 @@ public class Main {
             case "rm-remote" -> GitletUtils.rmRemote(args);
             case "fetch" -> GitletUtils.fetch(args);
             case "push" -> GitletUtils.push(args);
+            case "pull" -> GitletUtils.pull(args);
             default -> Methods.exit("No command with that name exists.");
         }
     }

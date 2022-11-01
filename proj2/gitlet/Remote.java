@@ -86,7 +86,13 @@ public class Remote implements Serializable {
 
         // move these commits to current repo, fetch it
         moveObjects(sourceObjectsDir, OBJECTS_DIR, branch, ancestors);
-        Branch nb = new Branch(remoteName + "/" + branch, branch.getHEADAsString());
+        String branchName = remoteName + "/" + branch;
+        Branch nb;
+        if (!Branch.isExists(branchName)) {
+            nb = new Branch(branchName, branch.getHEADAsString());
+        } else {
+            nb = Branch.readBranch(branchName);
+        }
         writeObject(join(Repository.BRANCHES_DIR, nb.toString()), nb);
     }
 

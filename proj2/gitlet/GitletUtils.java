@@ -4,8 +4,7 @@ import java.io.File;
 import java.util.List;
 
 import static gitlet.Methods.*;
-import static gitlet.Repository.CWD;
-import static gitlet.Repository.initializeRepo;
+import static gitlet.Repository.*;
 import static gitlet.Utils.join;
 
 /**
@@ -231,7 +230,7 @@ public class GitletUtils {
         if (!r.isExists(remoteName) || !r.getRemote(remoteName).exists()) {
             Methods.exit("Remote directory not found.");
         }
-        r.push(remoteName, Branch.readBranch(branchName, remoteName));
+        r.push(remoteName, Branch.readBranch(branchName, getRemoteBranchDir(remoteName)));
     }
 
     /**
@@ -246,7 +245,14 @@ public class GitletUtils {
         if (!r.isExists(remoteName) || !r.getRemote(remoteName).exists()) {
             Methods.exit("Remote directory not found.");
         }
-        r.fetch(remoteName, Branch.readBranch(branchName, remoteName));
+        r.fetch(remoteName, Branch.readBranch(branchName, getRemoteBranchDir(remoteName)));
     }
 
+    public static void pull(String[] args) {
+        fetch(args);
+        String[] a = new String[2];
+        a[0] = args[0];
+        a[1] = Branch.correctName(args[1] + "/" + args[2]);
+        merge(a);
+    }
 }
