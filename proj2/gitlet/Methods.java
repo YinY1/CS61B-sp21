@@ -51,6 +51,13 @@ public class Methods {
         return toCommit(uid, OBJECTS_DIR);
     }
 
+    /**
+     * make a commit with given id(8-length or 40-length)
+     *
+     * @param uid       uid of the commit
+     * @param targetDir the directory where the commit is
+     * @return the commit with given uid if exists
+     */
     public static Commit toCommit(String uid, File targetDir) {
         File c = getObject(uid, targetDir);
         if (c == null) {
@@ -141,7 +148,7 @@ public class Methods {
      * Test if there is any untracked file.
      */
     public static void untrackedExist() {
-        if (!Status.getFilesNames("untracked").isEmpty()) {
+        if (!Status.getUntrackedFilesNames().isEmpty()) {
             exit("There is an untracked file in the way; delete it,"
                     + " or add and commit it first.");
         }

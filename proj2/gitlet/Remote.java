@@ -92,6 +92,7 @@ public class Remote implements Serializable {
             nb = new Branch(branchName, branch.getHEADAsString());
         } else {
             nb = Branch.readBranch(branchName);
+            nb.setHEADContent(branch.getHEADAsString());
         }
         writeObject(join(Repository.BRANCHES_DIR, nb.toString()), nb);
     }

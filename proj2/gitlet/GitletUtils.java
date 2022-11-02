@@ -248,11 +248,16 @@ public class GitletUtils {
         r.fetch(remoteName, Branch.readBranch(branchName, getRemoteBranchDir(remoteName)));
     }
 
+    /**
+     * Command 'pull [remote name] [remote branch name]'
+     * Fetches branch [remote name]/[remote branch name] as for the fetch command,
+     * and then merges that fetch into the current branch.
+     */
     public static void pull(String[] args) {
         fetch(args);
-        String[] a = new String[2];
-        a[0] = args[0];
-        a[1] = Branch.correctName(args[1] + "/" + args[2]);
-        merge(a);
+        String[] command = new String[2];
+        command[0] = "merge";
+        command[1] = Branch.correctName(args[1] + "/" + args[2]);
+        merge(command);
     }
 }

@@ -30,7 +30,7 @@ public class Status {
         printFilenames("\n=== Removed Files ===", idx.getRemovedFilenames());
         printFilenames("\n=== Modifications Not Staged For Commit ===",
                 getModifiedButNotStagedFilesNames());
-        printFilenames("\n=== Untracked Files ===", getFilesNames("untracked"));
+        printFilenames("\n=== Untracked Files ===", getUntrackedFilesNames());
         System.out.println();
     }
 
@@ -105,11 +105,9 @@ public class Status {
      * This includes files that have been staged for removal,
      * but then re-created without Gitlet’s knowledge.
      *
-     * @param mode decide which kind of filenames to return. "untracked" or "tracked"
-     * @return untracked\tracked filenames, empty set if mode is incorrect.
+     * @return untracked filenames, empty set if mode is incorrect.
      */
-    //TODO: delete `mode`, no need to use `tracked` mode
-    public static Set<String> getFilesNames(String mode) {
+    public static Set<String> getUntrackedFilesNames() {
         Set<String> ret = new HashSet<>();
         Commit currentCommit = Methods.readHEADAsCommit();
         List<String> files = plainFilenamesIn(Repository.CWD);
@@ -120,12 +118,7 @@ public class Status {
         for (String f : files) {
             File file = join(Repository.CWD, f);
             boolean flag = idx.isTracked(file, currentCommit);
-            if (mode.equals("untracked")) {
-                flag = !flag;
-            } else if (!mode.equals("tracked")) {
-                Methods.exit("DEBUG HERE");
-            }
-            if (flag) {
+            if (!flag) {
                 ret.add(file.getName());
             }
         }

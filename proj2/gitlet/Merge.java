@@ -40,6 +40,9 @@ public class Merge {
         doMerge(files, sp, cur, tar, msg);
     }
 
+    /**
+     * @return the uid of the first of split point between two branches
+     */
     private static String getSplitPoint(Branch current, Branch given) {
         List<Commit> splits = new ArrayList<>();
         Set<String> commits = new HashSet<>();

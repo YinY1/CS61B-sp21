@@ -15,7 +15,6 @@
    * HEAD
 2. static TreeMap blobs
 
-
 ### Class Commit
 
 #### Fields
@@ -34,11 +33,16 @@
 2. byte[] content
 
 ## Algorithms
+
 * TreeMap
 * Hashing
 
 ## Persistence
+
 * commits
 * HEAD
 * blobs
 
+# I am LAZY
+
+just read docs of all .java and methods to get all information of my design
