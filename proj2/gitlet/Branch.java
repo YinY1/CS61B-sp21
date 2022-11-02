@@ -94,6 +94,10 @@ public class Branch implements Serializable {
         return Methods.toCommit(this.HEAD);
     }
 
+    public String getName() {
+        return name;
+    }
+
     /**
      * @return branch name
      */

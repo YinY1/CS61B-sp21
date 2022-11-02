@@ -8,6 +8,11 @@ import static gitlet.Checkout.checkoutFile;
 import static gitlet.Index.isModified;
 import static gitlet.Utils.*;
 
+/**
+ * Represents gitlet-merge.
+ *
+ * @author Edward Tsang
+ */
 public class Merge {
     /**
      * Merges files from the given branch into the current branch.
@@ -31,7 +36,7 @@ public class Merge {
         if (cwd != null) {
             cwd.forEach(n -> files.add(join(Repository.CWD, n).getAbsolutePath()));
         }
-        String msg = "Merged " + given + " into " + current + ".";
+        String msg = "Merged " + given.getName() + " into " + current.getName() + ".";
         doMerge(files, sp, cur, tar, msg);
     }
 
@@ -46,7 +51,11 @@ public class Merge {
                 .getUid();
     }
 
-    //TODO use Set<Commit> instead of Set<String>
+    /**
+     * add all ancestors of current commit to a set
+     *
+     * @param commits a set stores all the ancestors commits, including self
+     */
     public static void findAllAncestors(Commit b, Set<String> commits) {
         dfs(b, commits, null);
     }
