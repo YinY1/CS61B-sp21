@@ -3,11 +3,13 @@ package byow.Core;
 import byow.TileEngine.TERenderer;
 import byow.TileEngine.TETile;
 
+import java.time.LocalTime;
+
 public class Engine {
     TERenderer ter = new TERenderer();
     /* Feel free to change the width and height. */
     public static final int WIDTH = 80;
-    public static final int HEIGHT = 30;
+    public static final int HEIGHT = 60;
 
     /**
      * Method used for exploring a fresh world. This method should handle all inputs,
@@ -46,7 +48,15 @@ public class Engine {
         // See proj3.byow.InputDemo for a demo of how you can make a nice clean interface
         // that works for many different input types.
 
-        TETile[][] finalWorldFrame = null;
-        return finalWorldFrame;
+        ter.initialize(WIDTH,HEIGHT);
+
+        //long seed =Long.parseLong(input,1,input.length()-1,10);
+        long seed = LocalTime.now().toNanoOfDay();
+        World world = new World(seed, WIDTH, HEIGHT);
+
+        ter.renderFrame(world.getTiles());
+        return world.getTiles();
     }
+
+
 }
