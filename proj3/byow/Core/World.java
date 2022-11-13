@@ -70,13 +70,20 @@ public class World {
     }
 
     private boolean isRoom(int x, int y, int w, int h) {
-        for (int i = x; i < x + w; i++) {
-            if(rooms[i][y]||rooms[i][y+h-1]){
+        if (x == 0) {
+            x++;
+        }
+        if (y == 0) {
+            y++;
+        }
+
+        for (int i = x - 1; i < x + w + 1; i++) {
+            if (rooms[i][y - 1] || rooms[i][y + h]) {
                 return true;
             }
         }
-        for (int j = y; j < y + h; j++) {
-            if(rooms[x][j]||rooms[x+w-1][j]){
+        for (int j = y - 1; j < y + h + 1; j++) {
+            if (rooms[x - 1][j] || rooms[x + w][j]) {
                 return true;
             }
         }
