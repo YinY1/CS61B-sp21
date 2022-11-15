@@ -52,7 +52,7 @@ public class Road {
     /**
      * find ancestor and path compression
      */
-    private static Point kruskalFind(Point unit, HashMap<Point, Point> root) {
+    public static Point kruskalFind(Point unit, HashMap<Point, Point> root) {
         if (root.get(unit) != unit) {
             root.put(unit, kruskalFind(root.get(unit), root));
         }
