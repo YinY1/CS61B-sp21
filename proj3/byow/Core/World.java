@@ -4,6 +4,7 @@ import byow.TileEngine.TETile;
 import byow.TileEngine.Tileset;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 /**
@@ -13,34 +14,37 @@ import java.util.Random;
  */
 public class World {
 
+    final ArrayList<Point> connections = new ArrayList<>();
     final TETile[][] tiles;
     final boolean[][] rooms;
     final boolean[][] roads;
     /**
      * store point of walls
      */
-    final ArrayList<Point> walls;
+    final ArrayList<Point> walls = new ArrayList<>();
     /**
      * store point of walls and roads
      */
-    final ArrayList<Point> units;
+    final ArrayList<Point> units = new ArrayList<>();
+    final HashMap<Point, Point> roomAreas = new HashMap<>();
     private final int width;
     private final int height;
     private final Random RANDOM;
+    HashMap<Point, Point> root = new HashMap<>();
 
     World(long seed, int w, int h) {
         RANDOM = new Random(seed);
+        width = w;
+        height = h;
         tiles = new TETile[w][h];
         rooms = new boolean[w][h];
         roads = new boolean[w][h];
-        walls = new ArrayList<>();
-        units = new ArrayList<>();
-        width = w;
-        height = h;
         clear();
         Room.createRooms(this);
-        createWalls();
+        Wall.createWalls(this);
         Road.createRoad(this);
+        Wall.findConnection(this);
+        Wall.connect(this);
     }
 
     public void clear() {
@@ -51,23 +55,12 @@ public class World {
         }
     }
 
-    private void createWalls() {
-        for (int x = 0; x < width; x += 1) {
-            for (int y = 0; y < height; y += 1) {
-                if (x * y == 0 || x == width - 1 || y == height - 1) {
-                    tiles[x][y] = Tileset.WALL;
-                } else if (isNothing(x, y)) {
-                    if (x % 2 == 1 && y % 2 == 1) {
-                        roads[x][y] = true;
-                        tiles[x][y] = Tileset.FLOOR;
-                    } else {
-                        walls.add(new Point(x, y));
-                        tiles[x][y] = Tileset.WALL;
-                    }
-                    units.add(new Point(x, y));
-                }
-            }
-        }
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
     }
 
     public Random getRANDOM() {

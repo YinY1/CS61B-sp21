@@ -1,8 +1,13 @@
 package byow.Core;
 
+import byow.Core.World.Point;
 import byow.TileEngine.Tileset;
 
+import java.util.ArrayDeque;
 import java.util.Random;
+
+import static byow.Core.Road.isIntersected;
+import static byow.Core.Road.kruskalUnion;
 
 /**
  * Represents rooms generation.
@@ -28,11 +33,12 @@ public class Room {
 
         int x = world.getRandomX(w);
         int y = world.getRandomY(h);
-
-        while (world.tiles[x][y] != Tileset.NOTHING || isRoom(world.rooms, x, y, w, h)) {
+        while (world.tiles[x][y] != Tileset.NOTHING || isCoveredRoom(world.rooms, x, y, w, h)) {
             x = world.getRandomX(w);
             y = world.getRandomY(h);
         }
+
+        world.roomAreas.put(new Point(x, y), new Point(x + w - 1, y + h - 1));
 
         for (int i = x; i < x + w; i++) {
             world.tiles[i][y] = Tileset.ROOM;
@@ -58,7 +64,7 @@ public class Room {
     /**
      * test if a point{x,y} locates in a room
      */
-    public static boolean isRoom(boolean[][] rooms, int x, int y, int w, int h) {
+    public static boolean isCoveredRoom(boolean[][] rooms, int x, int y, int w, int h) {
         if (x == 0) {
             x++;
         }
@@ -77,5 +83,53 @@ public class Room {
             }
         }
         return false;
+    }
+
+    public static boolean isRoom(boolean[][] rooms, World.Point point) {
+        return rooms[point.x][point.y];
+    }
+
+    public static Point getRandomRoomPoint(World world) {
+        Point ret = new Point(world.getRANDOM().nextInt(world.getWidth())
+                , world.getRANDOM().nextInt(world.getHeight()));
+        while (!isRoom(world.rooms, ret)) {
+            ret = new Point(world.getRANDOM().nextInt(world.getWidth())
+                    , world.getRANDOM().nextInt(world.getHeight()));
+        }
+        return ret;
+    }
+
+    public static void unionArea(World world, Point unit) {
+        ArrayDeque<Point> queue = new ArrayDeque<>();
+        final int[][] direction = new int[][]{{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
+        queue.add(unit);
+        while (!queue.isEmpty()) {
+            Point p = queue.pop();
+
+            for (int[] dir : direction) {
+                Point np = new Point(p.x + dir[0], p.y + dir[1]);
+                if (isRoom(world.rooms, np) && !isIntersected(p, np, world.root)) {
+                    queue.add(np);
+                    kruskalUnion(p, np, world.root);
+                }
+            }
+        }
+    }
+
+    public static Point getRandomConnectionPoint(World world, Point bottomLeft, Point topRight) {
+        int xl = bottomLeft.x;
+        int yl = bottomLeft.y;
+        int xr = topRight.x;
+        int yr = topRight.y;
+
+        int x = world.getRANDOM().nextInt(xr + 2 - (xl - 1)) + xl - 1;
+        int y = world.getRANDOM().nextInt(yr + 2 - (yl - 1)) + yl - 1;
+        Point ret = new Point(x, y);
+        while (!world.connections.contains(ret)) {
+            ret = new Point(world.getRANDOM().nextInt(xr + 2 - (xl - 1)) + xl - 1
+                    , world.getRANDOM().nextInt(yr + 2 - (yl - 1)) + yl - 1);
+        }
+        world.tiles[ret.x][ret.y] = Tileset.UNLOCKED_DOOR;
+        return ret;
     }
 }

@@ -3,6 +3,7 @@ package byow.Core;
 import byow.Core.World.Point;
 import byow.TileEngine.Tileset;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -12,18 +13,18 @@ import java.util.HashMap;
  */
 public class Road {
     public static void createRoad(World world) {
-        HashMap<Point, Point> root = new HashMap<>();
-        world.units.forEach(u -> root.put(u, u));
-        findPath(world, root);
+        world.units.forEach(u -> world.root.put(u, u));
+        findPath(world, world.root);
     }
 
     /**
      * generate random roads using Kruskal
      */
     private static void findPath(World world, HashMap<Point, Point> root) {
-        while (!world.walls.isEmpty()) {
-            int idx = world.getRANDOM().nextInt(world.walls.size());
-            Point wall = world.walls.get(idx);
+        ArrayList<Point> walls = new ArrayList<>(world.walls);
+        while (!walls.isEmpty()) {
+            int idx = world.getRANDOM().nextInt(walls.size());
+            Point wall = walls.get(idx);
             // get the point near the wall
             int x = wall.x;
             int y = wall.y;
@@ -37,14 +38,14 @@ public class Road {
 
             // connect two roads if they don't intersect
             if (world.roads[x1][y1] && world.roads[x2][y2]
-                    && !kruskalFind(unit1, root).equals(kruskalFind(unit2, root))) {
+                    && !isIntersected(unit1, unit2, root)) {
 
                 kruskalUnion(unit1, unit2, root);
                 root.put(wall, unit1);
                 world.roads[x][y] = true;
-                world.tiles[x][y] = Tileset.FLOOR;
+                world.tiles[x][y] = Tileset.ROAD;
             }
-            world.walls.remove(idx);
+            walls.remove(idx);
         }
     }
 
@@ -61,7 +62,7 @@ public class Road {
     /**
      * union two sets
      */
-    private static void kruskalUnion(Point unit1, Point unit2, HashMap<Point, Point> root) {
+    public static void kruskalUnion(Point unit1, Point unit2, HashMap<Point, Point> root) {
         Point root1 = kruskalFind(unit1, root);
         Point root2 = kruskalFind(unit2, root);
         if (unit1.rank <= root2.rank) {
@@ -72,5 +73,9 @@ public class Road {
         if (unit1.rank == root2.rank && !root1.equals(root2)) {
             root2.rank++;
         }
+    }
+
+    public static boolean isIntersected(Point p1, Point p2, HashMap<Point, Point> root) {
+        return kruskalFind(p1, root).equals(kruskalFind(p2, root));
     }
 }
