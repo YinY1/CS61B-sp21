@@ -5,6 +5,7 @@ import byow.TileEngine.Tileset;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Random;
 
 /**
@@ -31,6 +32,8 @@ public class World {
     private final int height;
     private final Random RANDOM;
     HashMap<Point, Point> root = new HashMap<>();
+    Point mainArea;
+    HashSet<Point> areas = new HashSet<>();
 
     World(long seed, int w, int h) {
         RANDOM = new Random(seed);
@@ -44,7 +47,8 @@ public class World {
         Wall.createWalls(this);
         Road.createRoad(this);
         Wall.findConnection(this);
-        Wall.connect(this);
+        initializeAreas();
+        Wall.connectAreas(this);
     }
 
     public void clear() {
@@ -53,6 +57,13 @@ public class World {
                 tiles[x][y] = Tileset.NOTHING;
             }
         }
+    }
+
+    public void initializeAreas() {
+        root.clear();
+        Road.addRoadsToArea(this);
+        Room.addRoomsToArea(this);
+        mainArea = (Room.getRandomRoom(this));
     }
 
     public int getWidth() {
@@ -79,34 +90,4 @@ public class World {
         return tiles[x][y] == Tileset.NOTHING;
     }
 
-    /**
-     * Represent {x,y} point with a rank(depth in a tree)
-     */
-    static class Point {
-        final int x;
-        final int y;
-        int rank;
-
-        Point(int x, int y) {
-            this.x = x;
-            this.y = y;
-            rank = 0;
-        }
-
-        @Override
-        public boolean equals(Object p) {
-            if (this == p) {
-                return true;
-            }
-            if (p == null || p.getClass() != this.getClass()) {
-                return false;
-            }
-            return p.hashCode() == this.hashCode();
-        }
-
-        @Override
-        public int hashCode() {
-            return x * 114514 + y;
-        }
-    }
 }

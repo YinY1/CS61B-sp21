@@ -1,9 +1,11 @@
 package byow.Core;
 
-import byow.Core.World.Point;
 import byow.TileEngine.Tileset;
 
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.Set;
+
+import static com.google.common.primitives.Ints.min;
 
 /**
  * Represents rooms generation.
@@ -14,7 +16,15 @@ public class Room {
     /**
      * try how many times to generate rooms
      */
-    private static final int TIMES = Engine.HEIGHT / 2;
+    private static final int TIMES = min(Engine.HEIGHT, Engine.WIDTH) / 2;
+    /**
+     * minimum width of a room, must be odd
+     */
+    private static final int MIN_WIDTH = 5;
+    /**
+     * minimum height of a room, must be odd
+     */
+    private static final int MIN_HEIGHT = 5;
 
     public static void createRooms(World world) {
         for (int i = 0; i < TIMES; i++) {
@@ -23,9 +33,8 @@ public class Room {
     }
 
     private static void createRoom(World world) {
-        Random random = world.getRANDOM();
-        int h = random.nextInt(3) * 2 + 5;
-        int w = random.nextInt(3) * 2 + 5;
+        int h = world.getRANDOM().nextInt(3) * 2 + MIN_HEIGHT;
+        int w = world.getRANDOM().nextInt(3) * 2 + MIN_WIDTH;
 
         int x = world.getRandomX(w);
         int y = world.getRandomY(h);
@@ -47,7 +56,7 @@ public class Room {
     /**
      * test if a point{x,y} locates in a room
      */
-    public static boolean isCoveredRoom(boolean[][] rooms, int x, int y, int w, int h) {
+    private static boolean isCoveredRoom(boolean[][] rooms, int x, int y, int w, int h) {
         if (x == 0) {
             x++;
         }
@@ -68,30 +77,15 @@ public class Room {
         return false;
     }
 
-    public static boolean isRoom(boolean[][] rooms, World.Point point) {
-        return rooms[point.x][point.y];
+    public static void addRoomsToArea(World world) {
+        Set<Point> keys = world.roomAreas.keySet();
+        world.areas.addAll(keys);
+        keys.forEach(r -> world.root.put(r, r));
     }
 
-    public static Point getRandomConnectionPoint(World world, Point bottomLeft, Point topRight) {
-        int xl = bottomLeft.x;
-        int yl = bottomLeft.y;
-        int xr = topRight.x;
-        int yr = topRight.y;
-
-        int x = world.getRANDOM().nextInt(xr + 2 - (xl - 1)) + xl - 1;
-        int y = world.getRANDOM().nextInt(yr + 2 - (yl - 1)) + yl - 1;
-        Point ret = new Point(x, y);
-        while (!world.connections.contains(ret)) {
-            ret = new Point(world.getRANDOM().nextInt(xr + 2 - (xl - 1)) + xl - 1
-                    , world.getRANDOM().nextInt(yr + 2 - (yl - 1)) + yl - 1);
-        }
-        return ret;
-    }
-
-    public static void addRoomsToRoot(World world) {
-        world.roomAreas.keySet().forEach(r -> world.root.put(r, r));
-    }
-
+    /**
+     * get the bottom left point of a room, which represents the room area
+     */
     public static Point getBottomLeft(World world, Point unit) {
         int x = unit.x;
         int y = unit.y;
@@ -105,5 +99,15 @@ public class Room {
         y++;
         world.tiles[x][y] = Tileset.SAND;
         return new Point(x, y);
+    }
+
+    public static Point getRandomRoom(World world) {
+        ArrayList<Point> keys = new ArrayList<>(world.roomAreas.keySet());
+        int idx = world.getRANDOM().nextInt(keys.size());
+        Point room = keys.get(idx);
+        if (world.mainArea != null && Point.isInMainArea(world, room)) {
+            return null;
+        }
+        return room;
     }
 }

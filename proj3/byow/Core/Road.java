@@ -1,10 +1,11 @@
 package byow.Core;
 
-import byow.Core.World.Point;
 import byow.TileEngine.Tileset;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Queue;
 
 /**
  * Represents roads generation.
@@ -39,7 +40,6 @@ public class Road {
             // connect two roads if they don't intersect
             if (world.roads[x1][y1] && world.roads[x2][y2]
                     && !isIntersected(unit1, unit2, root)) {
-
                 kruskalUnion(unit1, unit2, root);
                 root.put(wall, unit1);
                 world.roads[x][y] = true;
@@ -52,7 +52,7 @@ public class Road {
     /**
      * find ancestor and path compression
      */
-    public static Point kruskalFind(Point unit, HashMap<Point, Point> root) {
+    private static Point kruskalFind(Point unit, HashMap<Point, Point> root) {
         if (root.get(unit) != unit) {
             root.put(unit, kruskalFind(root.get(unit), root));
         }
@@ -62,7 +62,7 @@ public class Road {
     /**
      * union two sets
      */
-    public static void kruskalUnion(Point unit1, Point unit2, HashMap<Point, Point> root) {
+    private static void kruskalUnion(Point unit1, Point unit2, HashMap<Point, Point> root) {
         Point root1 = kruskalFind(unit1, root);
         Point root2 = kruskalFind(unit2, root);
         if (unit1.rank <= root2.rank) {
@@ -75,7 +75,38 @@ public class Road {
         }
     }
 
-    public static boolean isIntersected(Point p1, Point p2, HashMap<Point, Point> root) {
+    private static boolean isIntersected(Point p1, Point p2, HashMap<Point, Point> root) {
         return kruskalFind(p1, root).equals(kruskalFind(p2, root));
+    }
+
+    public static void addRoadsToArea(World world) {
+        int w = world.getWidth();
+        int h = world.getHeight();
+        boolean[][] path = new boolean[w][h];
+        for (int x = 1; x < w - 1; x++) {
+            for (int y = 1; y < h - 1; y++) {
+                if (world.roads[x][y] && !path[x][y]) {
+                    Point p = new Point(x, y);
+                    path[x][y] = true;
+                    world.areas.add(p);
+                    world.root.put(p, p);
+
+                    Point rootP = p;
+                    Queue<Point> queue = new ArrayDeque<>();
+                    queue.add(p);
+                    while (!queue.isEmpty()) {
+                        p = queue.poll();
+
+                        for (Point near : Point.getFourWaysPoints(p)) {
+                            if (world.roads[near.x][near.y] && !path[near.x][near.y]) {
+                                queue.add(near);
+                                world.root.put(near, rootP);
+                                path[near.x][near.y] = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
