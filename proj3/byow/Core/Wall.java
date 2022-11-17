@@ -60,7 +60,11 @@ public class Wall {
             Point u2 = Point.getCorrectPoint(world, nears[1]);
             if (Point.isInMainArea(world, u1) && Point.isInMainArea(world, u2)) {
                 if (world.tiles[c.x][c.y] != Tileset.UNLOCKED_DOOR) {
-                    world.tiles[c.x][c.y] = Tileset.WALL;
+                    if (world.getRANDOM().nextInt(world.roomAreas.size()) < 1) {
+                        world.tiles[c.x][c.y] = Tileset.UNLOCKED_DOOR;
+                    } else {
+                        world.tiles[c.x][c.y] = Tileset.WALL;
+                    }
                     world.connections.remove(c);
                 }
             }
