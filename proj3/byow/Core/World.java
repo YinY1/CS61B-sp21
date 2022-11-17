@@ -3,7 +3,6 @@ package byow.Core;
 import byow.TileEngine.TETile;
 import byow.TileEngine.Tileset;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
@@ -14,20 +13,7 @@ import java.util.Random;
  * @author Edward Tsang
  */
 public class World {
-
-    final ArrayList<Point> connections = new ArrayList<>();
     final TETile[][] tiles;
-    final boolean[][] rooms;
-    final boolean[][] roads;
-    /**
-     * store point of walls
-     */
-    final ArrayList<Point> walls = new ArrayList<>();
-    /**
-     * store point of walls and roads
-     */
-    final ArrayList<Point> units = new ArrayList<>();
-    final HashMap<Point, Point> roomAreas = new HashMap<>();
     private final int width;
     private final int height;
     private final Random RANDOM;
@@ -40,16 +26,27 @@ public class World {
         width = w;
         height = h;
         tiles = new TETile[w][h];
-        rooms = new boolean[w][h];
-        roads = new boolean[w][h];
+        initializeWorld();
+    }
+
+    private void initializeWorld() {
         clear();
         Room.createRooms(this);
         Wall.createWalls(this);
         Road.createRoad(this);
-        Wall.findConnection(this);
+
         initializeAreas();
+        Wall.findConnection(this);
         Wall.connectAreas(this);
         Road.removeDeadEnds(this);
+        Wall.buildWallNearUnit(this);
+    }
+
+    private void initializeAreas() {
+        root.clear();
+        Road.addRoadsToArea(this);
+        Room.addRoomsToArea(this);
+        mainArea = (Room.getRandomRoom(this));
     }
 
     public void clear() {
@@ -58,13 +55,6 @@ public class World {
                 tiles[x][y] = Tileset.NOTHING;
             }
         }
-    }
-
-    public void initializeAreas() {
-        root.clear();
-        Road.addRoadsToArea(this);
-        Room.addRoomsToArea(this);
-        mainArea = (Room.getRandomRoom(this));
     }
 
     public int getWidth() {
@@ -91,4 +81,19 @@ public class World {
         return tiles[x][y] == Tileset.NOTHING;
     }
 
+    public boolean isWall(int x, int y) {
+        return tiles[x][y] == Tileset.WALL;
+    }
+
+    public boolean isRoom(int x, int y) {
+        return tiles[x][y] == Tileset.ROOM;
+    }
+
+    public boolean isRoad(int x, int y) {
+        return tiles[x][y] == Tileset.FLOOR;
+    }
+
+    public boolean isUnit(int x, int y) {
+        return !isWall(x, y) && !isNothing(x, y);
+    }
 }

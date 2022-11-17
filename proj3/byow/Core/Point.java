@@ -5,6 +5,8 @@ import java.util.Objects;
 
 /**
  * Represent {x,y} point with a rank(depth in a tree)
+ *
+ * @author Edward Tsang
  */
 class Point {
     final int x;
@@ -18,10 +20,18 @@ class Point {
     }
 
     public static ArrayList<Point> getFourWaysPoints(Point p) {
+        return getFourWaysPoints(p.x, p.y);
+    }
+
+    public static ArrayList<Point> getFourWaysPoints(int x, int y) {
+        return new ArrayList<>(getEightWaysPoints(x, y).subList(0, 4));
+    }
+
+    public static ArrayList<Point> getEightWaysPoints(int x, int y) {
         ArrayList<Point> ret = new ArrayList<>();
-        final int[][] direction = new int[][]{{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
-        for (int i = 0; i < 4; i++) {
-            ret.add(new Point(p.x + direction[i][0], p.y + direction[i][1]));
+        final int[][] direction = new int[][]{{1, 0}, {0, -1}, {-1, 0}, {0, 1}, {1, 1}, {1, -1}, {-1, -1}, {-1, 1}};
+        for (int i = 0; i < 8; i++) {
+            ret.add(new Point(x + direction[i][0], y + direction[i][1]));
         }
         return ret;
     }
@@ -31,7 +41,7 @@ class Point {
         int y1 = connection.y;
         int x2 = connection.x - 1;
         int y2 = connection.y;
-        if (!world.roads[x1][y1] && !world.rooms[x1][y1]) {
+        if (!world.isRoad(x1, y1) && !world.isRoom(x1, y1)) {
             x1 = connection.x;
             y1 = connection.y + 1;
             x2 = connection.x;
@@ -41,7 +51,7 @@ class Point {
     }
 
     public static Point getCorrectPoint(World world, Point unit) {
-        if (world.rooms[unit.x][unit.y]) {
+        if (world.isRoom(unit.x, unit.y)) {
             unit = Room.getBottomLeft(world, unit);
         }
         return unit;

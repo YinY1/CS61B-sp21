@@ -4,48 +4,51 @@ import byow.TileEngine.Tileset;
 
 import java.util.ArrayList;
 
+/**
+ * Represents walls generation and rebuild.
+ *
+ * @author Edward Tsang
+ */
 public class Wall {
+    private static final ArrayList<Point> connections = new ArrayList<>();
 
     public static void createWalls(World world) {
         int width = world.getWidth();
         int height = world.getHeight();
-        for (int x = 0; x < width; x += 1) {
-            for (int y = 0; y < height; y += 1) {
-                if (x * y == 0 || x == width - 1 || y == height - 1) {
-                    world.tiles[x][y] = Tileset.WALL;
-                } else if (world.isNothing(x, y)) {
+        for (int x = 1; x < width - 1; x++) {
+            for (int y = 1; y < height - 1; y++) {
+                if (world.isNothing(x, y)) {
                     if (x % 2 == 1 && y % 2 == 1) {
-                        world.roads[x][y] = true;
-                        world.tiles[x][y] = Tileset.ROAD;
+                        world.tiles[x][y] = Tileset.FLOOR;
                     } else {
-                        world.walls.add(new Point(x, y));
+                        world.tiles[x][y] = Tileset.WALL;
                     }
-                    world.units.add(new Point(x, y));
                 }
             }
         }
     }
 
     public static void findConnection(World world) {
-        for (Point w : world.walls) {
-            if (ableToConnect(world, w.x, w.y)) {
-                world.tiles[w.x][w.y] = Tileset.FLOOR;
-                world.connections.add(new Point(w.x, w.y));
+        for (int x = 1; x < world.getWidth() - 1; x++) {
+            for (int y = 1; y < world.getHeight() - 1; y++) {
+                if (world.isWall(x, y) && ableToConnect(world, x, y)) {
+                    connections.add(new Point(x, y));
+                }
             }
         }
     }
 
     private static boolean ableToConnect(World world, int x, int y) {
-        return world.roads[x - 1][y] && world.rooms[x + 1][y]
-                || world.roads[x + 1][y] && world.rooms[x - 1][y]
-                || world.roads[x][y - 1] && world.rooms[x][y + 1]
-                || world.roads[x][y + 1] && world.rooms[x][y - 1]
-                || world.rooms[x][y + 1] && world.rooms[x][y - 1]
-                || world.rooms[x + 1][y] && world.rooms[x - 1][y];
+        return world.isRoad(x - 1, y) && world.isRoom(x + 1, y)
+                || world.isRoad(x + 1, y) && world.isRoom(x - 1, y)
+                || world.isRoad(x, y - 1) && world.isRoom(x, y + 1)
+                || world.isRoad(x, y + 1) && world.isRoom(x, y - 1)
+                || world.isRoom(x, y + 1) && world.isRoom(x, y - 1)
+                || world.isRoom(x + 1, y) && world.isRoom(x - 1, y);
     }
 
     public static void connectAreas(World world) {
-        while (!world.connections.isEmpty()) {
+        while (!connections.isEmpty()) {
             Point connection = getRandomConnection(world);
             connect(world, connection);
             removeRestConnection(world);
@@ -53,19 +56,18 @@ public class Wall {
     }
 
     private static void removeRestConnection(World world) {
-        ArrayList<Point> connections = new ArrayList<>(world.connections);
-        for (Point c : connections) {
+        for (Point c : new ArrayList<>(connections)) {
             Point[] nears = Point.getNearPoint(world, c);
             Point u1 = Point.getCorrectPoint(world, nears[0]);
             Point u2 = Point.getCorrectPoint(world, nears[1]);
             if (Point.isInMainArea(world, u1) && Point.isInMainArea(world, u2)) {
                 if (world.tiles[c.x][c.y] != Tileset.UNLOCKED_DOOR) {
-                    if (world.getRANDOM().nextInt(world.roomAreas.size()) < 1) {
+                    if (world.getRANDOM().nextInt(Room.getRoomAreasNum()) < 1) {
                         world.tiles[c.x][c.y] = Tileset.UNLOCKED_DOOR;
                     } else {
                         world.tiles[c.x][c.y] = Tileset.WALL;
                     }
-                    world.connections.remove(c);
+                    connections.remove(c);
                 }
             }
         }
@@ -78,10 +80,8 @@ public class Wall {
         Point[] near = Point.getNearPoint(world, connection);
         Point u1 = near[0];
         Point u2 = near[1];
-        world.tiles[u1.x][u1.y] = Tileset.FLOWER;
-        world.tiles[u2.x][u2.y] = Tileset.FLOWER;
         world.tiles[connection.x][connection.y] = Tileset.UNLOCKED_DOOR;
-        world.connections.remove(connection);
+        connections.remove(connection);
         u1 = Point.getCorrectPoint(world, u1);
         u2 = Point.getCorrectPoint(world, u2);
         if (!Point.isInMainArea(world, u1)) {
@@ -96,7 +96,34 @@ public class Wall {
     private static Point getRandomConnection(World world) {
         Point ret = null;
         while (ret == null || !Point.isNearMain(world, ret)) {
-            ret = world.connections.get(world.getRANDOM().nextInt(world.connections.size()));
+            ret = connections.get(world.getRANDOM().nextInt(connections.size()));
+        }
+        return ret;
+    }
+
+    public static void buildWallNearUnit(World world) {
+        getAllWalls(world).forEach(w -> world.tiles[w.x][w.y] = Tileset.NOTHING);
+        for (int x = 1; x < world.getWidth() - 1; x++) {
+            for (int y = 1; y < world.getHeight() - 1; y++) {
+                if (world.isUnit(x, y)) {
+                    for (Point p : Point.getEightWaysPoints(x, y)) {
+                        if (!world.isUnit(p.x, p.y)) {
+                            world.tiles[p.x][p.y] = Tileset.WALL;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public static ArrayList<Point> getAllWalls(World world) {
+        ArrayList<Point> ret = new ArrayList<>();
+        for (int x = 1; x < world.getWidth() - 1; x++) {
+            for (int y = 1; y < world.getHeight() - 1; y++) {
+                if (world.isWall(x, y)) {
+                    ret.add(new Point(x, y));
+                }
+            }
         }
         return ret;
     }

@@ -50,6 +50,7 @@ public class Engine {
 
         ter.initialize(WIDTH, HEIGHT);
 
+        //TODO uncomment first seed content;
         //long seed =Long.parseLong(input,1,input.length()-1,10);
         long seed = LocalTime.now().toNanoOfDay();
         World world = new World(seed, WIDTH, HEIGHT);

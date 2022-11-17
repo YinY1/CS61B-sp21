@@ -14,15 +14,22 @@ import java.util.Queue;
  */
 public class Road {
     public static void createRoad(World world) {
-        world.units.forEach(u -> world.root.put(u, u));
-        findPath(world, world.root);
+        for (int x = 1; x < world.getWidth() - 1; x++) {
+            for (int y = 1; y < world.getHeight() - 1; y++) {
+                if (world.isRoad(x, y) || world.isWall(x, y)) {
+                    Point p = new Point(x, y);
+                    world.root.put(p, p);
+                }
+            }
+        }
+        findPath(world);
     }
 
     /**
      * generate random roads using Kruskal
      */
-    private static void findPath(World world, HashMap<Point, Point> root) {
-        ArrayList<Point> walls = new ArrayList<>(world.walls);
+    private static void findPath(World world) {
+        ArrayList<Point> walls = Wall.getAllWalls(world);
         while (!walls.isEmpty()) {
             int idx = world.getRANDOM().nextInt(walls.size());
             Point wall = walls.get(idx);
@@ -38,12 +45,11 @@ public class Road {
             Point unit2 = new Point(x2, y2);
 
             // connect two roads if they don't intersect
-            if (world.roads[x1][y1] && world.roads[x2][y2]
-                    && !isIntersected(unit1, unit2, root)) {
-                kruskalUnion(unit1, unit2, root);
-                root.put(wall, unit1);
-                world.roads[x][y] = true;
-                world.tiles[x][y] = Tileset.ROAD;
+            if (world.isRoad(x1, y1) && world.isRoad(x2, y2)
+                    && !isIntersected(unit1, unit2, world.root)) {
+                kruskalUnion(unit1, unit2, world.root);
+                world.root.put(wall, unit1);
+                world.tiles[x][y] = Tileset.FLOOR;
             }
             walls.remove(idx);
         }
@@ -85,7 +91,7 @@ public class Road {
         boolean[][] path = new boolean[w][h];
         for (int x = 1; x < w - 1; x++) {
             for (int y = 1; y < h - 1; y++) {
-                if (world.roads[x][y] && !path[x][y]) {
+                if (world.isRoad(x, y) && !path[x][y]) {
                     Point p = new Point(x, y);
                     path[x][y] = true;
                     world.areas.add(p);
@@ -98,7 +104,7 @@ public class Road {
                         p = queue.poll();
 
                         for (Point near : Point.getFourWaysPoints(p)) {
-                            if (world.roads[near.x][near.y] && !path[near.x][near.y]) {
+                            if (world.isRoad(near.x, near.y) && !path[near.x][near.y]) {
                                 queue.add(near);
                                 world.root.put(near, rootP);
                                 path[near.x][near.y] = true;
@@ -116,9 +122,8 @@ public class Road {
             done = true;
             for (int x = 1; x < world.getWidth() - 1; x++) {
                 for (int y = 1; y < world.getHeight() - 1; y++) {
-                    if(world.roads[x][y] && isDeadEnd(world,new Point(x,y))){
+                    if (world.isRoad(x, y) && isDeadEnd(world, x, y)) {
                         world.tiles[x][y] = Tileset.NOTHING;
-                        world.roads[x][y] = false;
                         done = false;
                     }
                 }
@@ -126,9 +131,9 @@ public class Road {
         }
     }
 
-    private static boolean isDeadEnd(World world, Point road) {
+    private static boolean isDeadEnd(World world, int x, int y) {
         int count = 0;
-        for (Point p : Point.getFourWaysPoints(road)) {
+        for (Point p : Point.getFourWaysPoints(x, y)) {
             if (world.tiles[p.x][p.y] == Tileset.WALL || world.isNothing(p.x, p.y)) {
                 count++;
             }
