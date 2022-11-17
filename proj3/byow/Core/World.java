@@ -49,6 +49,7 @@ public class World {
         Wall.findConnection(this);
         initializeAreas();
         Wall.connectAreas(this);
+        Road.removeDeadEnds(this);
     }
 
     public void clear() {

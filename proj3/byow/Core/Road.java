@@ -109,4 +109,30 @@ public class Road {
             }
         }
     }
+
+    public static void removeDeadEnds(World world) {
+        boolean done = false;
+        while (!done) {
+            done = true;
+            for (int x = 1; x < world.getWidth() - 1; x++) {
+                for (int y = 1; y < world.getHeight() - 1; y++) {
+                    if(world.roads[x][y] && isDeadEnd(world,new Point(x,y))){
+                        world.tiles[x][y] = Tileset.NOTHING;
+                        world.roads[x][y] = false;
+                        done = false;
+                    }
+                }
+            }
+        }
+    }
+
+    private static boolean isDeadEnd(World world, Point road) {
+        int count = 0;
+        for (Point p : Point.getFourWaysPoints(road)) {
+            if (world.tiles[p.x][p.y] == Tileset.WALL || world.isNothing(p.x, p.y)) {
+                count++;
+            }
+        }
+        return count == 3;
+    }
 }
