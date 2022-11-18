@@ -3,10 +3,6 @@ package byow.Core;
 import byow.TileEngine.TETile;
 import byow.TileEngine.Tileset;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Random;
-
 /**
  * Represents the rouge-like world.
  *
@@ -16,40 +12,36 @@ public class World {
     final TETile[][] tiles;
     private final int width;
     private final int height;
-    private final Random RANDOM;
-    HashMap<Point, Point> root = new HashMap<>();
-    Point mainArea;
-    HashSet<Point> areas = new HashSet<>();
 
     World(long seed, int w, int h) {
-        RANDOM = new Random(seed);
         width = w;
         height = h;
         tiles = new TETile[w][h];
-        initializeWorld();
+        Variables v = new Variables(seed);
+        initializeWorld(v);
     }
 
-    private void initializeWorld() {
-        clear();
-        Room.createRooms(this);
+    private void initializeWorld(Variables v) {
+        fillWithNothing();
+        Room.createRooms(this, v);
         Wall.createWalls(this);
-        Road.createRoad(this);
+        Road.createRoad(this, v);
 
-        initializeAreas();
-        Wall.findConnection(this);
-        Wall.connectAreas(this);
+        initializeAreas(v);
+        Wall.findConnection(this, v);
+        Wall.connectAreas(this, v);
         Road.removeDeadEnds(this);
         Wall.buildWallNearUnit(this);
     }
 
-    private void initializeAreas() {
-        root.clear();
-        Road.addRoadsToArea(this);
-        Room.addRoomsToArea(this);
-        mainArea = (Room.getRandomRoom(this));
+    private void initializeAreas(Variables v) {
+        v.root.clear();
+        Road.addRoadsToArea(this, v);
+        Room.addRoomsToArea(v);
+        v.mainArea = (Room.getRandomRoom(v));
     }
 
-    public void clear() {
+    public void fillWithNothing() {
         for (int x = 0; x < width; x += 1) {
             for (int y = 0; y < height; y += 1) {
                 tiles[x][y] = Tileset.NOTHING;
@@ -65,16 +57,12 @@ public class World {
         return height;
     }
 
-    public Random getRANDOM() {
-        return RANDOM;
+    public int getRandomX(int w, Variables v) {
+        return v.RANDOM.nextInt((width - w - 1) / 2) * 2 + 1;
     }
 
-    public int getRandomX(int w) {
-        return RANDOM.nextInt((width - w - 1) / 2) * 2 + 1;
-    }
-
-    public int getRandomY(int h) {
-        return RANDOM.nextInt((height - h - 1) / 2) * 2 + 1;
+    public int getRandomY(int h, Variables v) {
+        return v.RANDOM.nextInt((height - h - 1) / 2) * 2 + 1;
     }
 
     public boolean isNothing(int x, int y) {
@@ -95,5 +83,9 @@ public class World {
 
     public boolean isUnit(int x, int y) {
         return !isWall(x, y) && !isNothing(x, y);
+    }
+
+    public boolean isDoor(int x, int y) {
+        return tiles[x][y] == Tileset.UNLOCKED_DOOR;
     }
 }

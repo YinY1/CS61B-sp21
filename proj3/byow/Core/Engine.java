@@ -40,22 +40,26 @@ public class Engine {
      * @return the 2D TETile[][] representing the state of the world
      */
     public TETile[][] interactWithInputString(String input) {
-        // TODO: Fill out this method so that it run the engine using the input
-        // passed in as an argument, and return a 2D tile representation of the
-        // world that would have been drawn if the same inputs had been given
-        // to interactWithKeyboard().
-        //
-        // See proj3.byow.InputDemo for a demo of how you can make a nice clean interface
-        // that works for many different input types.
+        int begin = input.indexOf("N");
+        if(begin==-1){
+            begin=input.indexOf("n");
+        }
+        int end = input.indexOf("S");
+        if(end==-1){
+            end=input.indexOf("s");
+        }
 
-        ter.initialize(WIDTH, HEIGHT);
-
-        //TODO uncomment first seed content;
-        //long seed =Long.parseLong(input,1,input.length()-1,10);
-        long seed = LocalTime.now().toNanoOfDay();
+        // if commit to autograder, use these two contents
+        long seed = Long.parseLong(input, begin+1, end, 10);
         World world = new World(seed, WIDTH, HEIGHT);
 
-        ter.renderFrame(world.tiles);
+        // if debug all play locally ,use these
+        /*ter.initialize(WIDTH, HEIGHT);
+        long seed = Long.parseLong(input, begin+1, end, 10);
+        //long seed = LocalTime.now().toNanoOfDay();
+        World world = new World(seed, WIDTH, HEIGHT);
+        ter.renderFrame(world.tiles);*/
+
         return world.tiles;
     }
 

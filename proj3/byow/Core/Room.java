@@ -3,7 +3,6 @@ package byow.Core;
 import byow.TileEngine.Tileset;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Set;
 
 import static com.google.common.primitives.Ints.min;
@@ -26,25 +25,25 @@ public class Room {
      * minimum height of a room, must be odd
      */
     private static final int MIN_HEIGHT = 5;
-    private static final HashMap<Point, Point> roomAreas = new HashMap<>();
-    public static void createRooms(World world) {
+
+    public static void createRooms(World world, Variables v) {
         for (int i = 0; i < TIMES; i++) {
-            createRoom(world);
+            createRoom(world, v);
         }
     }
 
-    private static void createRoom(World world) {
-        int h = world.getRANDOM().nextInt(3) * 2 + MIN_HEIGHT;
-        int w = world.getRANDOM().nextInt(3) * 2 + MIN_WIDTH;
+    private static void createRoom(World world, Variables v) {
+        int h = v.RANDOM.nextInt(3) * 2 + MIN_HEIGHT;
+        int w = v.RANDOM.nextInt(3) * 2 + MIN_WIDTH;
 
-        int x = world.getRandomX(w);
-        int y = world.getRandomY(h);
+        int x = world.getRandomX(w, v);
+        int y = world.getRandomY(h, v);
         while (!world.isNothing(x, y) || isCoveredRoom(world, x, y, w, h)) {
-            x = world.getRandomX(w);
-            y = world.getRandomY(h);
+            x = world.getRandomX(w, v);
+            y = world.getRandomY(h, v);
         }
 
-        roomAreas.put(new Point(x, y), new Point(x + w - 1, y + h - 1));
+        v.roomAreas.put(new Point(x, y), new Point(x + w - 1, y + h - 1));
 
         for (int i = x; i < x + w; i++) {
             for (int j = y; j < y + h; j++) {
@@ -57,6 +56,9 @@ public class Room {
      * test if a point{x,y} locates in a room
      */
     private static boolean isCoveredRoom(World world, int x, int y, int w, int h) {
+        if (world.isRoom(x, y)) {
+            return true;
+        }
         if (x == 0) {
             x++;
         }
@@ -65,22 +67,19 @@ public class Room {
         }
         // The scope of the room includes a tile outside and near the room walls.
         for (int i = x - 1; i < x + w + 1; i++) {
-            if (world.isRoom(i,y - 1) || world.isRoom(i,y + h)) {
-                return true;
-            }
-        }
-        for (int j = y - 1; j < y + h + 1; j++) {
-            if (world.isRoom(x - 1,j) || world.isRoom(x + w,j)) {
-                return true;
+            for (int j = y - 1; j < y + h + 1; j++) {
+                if (world.isRoom(i, j)) {
+                    return true;
+                }
             }
         }
         return false;
     }
 
-    public static void addRoomsToArea(World world) {
-        Set<Point> keys = roomAreas.keySet();
-        world.areas.addAll(keys);
-        keys.forEach(r -> world.root.put(r, r));
+    public static void addRoomsToArea(Variables v) {
+        Set<Point> keys = v.roomAreas.keySet();
+        v.areas.addAll(keys);
+        keys.forEach(r -> v.root.put(r, r));
     }
 
     /**
@@ -89,28 +88,28 @@ public class Room {
     public static Point getBottomLeft(World world, Point unit) {
         int x = unit.x;
         int y = unit.y;
-        while (world.isRoom(x,y)) {
+        while (world.isRoom(x, y)) {
             x--;
         }
         x++;
-        while (world.isRoom(x,y)) {
+        while (world.isRoom(x, y)) {
             y--;
         }
         y++;
         return new Point(x, y);
     }
 
-    public static Point getRandomRoom(World world) {
-        ArrayList<Point> keys = new ArrayList<>(roomAreas.keySet());
-        int idx = world.getRANDOM().nextInt(keys.size());
+    public static Point getRandomRoom(Variables v) {
+        ArrayList<Point> keys = new ArrayList<>(v.roomAreas.keySet());
+        int idx = v.RANDOM.nextInt(keys.size());
         Point room = keys.get(idx);
-        if (world.mainArea != null && Point.isInMainArea(world, room)) {
+        if (v.mainArea != null && room.isInMainArea(v)) {
             return null;
         }
         return room;
     }
 
-    public static int getRoomAreasNum(){
-        return roomAreas.size();
+    public static int getRoomAreasNum(Variables v) {
+        return v.roomAreas.size();
     }
 }

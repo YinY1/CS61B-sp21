@@ -50,25 +50,25 @@ class Point {
         return new Point[]{new Point(x1, y1), new Point(x2, y2)};
     }
 
-    public static Point getCorrectPoint(World world, Point unit) {
-        if (world.isRoom(unit.x, unit.y)) {
-            unit = Room.getBottomLeft(world, unit);
+    public Point getCorrectPoint(World world) {
+        if (world.isRoom(x, y)) {
+            return Room.getBottomLeft(world, this);
         }
-        return unit;
+        return this;
     }
 
-    public static boolean isNearMain(World world, Point point) {
-        for (Point near : getFourWaysPoints(point)) {
-            if (isInMainArea(world, near)) {
+    public boolean isNearMain(World world, Variables v) {
+        for (Point near : getFourWaysPoints(this)) {
+            if (near.getCorrectPoint(world).isInMainArea(v)) {
                 return true;
             }
         }
         return false;
     }
 
-    public static boolean isInMainArea(World world, Point unit) {
-        return Objects.equals(world.root.get(unit), world.mainArea)
-                || Objects.equals(world.root.get(world.root.get(unit)), world.mainArea);
+    public boolean isInMainArea(Variables v) {
+        return Objects.equals(v.root.get(this), v.mainArea)
+                || Objects.equals(v.root.get(v.root.get(this)), v.mainArea);
     }
 
     @Override
@@ -79,7 +79,7 @@ class Point {
         if (p == null || p.getClass() != this.getClass()) {
             return false;
         }
-        return p.hashCode() == this.hashCode();
+        return ((Point) p).x == this.x && ((Point) p).y == this.y;
     }
 
     @Override

@@ -13,25 +13,25 @@ import java.util.Queue;
  * @author Edward Tsang
  */
 public class Road {
-    public static void createRoad(World world) {
+    public static void createRoad(World world, Variables v) {
         for (int x = 1; x < world.getWidth() - 1; x++) {
             for (int y = 1; y < world.getHeight() - 1; y++) {
                 if (world.isRoad(x, y) || world.isWall(x, y)) {
                     Point p = new Point(x, y);
-                    world.root.put(p, p);
+                    v.root.put(p, p);
                 }
             }
         }
-        findPath(world);
+        findPath(world, v);
     }
 
     /**
      * generate random roads using Kruskal
      */
-    private static void findPath(World world) {
+    private static void findPath(World world, Variables v) {
         ArrayList<Point> walls = Wall.getAllWalls(world);
         while (!walls.isEmpty()) {
-            int idx = world.getRANDOM().nextInt(walls.size());
+            int idx = v.RANDOM.nextInt(walls.size());
             Point wall = walls.get(idx);
             // get the point near the wall
             int x = wall.x;
@@ -46,9 +46,9 @@ public class Road {
 
             // connect two roads if they don't intersect
             if (world.isRoad(x1, y1) && world.isRoad(x2, y2)
-                    && !isIntersected(unit1, unit2, world.root)) {
-                kruskalUnion(unit1, unit2, world.root);
-                world.root.put(wall, unit1);
+                    && !isIntersected(unit1, unit2, v.root)) {
+                kruskalUnion(unit1, unit2, v.root);
+                v.root.put(wall, unit1);
                 world.tiles[x][y] = Tileset.FLOOR;
             }
             walls.remove(idx);
@@ -85,7 +85,7 @@ public class Road {
         return kruskalFind(p1, root).equals(kruskalFind(p2, root));
     }
 
-    public static void addRoadsToArea(World world) {
+    public static void addRoadsToArea(World world, Variables v) {
         int w = world.getWidth();
         int h = world.getHeight();
         boolean[][] path = new boolean[w][h];
@@ -94,8 +94,8 @@ public class Road {
                 if (world.isRoad(x, y) && !path[x][y]) {
                     Point p = new Point(x, y);
                     path[x][y] = true;
-                    world.areas.add(p);
-                    world.root.put(p, p);
+                    v.areas.add(p);
+                    v.root.put(p, p);
 
                     Point rootP = p;
                     Queue<Point> queue = new ArrayDeque<>();
@@ -106,7 +106,7 @@ public class Road {
                         for (Point near : Point.getFourWaysPoints(p)) {
                             if (world.isRoad(near.x, near.y) && !path[near.x][near.y]) {
                                 queue.add(near);
-                                world.root.put(near, rootP);
+                                v.root.put(near, rootP);
                                 path[near.x][near.y] = true;
                             }
                         }
