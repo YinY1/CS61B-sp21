@@ -1,5 +1,8 @@
-package byow.Core;
+package byow.Core.Maps;
 
+import byow.Core.Point;
+import byow.Core.Variables;
+import byow.Core.World;
 import byow.TileEngine.Tileset;
 
 import java.util.ArrayDeque;

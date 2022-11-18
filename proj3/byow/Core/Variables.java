@@ -11,12 +11,12 @@ import java.util.Random;
  * @author Edward Tsang
  */
 public class Variables {
-    final Random RANDOM;
-    ArrayList<Point> connections;
-    HashMap<Point, Point> roomAreas;
-    HashMap<Point, Point> root;
-    HashSet<Point> areas;
-    Point mainArea;
+    public final Random RANDOM;
+    public ArrayList<Point> connections;
+    public HashMap<Point, Point> roomAreas;
+    public HashMap<Point, Point> root;
+    public HashSet<Point> areas;
+    public Point mainArea;
 
     Variables(long seed) {
         connections = new ArrayList<>();

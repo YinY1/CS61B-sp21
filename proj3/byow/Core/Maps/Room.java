@@ -1,5 +1,9 @@
-package byow.Core;
+package byow.Core.Maps;
 
+import byow.Core.Engine;
+import byow.Core.Point;
+import byow.Core.Variables;
+import byow.Core.World;
 import byow.TileEngine.Tileset;
 
 import java.util.ArrayList;
@@ -100,16 +104,13 @@ public class Room {
     }
 
     public static Point getRandomRoom(Variables v) {
-        ArrayList<Point> keys = new ArrayList<>(v.roomAreas.keySet());
-        int idx = v.RANDOM.nextInt(keys.size());
-        Point room = keys.get(idx);
-        if (v.mainArea != null && room.isInMainArea(v)) {
-            return null;
+        ArrayList<Point> rooms = new ArrayList<>(v.roomAreas.keySet());
+        Point room = rooms.get(v.RANDOM.nextInt(rooms.size()));
+        if (v.mainArea != null) {
+           while(room.equals(v.mainArea)){
+               room = rooms.get(v.RANDOM.nextInt(rooms.size()));
+           }
         }
         return room;
-    }
-
-    public static int getRoomAreasNum(Variables v) {
-        return v.roomAreas.size();
     }
 }

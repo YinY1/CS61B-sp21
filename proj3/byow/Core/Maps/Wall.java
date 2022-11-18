@@ -1,5 +1,8 @@
-package byow.Core;
+package byow.Core.Maps;
 
+import byow.Core.Point;
+import byow.Core.Variables;
+import byow.Core.World;
 import byow.TileEngine.Tileset;
 
 import java.util.ArrayList;
@@ -61,7 +64,7 @@ public class Wall {
             Point u2 = nears[1].getCorrectPoint(world);
             if (u1.isInMainArea(v) && u2.isInMainArea(v)) {
                 if (!world.isDoor(c.x, c.y)) {
-                    if (v.RANDOM.nextInt(Room.getRoomAreasNum(v)) < 1) {
+                    if (v.RANDOM.nextInt(v.roomAreas.size()) < 1) {
                         world.tiles[c.x][c.y] = Tileset.UNLOCKED_DOOR;
                     } else {
                         world.tiles[c.x][c.y] = Tileset.WALL;
@@ -125,5 +128,22 @@ public class Wall {
             }
         }
         return ret;
+    }
+
+    public static void creatEntryAndExit(World world, Variables v){
+        world.tiles[v.mainArea.x][v.mainArea.y] = Tileset.MIZUKI;
+        Point room = Room.getRandomRoom(v);
+        Point topRight = v.roomAreas.get(room);
+        int x = room.x+1;
+        int y = room.y+1;
+        for (; x < topRight.x ; x++) {
+            for (; y < topRight.y; y++) {
+                if(v.RANDOM.nextInt(5)==0){
+                    world.tiles[x][y] = Tileset.LOCKED_DOOR;
+                    return;
+                }
+            }
+        }
+        world.tiles[x][y] = Tileset.LOCKED_DOOR;
     }
 }

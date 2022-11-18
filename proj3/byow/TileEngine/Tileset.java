@@ -1,7 +1,9 @@
 package byow.TileEngine;
 
-import java.awt.*;
+import static byow.Core.Utils.*;
 
+import java.awt.*;
+import java.io.File;
 /**
  * Contains constant tile objects, to avoid having to remake the same tiles in different parts of
  * the code.
@@ -18,7 +20,7 @@ import java.awt.*;
 
 public class Tileset {
     public static final TETile AVATAR = new TETile('@', Color.white, Color.black, "you");
-    public static final TETile WALL = new TETile('#', new Color(175, 168, 168), Color.black,
+    public static final TETile WALL = new TETile(' ', new Color(175, 168, 168), Color.darkGray,
             "wall");
     public static final TETile FLOOR = new TETile('·', new Color(128, 192, 128), Color.black,
             "floor");
@@ -33,7 +35,9 @@ public class Tileset {
     public static final TETile SAND = new TETile('▒', Color.yellow, Color.black, "sand");
     public static final TETile MOUNTAIN = new TETile('▲', Color.gray, Color.black, "mountain");
     public static final TETile TREE = new TETile('♠', Color.green, Color.black, "tree");
-    public static final TETile ROOM = new TETile('▢', Color.darkGray, Color.black, "room");
+    public static final TETile ROOM = new TETile('·', Color.darkGray, Color.black, "room");
+    public static final TETile MIZUKI = new TETile('M',Color.black,Color.black,"Mizuki",
+            join(System.getProperty("user.dir"),"byow","src","minimizuki.png").toString());
 }
 
 

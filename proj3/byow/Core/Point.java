@@ -1,5 +1,7 @@
 package byow.Core;
 
+import byow.Core.Maps.Room;
+
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -8,12 +10,12 @@ import java.util.Objects;
  *
  * @author Edward Tsang
  */
-class Point {
-    final int x;
-    final int y;
-    int rank;
+public class Point {
+    public final int x;
+    public final int y;
+    public int rank;
 
-    Point(int x, int y) {
+    public Point(int x, int y) {
         this.x = x;
         this.y = y;
         rank = 0;

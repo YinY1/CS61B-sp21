@@ -50,15 +50,15 @@ public class Engine {
         }
 
         // if commit to autograder, use these two contents
-        long seed = Long.parseLong(input, begin+1, end, 10);
-        World world = new World(seed, WIDTH, HEIGHT);
+        /*long seed = Long.parseLong(input, begin+1, end, 10);
+        World world = new World(seed, WIDTH, HEIGHT);*/
 
         // if debug all play locally ,use these
-        /*ter.initialize(WIDTH, HEIGHT);
-        long seed = Long.parseLong(input, begin+1, end, 10);
-        //long seed = LocalTime.now().toNanoOfDay();
+        ter.initialize(WIDTH, HEIGHT);
+        //long seed = Long.parseLong(input, begin+1, end, 10);
+        long seed = LocalTime.now().toNanoOfDay();
         World world = new World(seed, WIDTH, HEIGHT);
-        ter.renderFrame(world.tiles);*/
+        ter.renderFrame(world.tiles);
 
         return world.tiles;
     }

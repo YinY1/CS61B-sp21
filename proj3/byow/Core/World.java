@@ -1,5 +1,8 @@
 package byow.Core;
 
+import byow.Core.Maps.Road;
+import byow.Core.Maps.Room;
+import byow.Core.Maps.Wall;
 import byow.TileEngine.TETile;
 import byow.TileEngine.Tileset;
 
@@ -9,7 +12,7 @@ import byow.TileEngine.Tileset;
  * @author Edward Tsang
  */
 public class World {
-    final TETile[][] tiles;
+    public final TETile[][] tiles;
     private final int width;
     private final int height;
 
@@ -32,6 +35,7 @@ public class World {
         Wall.connectAreas(this, v);
         Road.removeDeadEnds(this);
         Wall.buildWallNearUnit(this);
+        Wall.creatEntryAndExit(this,v);
     }
 
     private void initializeAreas(Variables v) {
