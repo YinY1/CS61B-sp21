@@ -130,20 +130,22 @@ public class Wall {
         return ret;
     }
 
-    public static void creatEntryAndExit(World world, Variables v){
-        world.tiles[v.mainArea.x][v.mainArea.y] = Tileset.MIZUKI;
+    public static void creatEntryAndExit(World world, Variables v) {
+        world.tiles[v.mainArea.x][v.mainArea.y] = Tileset.ENTRY;
+        world.setEntry(new Point(v.mainArea.x, v.mainArea.y));
         Point room = Room.getRandomRoom(v);
         Point topRight = v.roomAreas.get(room);
-        int x = room.x+1;
-        int y = room.y+1;
-        for (; x < topRight.x ; x++) {
+        int x = room.x + 1;
+        int y = room.y + 1;
+        for (; x < topRight.x; x++) {
             for (; y < topRight.y; y++) {
-                if(v.RANDOM.nextInt(5)==0){
+                if (v.RANDOM.nextInt(5) == 0) {
                     world.tiles[x][y] = Tileset.LOCKED_DOOR;
                     return;
                 }
             }
         }
         world.tiles[x][y] = Tileset.LOCKED_DOOR;
+        world.setExit(new Point(x, y));
     }
 }

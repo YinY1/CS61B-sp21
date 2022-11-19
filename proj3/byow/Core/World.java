@@ -12,19 +12,20 @@ import byow.TileEngine.Tileset;
  * @author Edward Tsang
  */
 public class World {
-    public final TETile[][] tiles;
     private final int width;
     private final int height;
+    public TETile[][] tiles;
+    private Point entry;
+    private Point exit;
 
-    World(long seed, int w, int h) {
+    World(int w, int h) {
         width = w;
         height = h;
         tiles = new TETile[w][h];
-        Variables v = new Variables(seed);
-        initializeWorld(v);
     }
 
-    private void initializeWorld(Variables v) {
+    public void initializeWorld(long seed) {
+        Variables v = new Variables(seed);
         fillWithNothing();
         Room.createRooms(this, v);
         Wall.createWalls(this);
@@ -35,7 +36,7 @@ public class World {
         Wall.connectAreas(this, v);
         Road.removeDeadEnds(this);
         Wall.buildWallNearUnit(this);
-        Wall.creatEntryAndExit(this,v);
+        Wall.creatEntryAndExit(this, v);
     }
 
     private void initializeAreas(Variables v) {
@@ -51,6 +52,31 @@ public class World {
                 tiles[x][y] = Tileset.NOTHING;
             }
         }
+    }
+
+    @Override
+    public World clone() {
+        World ret = new World(width, height);
+        ret.tiles = TETile.copyOf(tiles);
+        ret.entry = entry;
+        ret.exit = exit;
+        return ret;
+    }
+
+    public Point getEntry() {
+        return entry;
+    }
+
+    public void setEntry(Point entry) {
+        this.entry = entry;
+    }
+
+    public Point getExit() {
+        return exit;
+    }
+
+    public void setExit(Point exit) {
+        this.exit = exit;
     }
 
     public int getWidth() {
@@ -86,7 +112,7 @@ public class World {
     }
 
     public boolean isUnit(int x, int y) {
-        return !isWall(x, y) && !isNothing(x, y);
+        return isRoom(x, y) || isRoad(x, y) || isDoor(x, y);
     }
 
     public boolean isDoor(int x, int y) {

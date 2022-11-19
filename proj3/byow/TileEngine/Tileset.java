@@ -38,6 +38,7 @@ public class Tileset {
     public static final TETile ROOM = new TETile('·', Color.darkGray, Color.black, "room");
     public static final TETile MIZUKI = new TETile('M',Color.black,Color.black,"Mizuki",
             join(System.getProperty("user.dir"),"byow","src","minimizuki.png").toString());
+    public static final TETile ENTRY =new TETile('*', Color.darkGray, Color.black, "entry");
 }
 
 

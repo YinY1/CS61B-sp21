@@ -1,21 +1,81 @@
 package byow.Core;
 
+import byow.Core.Character.Characters;
+import byow.Core.HUD.Framework;
 import byow.TileEngine.TERenderer;
 import byow.TileEngine.TETile;
-
-import java.time.LocalTime;
+import edu.princeton.cs.introcs.StdDraw;
 
 public class Engine {
-    /* Feel free to change the width and height. */
+    /* IF you want to modify width smaller than 81
+     * or height smaller than 61,
+     * please do modify the minimum size of room as well */
     public static final int WIDTH = 81;
     public static final int HEIGHT = 61;
+    public boolean start = false;
     TERenderer ter = new TERenderer();
+    World world = new World(WIDTH - 3, HEIGHT - 3);
+    World tempWorld;
+    Characters characters;
+
+
+    private static void inputSeed(StringBuilder input) {
+        boolean firstN = false;
+        while (true) {
+            if (StdDraw.hasNextKeyTyped()) {
+                char ch = StdDraw.nextKeyTyped();
+                if (!firstN && (ch == 'N' || ch == 'n')) {
+                    input.append(ch);
+                    firstN = true;
+                }
+                if (firstN) {
+                    if (ch >= '0' && ch <= '9') {
+                        input.append(ch);
+                    }
+                    if (ch == 's' || ch == 'S') {
+                        input.append(ch);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    private void inputMovement(StringBuilder input) {
+        while (true) {
+            if (StdDraw.hasNextKeyTyped()) {
+                char ch = StdDraw.nextKeyTyped();
+                switch (ch) {
+                    case 'w', 'W', 's', 'S', 'a', 'A', 'd', 'D' -> {
+                        input.append(ch);
+                        return;
+                    }
+                }
+            }
+        }
+    }
 
     /**
      * Method used for exploring a fresh world. This method should handle all inputs,
      * including inputs from the main menu.
      */
     public void interactWithKeyboard() {
+        ter.initialize(WIDTH, HEIGHT, 2, 2);
+
+        Framework f = new Framework();
+        f.drawMenu();
+
+        while (true){
+            StringBuilder input = new StringBuilder();
+            if (!start) {
+                inputSeed(input);
+            } else {
+                inputMovement(input);
+            }
+            TETile[][] tiles = interactWithInputString(input.toString());
+            ter.renderFrame(tiles);
+            f.drawFramework();
+        }
     }
 
     /**
@@ -40,28 +100,22 @@ public class Engine {
      * @return the 2D TETile[][] representing the state of the world
      */
     public TETile[][] interactWithInputString(String input) {
-        int begin = input.indexOf("N");
-        if(begin==-1){
-            begin=input.indexOf("n");
+        if (!start) {
+            // if commit to autograder, use these two contents
+            /*long seed = Long.parseLong(input, begin+1, end, 10);
+            World world = new World(seed, WIDTH, HEIGHT);*/
+
+            // if debug or play locally ,use these
+            long seed = Long.parseLong(input, 1, input.length() - 1, 10);
+            //long seed = LocalTime.now().toNanoOfDay();
+            world.initializeWorld(seed);
+            tempWorld = world.clone();
+            characters = new Characters(tempWorld);
+            start = true;
+        } else {
+            tempWorld = world.clone();
+            characters.setCharacters(tempWorld, input);
         }
-        int end = input.indexOf("S");
-        if(end==-1){
-            end=input.indexOf("s");
-        }
-
-        // if commit to autograder, use these two contents
-        /*long seed = Long.parseLong(input, begin+1, end, 10);
-        World world = new World(seed, WIDTH, HEIGHT);*/
-
-        // if debug all play locally ,use these
-        ter.initialize(WIDTH, HEIGHT);
-        //long seed = Long.parseLong(input, begin+1, end, 10);
-        long seed = LocalTime.now().toNanoOfDay();
-        World world = new World(seed, WIDTH, HEIGHT);
-        ter.renderFrame(world.tiles);
-
-        return world.tiles;
+        return tempWorld.tiles;
     }
-
-
 }
