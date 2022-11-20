@@ -4,9 +4,10 @@ import byow.Core.Point;
 import byow.Core.World;
 import byow.TileEngine.Tileset;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Characters {
+public class Characters implements Serializable {
     private final Mizuki mizuki;
     private ArrayList<Point> npc = new ArrayList<>();
 

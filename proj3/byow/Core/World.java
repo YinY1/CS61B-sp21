@@ -6,12 +6,14 @@ import byow.Core.Maps.Wall;
 import byow.TileEngine.TETile;
 import byow.TileEngine.Tileset;
 
+import java.io.Serializable;
+
 /**
  * Represents the rouge-like world.
  *
  * @author Edward Tsang
  */
-public class World {
+public class World implements Serializable {
     private final int width;
     private final int height;
     public TETile[][] tiles;

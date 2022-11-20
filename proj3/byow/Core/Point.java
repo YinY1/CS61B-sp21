@@ -2,6 +2,7 @@ package byow.Core;
 
 import byow.Core.Maps.Room;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -10,7 +11,7 @@ import java.util.Objects;
  *
  * @author Edward Tsang
  */
-public class Point {
+public class Point implements Serializable {
     public final int x;
     public final int y;
     public int rank;

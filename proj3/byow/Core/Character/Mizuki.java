@@ -2,7 +2,9 @@ package byow.Core.Character;
 
 import byow.Core.World;
 
-public class Mizuki {
+import java.io.Serializable;
+
+public class Mizuki implements Serializable {
     private int x;
     private int y;
     private int health;
