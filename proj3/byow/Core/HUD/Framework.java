@@ -1,6 +1,8 @@
 package byow.Core.HUD;
 
 import byow.Core.Engine;
+import byow.TileEngine.TERenderer;
+import byow.TileEngine.TETile;
 import edu.princeton.cs.introcs.StdDraw;
 
 import java.awt.*;
@@ -32,13 +34,14 @@ public class Framework {
         StdDraw.show();
     }
 
-    public void drawFramework(){
+    public void drawFramework(TERenderer ter, TETile[][] tiles){
+        ter.renderFrame(tiles);
         drawDepth();
+        StdDraw.show();
     }
 
     private void drawDepth(){
         StdDraw.setPenColor(StdDraw.WHITE);
         StdDraw.text(4,1," ---  Depth: "+depth+"  --- ");
-        StdDraw.show();
     }
 }

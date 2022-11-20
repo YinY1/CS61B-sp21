@@ -11,12 +11,20 @@ public class InputTest {
     }
     @Test
     public void same() {
-        sameInput("n5197880843569031643s");
+        sameInput("n5197880843569031643swwwaasssssdd:q");
     }
 
     @Test
     public void diff() {
         diffInput();
+    }
+
+    @Test
+    public void split(){
+        Engine e = new Engine();
+        assertEquals("N114SAAD:Q",e.fixInputString("abc n114aa saad:qaad"));
+        assertEquals("LAASAAD:Q",e.fixInputString("abc Ln114aa saad:qaad"));
+        //assertEquals("WASD",e.fixInputString("WASD"));
     }
 
     private void sameInput(String input) {
