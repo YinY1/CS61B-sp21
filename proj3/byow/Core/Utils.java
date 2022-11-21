@@ -171,14 +171,19 @@ public class Utils {
         engine.characters.setCharacters(engine.tempWorld, "");
     }
 
-    public static void inputSeed(StringBuilder input) {
+    public static void getStarted(StringBuilder input) {
         boolean firstN = false;
         while (true) {
             if (StdDraw.hasNextKeyTyped()) {
                 char ch = StdDraw.nextKeyTyped();
-                if (!firstN && (ch == 'N' || ch == 'n')) {
-                    input.append(ch);
-                    firstN = true;
+                if (!firstN) {
+                    if ((ch == 'N' || ch == 'n')) {
+                        input.append(ch);
+                        firstN = true;
+                    } else if (ch == 'l' || ch == 'L') {
+                        input.append(ch);
+                        return;
+                    }
                 }
                 if (firstN) {
                     if (ch >= '0' && ch <= '9') {
@@ -222,15 +227,12 @@ public class Utils {
     }
 
     public static void load(Engine engine) {
-        engine.start = true;
-        //TODO
         engine.world = readObject(join(saved, "map"), World.class);
         engine.tempWorld = readObject(join(saved, "world"), World.class);
         engine.characters = readObject(join(saved, "char"), Characters.class);
     }
 
     public static void save(Engine engine) {
-        //TODO
         File world = join(saved, "map");
         File tempWorld = join(saved, "world");
         File characters = join(saved, "char");
@@ -238,13 +240,10 @@ public class Utils {
         writeObject(world, engine.world);
         writeObject(tempWorld, engine.tempWorld);
         writeObject(characters, engine.characters);
-
-        System.out.println("Saved successfully!");
     }
 
     public static void quit(Engine engine) {
         save(engine);
-        System.out.println("Quited successfully!");
         //TODO
     }
 

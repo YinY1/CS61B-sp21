@@ -6,6 +6,7 @@ import edu.princeton.cs.introcs.StdDraw;
 import java.awt.*;
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Random;
 
 /**
@@ -198,5 +199,19 @@ public class TETile implements Serializable {
      */
     public String description() {
         return description;
+    }
+
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || o.getClass() != this.getClass()) {
+            return false;
+        }
+        return this.character() == ((TETile) o).character
+                && this.description.equals(((TETile) o).description)
+                && this.backgroundColor.equals(((TETile) o).backgroundColor)
+                && this.textColor.equals(((TETile) o).textColor)
+                && Objects.equals(this.filepath, ((TETile) o).filepath);
     }
 }

@@ -32,7 +32,7 @@ public class Engine {
         while (true) {
             StringBuilder input = new StringBuilder();
             if (!start) {
-                inputSeed(input);
+                getStarted(input);
             } else {
                 inputCommands(input);
             }
@@ -67,6 +67,7 @@ public class Engine {
      */
     public TETile[][] interactWithInputString(String input) {
         input = fixInputString(this, input);
+        System.out.println(input);
         if (!start) {
             if (input.contains("L")) {
                 load(this);

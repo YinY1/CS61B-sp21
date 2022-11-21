@@ -98,19 +98,19 @@ public class World implements Serializable {
     }
 
     public boolean isNothing(int x, int y) {
-        return tiles[x][y] == Tileset.NOTHING;
+        return tiles[x][y].equals(Tileset.NOTHING);
     }
 
     public boolean isWall(int x, int y) {
-        return tiles[x][y] == Tileset.WALL;
+        return tiles[x][y].equals(Tileset.WALL);
     }
 
     public boolean isRoom(int x, int y) {
-        return tiles[x][y] == Tileset.ROOM;
+        return tiles[x][y].equals(Tileset.ROOM);
     }
 
     public boolean isRoad(int x, int y) {
-        return tiles[x][y] == Tileset.FLOOR;
+        return tiles[x][y].equals(Tileset.FLOOR);
     }
 
     public boolean isUnit(int x, int y) {
@@ -118,6 +118,6 @@ public class World implements Serializable {
     }
 
     public boolean isDoor(int x, int y) {
-        return tiles[x][y] == Tileset.UNLOCKED_DOOR;
+        return tiles[x][y].equals(Tileset.UNLOCKED_DOOR);
     }
 }
