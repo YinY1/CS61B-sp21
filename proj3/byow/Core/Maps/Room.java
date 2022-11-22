@@ -42,9 +42,14 @@ public class Room {
 
         int x = world.getRandomX(w, v);
         int y = world.getRandomY(h, v);
+        int count = 0;
         while (!world.isNothing(x, y) || isCoveredRoom(world, x, y, w, h)) {
             x = world.getRandomX(w, v);
             y = world.getRandomY(h, v);
+            count++;
+            if (count == TIMES) {
+                return;
+            }
         }
 
         v.roomAreas.put(new Point(x, y), new Point(x + w - 1, y + h - 1));
@@ -107,9 +112,9 @@ public class Room {
         ArrayList<Point> rooms = new ArrayList<>(v.roomAreas.keySet());
         Point room = rooms.get(v.RANDOM.nextInt(rooms.size()));
         if (v.mainArea != null) {
-           while(room.equals(v.mainArea)){
-               room = rooms.get(v.RANDOM.nextInt(rooms.size()));
-           }
+            while (room.equals(v.mainArea)) {
+                room = rooms.get(v.RANDOM.nextInt(rooms.size()));
+            }
         }
         return room;
     }

@@ -233,6 +233,7 @@ public class Utils {
     }
 
     public static void save(Engine engine) {
+        saved.mkdir();
         File world = join(saved, "map");
         File tempWorld = join(saved, "world");
         File characters = join(saved, "char");
