@@ -8,8 +8,8 @@ import edu.princeton.cs.introcs.StdDraw;
 import java.awt.*;
 
 public class Framework {
-    public int depth;
-    public int health;
+    private final int depth;
+    private final int health;
 
     public Framework() {
         depth = 1;

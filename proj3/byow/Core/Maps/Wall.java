@@ -21,9 +21,9 @@ public class Wall {
             for (int y = 1; y < height - 1; y++) {
                 if (world.isNothing(x, y)) {
                     if (x % 2 == 1 && y % 2 == 1) {
-                        world.tiles[x][y] = Tileset.FLOOR;
+                        world.getTiles()[x][y] = Tileset.FLOOR;
                     } else {
-                        world.tiles[x][y] = Tileset.WALL;
+                        world.getTiles()[x][y] = Tileset.WALL;
                     }
                 }
             }
@@ -31,10 +31,11 @@ public class Wall {
     }
 
     public static void findConnection(World world, Variables v) {
+        var connections = v.getConnections();
         for (int x = 1; x < world.getWidth() - 1; x++) {
             for (int y = 1; y < world.getHeight() - 1; y++) {
                 if (world.isWall(x, y) && ableToConnect(world, x, y)) {
-                    v.connections.add(new Point(x, y));
+                    connections.add(new Point(x, y));
                 }
             }
         }
@@ -50,7 +51,8 @@ public class Wall {
     }
 
     public static void connectAreas(World world, Variables v) {
-        while (!v.connections.isEmpty()) {
+        ArrayList<Point> connections = v.getConnections();
+        while (!connections.isEmpty()) {
             Point connection = getRandomConnection(world, v);
             connect(world, connection, v);
             removeRestConnection(world, v);
@@ -58,18 +60,21 @@ public class Wall {
     }
 
     private static void removeRestConnection(World world, Variables v) {
-        for (Point c : new ArrayList<>(v.connections)) {
-            Point[] nears = Point.getNearPoint(world, c);
+        var connections = v.getConnections();
+        for (Point c : new ArrayList<>(connections)) {
+            var nears = Point.getNearPoint(world, c);
             Point u1 = nears[0].getCorrectPoint(world);
             Point u2 = nears[1].getCorrectPoint(world);
+            int x = c.getX();
+            int y = c.getY();
             if (u1.isInMainArea(v) && u2.isInMainArea(v)) {
-                if (!world.isDoor(c.x, c.y)) {
-                    if (v.RANDOM.nextInt(v.roomAreas.size()) < 1) {
-                        world.tiles[c.x][c.y] = Tileset.UNLOCKED_DOOR;
+                if (!world.isDoor(x, y)) {
+                    if (v.getRANDOM().nextInt(v.getRoomAreas().size()) < 1) {
+                        world.getTiles()[x][y] = Tileset.UNLOCKED_DOOR;
                     } else {
-                        world.tiles[c.x][c.y] = Tileset.WALL;
+                        world.getTiles()[x][y] = Tileset.WALL;
                     }
-                    v.connections.remove(c);
+                    connections.remove(c);
                 }
             }
         }
@@ -79,38 +84,42 @@ public class Wall {
      * connect two area, remain the main area, remove the other one
      */
     private static void connect(World world, Point connection, Variables v) {
-        Point[] near = Point.getNearPoint(world, connection);
+        var near = Point.getNearPoint(world, connection);
         Point u1 = near[0];
         Point u2 = near[1];
-        world.tiles[connection.x][connection.y] = Tileset.UNLOCKED_DOOR;
-        v.connections.remove(connection);
+        world.getTiles()[connection.getX()][connection.getY()] = Tileset.UNLOCKED_DOOR;
+        v.getConnections().remove(connection);
         u1 = u1.getCorrectPoint(world);
         u2 = u2.getCorrectPoint(world);
+        var root = v.getRoot();
         if (!u1.isInMainArea(v)) {
-            v.areas.remove(v.root.get(u1));
-            v.root.put(v.root.get(u1), v.mainArea);
+            v.getAreas().remove(root.get(u1));
+            root.put(root.get(u1), v.getMainArea());
         } else {
-            v.areas.remove(v.root.get(u2));
-            v.root.put(v.root.get(u2), v.mainArea);
+            v.getAreas().remove(root.get(u2));
+            root.put(root.get(u2), v.getMainArea());
         }
     }
 
     private static Point getRandomConnection(World world, Variables v) {
         Point ret = null;
+        var connections = v.getConnections();
         while ((ret == null || !ret.isNearMain(world, v))) {
-            ret = v.connections.get(v.RANDOM.nextInt(v.connections.size()));
+            ret = connections.get(v.getRANDOM().nextInt(connections.size()));
         }
         return ret;
     }
 
     public static void buildWallNearUnit(World world) {
-        getAllWalls(world).forEach(w -> world.tiles[w.x][w.y] = Tileset.NOTHING);
+        getAllWalls(world).forEach(w -> world.getTiles()[w.getX()][w.getY()] = Tileset.NOTHING);
         for (int x = 1; x < world.getWidth() - 1; x++) {
             for (int y = 1; y < world.getHeight() - 1; y++) {
                 if (world.isUnit(x, y)) {
                     for (Point p : Point.getEightWaysPoints(x, y)) {
-                        if (!world.isUnit(p.x, p.y)) {
-                            world.tiles[p.x][p.y] = Tileset.WALL;
+                        int pX = p.getX();
+                        int pY = p.getY();
+                        if (!world.isUnit(pX, pY)) {
+                            world.getTiles()[pX][pY] = Tileset.WALL;
                         }
                     }
                 }
@@ -131,21 +140,22 @@ public class Wall {
     }
 
     public static void creatEntryAndExit(World world, Variables v) {
-        world.tiles[v.mainArea.x][v.mainArea.y] = Tileset.ENTRY;
-        world.setEntry(new Point(v.mainArea.x, v.mainArea.y));
+        Point mainArea = v.getMainArea();
+        world.getTiles()[mainArea.getX()][mainArea.getY()] = Tileset.ENTRY;
+        world.setEntry(new Point(mainArea.getX(), mainArea.getY()));
         Point room = Room.getRandomRoom(v);
-        Point topRight = v.roomAreas.get(room);
-        int x = room.x + 1;
-        int y = room.y + 1;
-        for (; x < topRight.x; x++) {
-            for (; y < topRight.y; y++) {
-                if (v.RANDOM.nextInt(5) == 0) {
-                    world.tiles[x][y] = Tileset.LOCKED_DOOR;
+        Point topRight = v.getRoomAreas().get(room);
+        int x = room.getX() + 1;
+        int y = room.getY() + 1;
+        for (; x < topRight.getX(); x++) {
+            for (; y < topRight.getY(); y++) {
+                if (v.getRANDOM().nextInt(5) == 0) {
+                    world.getTiles()[x][y] = Tileset.LOCKED_DOOR;
                     return;
                 }
             }
         }
-        world.tiles[x][y] = Tileset.LOCKED_DOOR;
+        world.getTiles()[x][y] = Tileset.LOCKED_DOOR;
         world.setExit(new Point(x, y));
     }
 }

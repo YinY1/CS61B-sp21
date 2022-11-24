@@ -4,6 +4,7 @@ import byow.Core.Maps.Room;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 
 /**
@@ -12,9 +13,9 @@ import java.util.Objects;
  * @author Edward Tsang
  */
 public class Point implements Serializable {
-    public final int x;
-    public final int y;
-    public int rank;
+    private final int x;
+    private final int y;
+    private int rank;
 
     public Point(int x, int y) {
         this.x = x;
@@ -32,7 +33,8 @@ public class Point implements Serializable {
 
     public static ArrayList<Point> getEightWaysPoints(int x, int y) {
         ArrayList<Point> ret = new ArrayList<>();
-        final int[][] direction = new int[][]{{1, 0}, {0, -1}, {-1, 0}, {0, 1}, {1, 1}, {1, -1}, {-1, -1}, {-1, 1}};
+        final int[][] direction =
+                new int[][]{{1, 0}, {0, -1}, {-1, 0}, {0, 1}, {1, 1}, {1, -1}, {-1, -1}, {-1, 1}};
         for (int i = 0; i < 8; i++) {
             ret.add(new Point(x + direction[i][0], y + direction[i][1]));
         }
@@ -53,6 +55,22 @@ public class Point implements Serializable {
         return new Point[]{new Point(x1, y1), new Point(x2, y2)};
     }
 
+    public int getRank() {
+        return rank;
+    }
+
+    public void addRank() {
+        rank++;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
     public Point getCorrectPoint(World world) {
         if (world.isRoom(x, y)) {
             return Room.getBottomLeft(world, this);
@@ -70,8 +88,10 @@ public class Point implements Serializable {
     }
 
     public boolean isInMainArea(Variables v) {
-        return Objects.equals(v.root.get(this), v.mainArea)
-                || Objects.equals(v.root.get(v.root.get(this)), v.mainArea);
+        HashMap<Point, Point> root = v.getRoot();
+        Point mainArea = v.getMainArea();
+        return Objects.equals(root.get(this), mainArea)
+                || Objects.equals(root.get(root.get(this)), mainArea);
     }
 
     @Override

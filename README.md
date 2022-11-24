@@ -30,4 +30,4 @@ course code: MB7ZPY
 - project2-checkpoint:  16/16
 - project2:             1696/1600
 - project3-part1:       100/100
-- projcet3-part2:       TODO
+- projcet3-part2:       100/100

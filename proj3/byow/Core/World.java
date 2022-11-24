@@ -16,7 +16,7 @@ import java.io.Serializable;
 public class World implements Serializable {
     private final int width;
     private final int height;
-    public TETile[][] tiles;
+    private TETile[][] tiles;
     private Point entry;
     private Point exit;
 
@@ -42,10 +42,10 @@ public class World implements Serializable {
     }
 
     private void initializeAreas(Variables v) {
-        v.root.clear();
+        v.getRoot().clear();
         Road.addRoadsToArea(this, v);
         Room.addRoomsToArea(v);
-        v.mainArea = (Room.getRandomRoom(v));
+        v.setMainArea(Room.getRandomRoom(v));
     }
 
     public void fillWithNothing() {
@@ -89,12 +89,16 @@ public class World implements Serializable {
         return height;
     }
 
+    public TETile[][] getTiles() {
+        return tiles;
+    }
+
     public int getRandomX(int w, Variables v) {
-        return v.RANDOM.nextInt((width - w - 1) / 2) * 2 + 1;
+        return v.getRANDOM().nextInt((width - w - 1) / 2) * 2 + 1;
     }
 
     public int getRandomY(int h, Variables v) {
-        return v.RANDOM.nextInt((height - h - 1) / 2) * 2 + 1;
+        return v.getRANDOM().nextInt((height - h - 1) / 2) * 2 + 1;
     }
 
     public boolean isNothing(int x, int y) {

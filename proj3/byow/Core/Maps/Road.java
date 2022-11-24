@@ -21,7 +21,7 @@ public class Road {
             for (int y = 1; y < world.getHeight() - 1; y++) {
                 if (world.isRoad(x, y) || world.isWall(x, y)) {
                     Point p = new Point(x, y);
-                    v.root.put(p, p);
+                    v.getRoot().put(p, p);
                 }
             }
         }
@@ -34,11 +34,11 @@ public class Road {
     private static void findPath(World world, Variables v) {
         ArrayList<Point> walls = Wall.getAllWalls(world);
         while (!walls.isEmpty()) {
-            int idx = v.RANDOM.nextInt(walls.size());
+            int idx = v.getRANDOM().nextInt(walls.size());
             Point wall = walls.get(idx);
             // get the point near the wall
-            int x = wall.x;
-            int y = wall.y;
+            int x = wall.getX();
+            int y = wall.getY();
             int x1 = x % 2 == 1 ? x : x + 1;
             int x2 = x % 2 == 1 ? x : x - 1;
             int y1 = x % 2 == 1 ? y + 1 : y;
@@ -47,12 +47,13 @@ public class Road {
             Point unit1 = new Point(x1, y1);
             Point unit2 = new Point(x2, y2);
 
+            var root = v.getRoot();
             // connect two roads if they don't intersect
             if (world.isRoad(x1, y1) && world.isRoad(x2, y2)
-                    && !isIntersected(unit1, unit2, v.root)) {
-                kruskalUnion(unit1, unit2, v.root);
-                v.root.put(wall, unit1);
-                world.tiles[x][y] = Tileset.FLOOR;
+                    && !isIntersected(unit1, unit2, root)) {
+                kruskalUnion(unit1, unit2, root);
+                root.put(wall, unit1);
+                world.getTiles()[x][y] = Tileset.FLOOR;
             }
             walls.remove(idx);
         }
@@ -74,13 +75,13 @@ public class Road {
     private static void kruskalUnion(Point unit1, Point unit2, HashMap<Point, Point> root) {
         Point root1 = kruskalFind(unit1, root);
         Point root2 = kruskalFind(unit2, root);
-        if (unit1.rank <= root2.rank) {
+        if (unit1.getRank() <= root2.getRank()) {
             root.put(root1, root2);
         } else {
             root.put(root2, root1);
         }
-        if (unit1.rank == root2.rank && !root1.equals(root2)) {
-            root2.rank++;
+        if (unit1.getRank() == root2.getRank() && !root1.equals(root2)) {
+            root2.addRank();
         }
     }
 
@@ -92,13 +93,17 @@ public class Road {
         int w = world.getWidth();
         int h = world.getHeight();
         boolean[][] path = new boolean[w][h];
+
+        var areas = v.getAreas();
+        var root = v.getRoot();
+
         for (int x = 1; x < w - 1; x++) {
             for (int y = 1; y < h - 1; y++) {
                 if (world.isRoad(x, y) && !path[x][y]) {
                     Point p = new Point(x, y);
                     path[x][y] = true;
-                    v.areas.add(p);
-                    v.root.put(p, p);
+                    areas.add(p);
+                    root.put(p, p);
 
                     Point rootP = p;
                     Queue<Point> queue = new ArrayDeque<>();
@@ -107,10 +112,12 @@ public class Road {
                         p = queue.poll();
 
                         for (Point near : Point.getFourWaysPoints(p)) {
-                            if (world.isRoad(near.x, near.y) && !path[near.x][near.y]) {
+                            int nearX = near.getX();
+                            int nearY = near.getY();
+                            if (world.isRoad(nearX, nearY) && !path[nearX][nearY]) {
                                 queue.add(near);
-                                v.root.put(near, rootP);
-                                path[near.x][near.y] = true;
+                                root.put(near, rootP);
+                                path[nearX][nearY] = true;
                             }
                         }
                     }
@@ -126,7 +133,7 @@ public class Road {
             for (int x = 1; x < world.getWidth() - 1; x++) {
                 for (int y = 1; y < world.getHeight() - 1; y++) {
                     if (world.isRoad(x, y) && isDeadEnd(world, x, y)) {
-                        world.tiles[x][y] = Tileset.NOTHING;
+                        world.getTiles()[x][y] = Tileset.NOTHING;
                         done = false;
                     }
                 }
@@ -137,7 +144,8 @@ public class Road {
     private static boolean isDeadEnd(World world, int x, int y) {
         int count = 0;
         for (Point p : Point.getFourWaysPoints(x, y)) {
-            if (world.tiles[p.x][p.y] == Tileset.WALL || world.isNothing(p.x, p.y)) {
+            if (world.getTiles()[p.getX()][p.getY()] == Tileset.WALL
+                    || world.isNothing(p.getX(), p.getY())) {
                 count++;
             }
         }

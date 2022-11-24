@@ -13,7 +13,7 @@ public class Characters implements Serializable {
 
     public Characters(World world) {
         Point entry = world.getEntry();
-        mizuki = new Mizuki(entry.x, entry.y);
+        mizuki = new Mizuki(entry.getX(), entry.getY());
     }
 
     public void setCharacters(World world, String input) {
@@ -23,6 +23,6 @@ public class Characters implements Serializable {
             case "a", "A" -> mizuki.goLeft(world);
             case "d", "D" -> mizuki.goRight(world);
         }
-        world.tiles[mizuki.getX()][mizuki.getY()] = Tileset.MIZUKI;
+        world.getTiles()[mizuki.getX()][mizuki.getY()] = Tileset.MIZUKI;
     }
 }

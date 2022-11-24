@@ -37,8 +37,8 @@ public class Room {
     }
 
     private static void createRoom(World world, Variables v) {
-        int h = v.RANDOM.nextInt(3) * 2 + MIN_HEIGHT;
-        int w = v.RANDOM.nextInt(3) * 2 + MIN_WIDTH;
+        int h = v.getRANDOM().nextInt(3) * 2 + MIN_HEIGHT;
+        int w = v.getRANDOM().nextInt(3) * 2 + MIN_WIDTH;
 
         int x = world.getRandomX(w, v);
         int y = world.getRandomY(h, v);
@@ -52,11 +52,11 @@ public class Room {
             }
         }
 
-        v.roomAreas.put(new Point(x, y), new Point(x + w - 1, y + h - 1));
+        v.getRoomAreas().put(new Point(x, y), new Point(x + w - 1, y + h - 1));
 
         for (int i = x; i < x + w; i++) {
             for (int j = y; j < y + h; j++) {
-                world.tiles[i][j] = Tileset.ROOM;
+                world.getTiles()[i][j] = Tileset.ROOM;
             }
         }
     }
@@ -86,17 +86,17 @@ public class Room {
     }
 
     public static void addRoomsToArea(Variables v) {
-        Set<Point> keys = v.roomAreas.keySet();
-        v.areas.addAll(keys);
-        keys.forEach(r -> v.root.put(r, r));
+        Set<Point> keys = v.getRoomAreas().keySet();
+        v.getAreas().addAll(keys);
+        keys.forEach(r -> v.getRoot().put(r, r));
     }
 
     /**
      * get the bottom left point of a room, which represents the room area
      */
     public static Point getBottomLeft(World world, Point unit) {
-        int x = unit.x;
-        int y = unit.y;
+        int x = unit.getX();
+        int y = unit.getY();
         while (world.isRoom(x, y)) {
             x--;
         }
@@ -109,11 +109,12 @@ public class Room {
     }
 
     public static Point getRandomRoom(Variables v) {
-        ArrayList<Point> rooms = new ArrayList<>(v.roomAreas.keySet());
-        Point room = rooms.get(v.RANDOM.nextInt(rooms.size()));
-        if (v.mainArea != null) {
-            while (room.equals(v.mainArea)) {
-                room = rooms.get(v.RANDOM.nextInt(rooms.size()));
+        ArrayList<Point> rooms = new ArrayList<>(v.getRoomAreas().keySet());
+        Point room = rooms.get(v.getRANDOM().nextInt(rooms.size()));
+        Point mainArea = v.getMainArea();
+        if (mainArea != null) {
+            while (room.equals(mainArea)) {
+                room = rooms.get(v.getRANDOM().nextInt(rooms.size()));
             }
         }
         return room;

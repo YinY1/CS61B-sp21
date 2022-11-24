@@ -12,7 +12,7 @@ public class Engine {
      * please do modify the minimum size of room as well */
     public static final int WIDTH = 81;
     public static final int HEIGHT = 61;
-    public boolean start = false;
+    boolean start = false;
     TERenderer ter = new TERenderer();
     Variables v = new Variables();
     /*World world = new World(WIDTH - 3, HEIGHT - 3);
@@ -87,6 +87,6 @@ public class Engine {
         if (input.indexOf(':') > -1) {
             quit(v);
         }
-        return v.tempWorld.tiles;
+        return v.tempWorld.getTiles();
     }
 }
