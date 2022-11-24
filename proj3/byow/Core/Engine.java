@@ -1,6 +1,5 @@
 package byow.Core;
 
-import byow.Core.Character.Characters;
 import byow.Core.HUD.Framework;
 import byow.TileEngine.TERenderer;
 import byow.TileEngine.TETile;
@@ -15,9 +14,10 @@ public class Engine {
     public static final int HEIGHT = 61;
     public boolean start = false;
     TERenderer ter = new TERenderer();
-    World world = new World(WIDTH - 3, HEIGHT - 3);
+    Variables v = new Variables();
+    /*World world = new World(WIDTH - 3, HEIGHT - 3);
     World tempWorld;
-    Characters characters;
+    Characters characters;*/
 
     /**
      * Method used for exploring a fresh world. This method should handle all inputs,
@@ -69,7 +69,7 @@ public class Engine {
         input = fixInputString(this, input);
         if (!start) {
             if (input.contains("L")) {
-                load(this);
+                v = load();
                 input = input.substring(1);
             } else {
                 // if commit to autograder, use these two contents
@@ -78,15 +78,15 @@ public class Engine {
 
                 // if debug or play locally ,use these
                 int end = input.indexOf('S') + 1;
-                generateWorld(this, input.substring(0, end));
+                generateWorld(v, input.substring(0, end));
                 input = input.substring(end);
             }
             start = true;
         }
-        move(this, input);
+        move(v, input);
         if (input.indexOf(':') > -1) {
-            quit(this);
+            quit(v);
         }
-        return tempWorld.tiles;
+        return v.tempWorld.tiles;
     }
 }

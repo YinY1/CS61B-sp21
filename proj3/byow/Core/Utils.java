@@ -10,8 +10,7 @@ import java.nio.file.Paths;
 
 public class Utils {
     public static final File CWD = new File(System.getProperty("user.dir"));
-    public static final File saved = join(CWD, "byow", "data", "saved");
-
+    public static final File saveFile = join(CWD, "savefiles.txt");
 
     /**
      * Assorted utilities.
@@ -162,13 +161,13 @@ public class Utils {
     /**
      * @param input N#S, # means the seed number
      */
-    public static void generateWorld(Engine engine, String input) {
+    public static void generateWorld(Variables v, String input) {
         long seed = Long.parseLong(input, 1, input.length() - 1, 10);
         //long seed = LocalTime.now().toNanoOfDay();
-        engine.world.initializeWorld(seed);
-        engine.tempWorld = engine.world.clone();
-        engine.characters = new Characters(engine.tempWorld);
-        engine.characters.setCharacters(engine.tempWorld, "");
+        v.world.initializeWorld(seed);
+        v.tempWorld = v.world.clone();
+        v.characters = new Characters(v.tempWorld);
+        v.characters.setCharacters(v.tempWorld, "");
     }
 
     public static void getStarted(StringBuilder input) {
@@ -226,32 +225,22 @@ public class Utils {
         }
     }
 
-    public static void load(Engine engine) {
-        engine.world = readObject(join(saved, "map"), World.class);
-        engine.tempWorld = readObject(join(saved, "world"), World.class);
-        engine.characters = readObject(join(saved, "char"), Characters.class);
+    public static Variables load() {
+        return readObject(saveFile, Variables.class);
     }
 
-    public static void save(Engine engine) {
-        saved.mkdir();
-        File world = join(saved, "map");
-        File tempWorld = join(saved, "world");
-        File characters = join(saved, "char");
-
-        writeObject(world, engine.world);
-        writeObject(tempWorld, engine.tempWorld);
-        writeObject(characters, engine.characters);
+    public static void save(Variables v) {
+        writeObject(saveFile, v);
     }
 
-    public static void quit(Engine engine) {
-        save(engine);
-        //TODO
+    public static void quit(Variables v) {
+        save(v);
     }
 
-    public static void move(Engine engine, String command) {
+    public static void move(Variables v, String command) {
         for (char s : command.toCharArray()) {
-            engine.tempWorld = engine.world.clone();
-            engine.characters.setCharacters(engine.tempWorld, String.valueOf(s));
+            v.tempWorld = v.world.clone();
+            v.characters.setCharacters(v.tempWorld, String.valueOf(s));
         }
     }
 }

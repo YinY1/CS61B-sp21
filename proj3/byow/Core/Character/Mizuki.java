@@ -55,14 +55,14 @@ public class Mizuki implements Serializable {
     }
 
     public void goLeft(World world) {
-        if (world.isUnit(x-1, y)) {
+        if (world.isUnit(x - 1, y)) {
             this.x--;
         }
     }
 
     public void goRight(World world) {
 
-        if (world.isUnit(x+1, y)) {
+        if (world.isUnit(x + 1, y)) {
             this.x++;
         }
     }

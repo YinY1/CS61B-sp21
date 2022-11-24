@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class Characters implements Serializable {
     private final Mizuki mizuki;
-    private ArrayList<Point> npc = new ArrayList<>();
+    private final ArrayList<Point> npc = new ArrayList<>();
 
     public Characters(World world) {
         Point entry = world.getEntry();

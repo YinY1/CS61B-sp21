@@ -9,6 +9,7 @@ public class InputTest {
     public static void main(String[] args) {
         new InputTest().diff();
     }
+
     @Test
     public void same() {
         sameInput("n5197880843569031643swwwaasssssdd:q");
@@ -20,7 +21,7 @@ public class InputTest {
     }
 
     @Test
-    public void split(){
+    public void split() {
         Engine e = new Engine();
         assertEquals("N114SAAD:Q", Utils.fixInputString(e, "abc n114aa saad:qaad"));
         assertEquals("LAASAAD:Q", Utils.fixInputString(e, "abc Ln114aa saad:qaad"));
